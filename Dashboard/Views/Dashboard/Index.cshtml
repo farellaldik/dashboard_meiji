@@ -390,57 +390,6 @@
 
                                     <!-- Column Chart -->
                                     <a href="./Quiz Dashboard.html"><div id="columnChartTest"></div></a>
-
-                                    <script>
-                                        document.addEventListener("DOMContentLoaded", () => {
-                                            new ApexCharts(document.querySelector("#columnChartTest"), {
-                                                series: [{
-                                                    name: 'Quiz Lulus',
-                                                    data: [7]
-                                                }, {
-                                                    name: 'Quiz Tidak Lulus',
-                                                    data: [2]
-                                                }],
-                                                chart: {
-                                                    type: 'bar',
-                                                    height: 350
-                                                },
-                                                plotOptions: {
-                                                    bar: {
-                                                        horizontal: false,
-                                                        columnWidth: '55%',
-                                                        endingShape: 'rounded'
-                                                    },
-                                                },
-                                                dataLabels: {
-                                                    enabled: false
-                                                },
-                                                stroke: {
-                                                    show: true,
-                                                    width: 2,
-                                                    colors: ['transparent']
-                                                },
-                                                xaxis: {
-                                                    categories: ['2024'],
-                                                },
-                                                yaxis: {
-                                                    title: {
-                                                        text: 'Jumlah Quiz'
-                                                    }
-                                                },
-                                                fill: {
-                                                    opacity: 1
-                                                },
-                                                tooltip: {
-                                                    y: {
-                                                        formatter: function (val) {
-                                                            return val + " Questions"
-                                                        }
-                                                    }
-                                                }
-                                            }).render();
-                                        });
-                                    </script>
                                     <!-- End Column Chart -->
 
                                 </div>
@@ -1185,14 +1134,95 @@
     <script>
         $(document).ready(function () {
 
+            function updateChart(employeeNik) {
+                $.ajax({
+                    url: '@Url.Action("Index", "Dashboard")',
+                    data: { employeeNik: employeeNik },
+                    success: function (data) {
+                        // Pastikan data.totalLulus dan data.totalTidakLulus ada
+                        chart.updateSeries([
+                            {
+                               
+                                name: 'Quiz Lulus',
+                                data: [data.totalLulus || 0] // Gunakan 0 jika data tidak ada
+                            },
+                            {
+                                name: 'Quiz Tidak Lulus',
+                                data: [data.totalTidakLulus || 0] // Gunakan 0 jika data tidak ada
+                            }
+                        ]);
+                    },
+                    error: function () {
+                        console.error("Error fetching data.");
+                    }
+                });
+            }
+
+            // Chart options
+            var options = {
+                series: [
+                    {
+                        name: 'Quiz Lulus',
+                        data: [0]
+                    },
+                    {
+                        name: 'Quiz Tidak Lulus',
+                        data: [0]
+                    }
+                ],
+                chart: {
+                    type: 'bar',
+                    height: 350
+                },
+                plotOptions: {
+                    bar: {
+                        horizontal: false,
+                        columnWidth: '55%',
+                        endingShape: 'rounded'
+                    },
+                },
+                dataLabels: {
+                    enabled: true
+                },
+                stroke: {
+                    show: true,
+                    width: 2,
+                    colors: ['transparent']
+                },
+                xaxis: {
+                    categories: ['2024'],
+                },
+                yaxis: {
+                    title: {
+                        text: 'Jumlah Quiz'
+                    }
+                },
+                fill: {
+                    opacity: 1
+                },
+                tooltip: {
+                    y: {
+                        formatter: function (val) {
+                            return val + " Quiz";
+                        }
+                    }
+                }
+            };
+
+            // Create and render the chart
+            var chart = new ApexCharts(document.querySelector("#columnChartTest"), options);
+            chart.render();
+
             $(document).on('dropdownChanged', function (event, selectedValue) {
                 $('#cardTitle').text(selectedValue);
+                updateChart(selectedValue);
             });
 
             // Load the saved dropdown selection from sessionStorage
-            var savedSelection = sessionStorage.getItem('dropdownSelection');
+            var savedSelection = sessionStorage.getItem('dropdownSelection')
             if (savedSelection) {
                 $('#cardTitle').text(savedSelection);
+                updateChart(savedSelection);
             }
 
         });

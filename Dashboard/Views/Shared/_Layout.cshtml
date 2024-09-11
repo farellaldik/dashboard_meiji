@@ -88,7 +88,7 @@
     <script src="@Url.Content("~/assets/plugin/select2/dist/js/select2.min.js")"></script>
     <script>
         $(document).ready(function () {
-            // DropdownEmpNik('EmpNik', 10, false)
+            // DropdownEmpNik('EmpNik', 10, false);
             // Load the saved dropdown selection from sessionStorage
             var savedSelection = sessionStorage.getItem('dropdownSelection');
             if (savedSelection) {
@@ -112,7 +112,22 @@
                 $(document).trigger('dropdownChanged', selectedText);
                 $('#dropdownMenuButton').dropdown('hide'); // Hide the dropdown after selection
 
+                sendDropdownSelectionToServer(selectedText);
             });
+
+            function sendDropdownSelectionToServer(selectedText) {
+                $.ajax({
+                    url: '@Url.Action("Index", "Dashboard")',
+                    type: 'POST',
+                    data: { employeeNik: selectedText },
+                    success: function (response) {
+                        console.log('Data berhasil dikirim ke server.');
+                    },
+                    error: function (error) {
+                        console.error('Terjadi kesalahan saat mengirim data:', error);
+                    }
+                });
+            }
         });
 
         // function DropdownEmpNik(elementId, jumlahRowPerPage, isMultiple) {
@@ -155,7 +170,9 @@
         //         this.dropdown._positionDropdown();
         //     });
         //}
+
     </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
