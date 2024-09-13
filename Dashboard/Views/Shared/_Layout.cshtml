@@ -7,6 +7,7 @@
     <link href="~/assets/plugin/select2/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/assets/css/style.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/Dashboard.styles.css" asp-append-version="true" />
     <style>
         .dropdown-menu {
@@ -72,7 +73,7 @@
         </main>
     </div>
 
-    @if (!(ViewContext.RouteData.Values["controller"].ToString() == "Dashboard" && ViewContext.RouteData.Values["action"].ToString() == "Index"))
+    @if (!(ViewContext.RouteData.Values["controller"].ToString() == "Dashboard" && (ViewContext.RouteData.Values["action"].ToString() == "Index" || ViewContext.RouteData.Values["action"].ToString() == "DashboardQuiz")))
     {
         <footer class="border-top footer text-muted">
             <div class="container">
@@ -86,6 +87,7 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="@Url.Content("~/assets/plugin/select2/dist/js/select2.min.js")"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
     <script>
         $(document).ready(function () {
             // DropdownEmpNik('EmpNik', 10, false);
@@ -118,6 +120,18 @@
             function sendDropdownSelectionToServer(selectedText) {
                 $.ajax({
                     url: '@Url.Action("Index", "Dashboard")',
+                    type: 'POST',
+                    data: { employeeNik: selectedText },
+                    success: function (response) {
+                        console.log('Data berhasil dikirim ke server.');
+                    },
+                    error: function (error) {
+                        console.error('Terjadi kesalahan saat mengirim data:', error);
+                    }
+                });
+
+                $.ajax({
+                    url: '@Url.Action("DashboardQuiz", "Dashboard")',
                     type: 'POST',
                     data: { employeeNik: selectedText },
                     success: function (response) {
