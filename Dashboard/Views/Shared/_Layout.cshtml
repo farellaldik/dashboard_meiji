@@ -7,7 +7,7 @@
     <link href="~/assets/plugin/select2/dist/css/select2.min.css" rel="stylesheet" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/assets/css/style.css" asp-append-version="true" />
+    @* <link rel="stylesheet" href="~/assets/css/style.css" asp-append-version="true" /> *@
     <link rel="stylesheet" href="~/Dashboard.styles.css" asp-append-version="true" />
     <style>
         .dropdown-menu {
@@ -96,6 +96,7 @@
             if (savedSelection) {
                 $('#dropdownMenuButton').text(savedSelection);
                 $(document).trigger('dropdownChanged', savedSelection);
+
             }
 
             // Search functionality
@@ -135,7 +136,7 @@
                     type: 'POST',
                     data: { employeeNik: selectedText },
                     success: function (response) {
-                        console.log('Data berhasil dikirim ke server.');
+                        console.log("Request URL:", '@Url.Action("DashboardQuiz", "Dashboard")');
                     },
                     error: function (error) {
                         console.error('Terjadi kesalahan saat mengirim data:', error);

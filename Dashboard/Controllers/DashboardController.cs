@@ -14,6 +14,7 @@ namespace Dashboard.Controllers
     public class DashboardController : Controller
     {
         private readonly ApplicationDbContext _context;
+
         public DashboardController(ApplicationDbContext context)
         {
             _context = context;
@@ -116,7 +117,7 @@ namespace Dashboard.Controllers
             return View();
         }
 
-        public async Task<ActionResult> DashboardQuiz(string employeeNik = null)
+        public async Task<IActionResult> DashboardQuiz(string employeeNik = null)
         {
             // Ambil daftar NIK karyawan
             var employeeNiks = _context.TRAINING_EXAM_QUESTION
@@ -130,34 +131,32 @@ namespace Dashboard.Controllers
             if (!string.IsNullOrEmpty(employeeNik))
             {
                 var sql = @"
-                    SELECT s.SCHEDULE_ID, 
-                           n.ANAME, 
-                           s.EMPLOYEE_NIK, 
-                           CONVERT(DATE, n.CREATED_DATE) AS CREATED_DATE, 
-                           MAX(CONVERT(DATE, s.ANSWER_DATE)) AS ANSWER_DATE,
-                           SUM(s.CORRECT_COUNT) AS TOTAL_CORRECT_COUNT,
-                           SUM(s.IS_ANSWER) AS TOTAL_IS_ANSWER,
-                           COUNT(s.IS_ANSWER) AS QUESTIONS,
-                           CASE 
-                               WHEN COUNT(s.IS_ANSWER) = 0 THEN 0
-                               ELSE CAST((SUM(s.CORRECT_COUNT) * 100.0 / COUNT(s.IS_ANSWER)) AS DECIMAL (18,0))
-                           END AS SCORE,
-                           CASE 
-                               WHEN COUNT(s.IS_ANSWER) = 0 THEN 'TIDAK LULUS'
-                               ELSE CASE
-                                   WHEN (SUM(s.CORRECT_COUNT) * 100.0 / COUNT(s.IS_ANSWER)) >= 80 THEN 'Lulus'
-                                   ELSE 'Tidak Lulus'
-                               END
-                           END AS KETERANGAN
-                    FROM TRAINING_TEST_SCHEDULE n
-                    JOIN TRAINING_EXAM_QUESTION s ON n.SCHEDULE_ID = s.SCHEDULE_ID
-                    WHERE s.EMPLOYEE_NIK = @EmployeeNik
-                    GROUP BY s.SCHEDULE_ID, 
-                             n.ANAME, 
-                             s.EMPLOYEE_NIK, 
-                             CONVERT(DATE, n.CREATED_DATE);
-
-                ";
+                SELECT s.SCHEDULE_ID, 
+                       n.ANAME, 
+                       s.EMPLOYEE_NIK, 
+                       CONVERT(DATE, n.CREATED_DATE) AS CREATED_DATE, 
+                       MAX(CONVERT(DATE, s.ANSWER_DATE)) AS ANSWER_DATE,
+                       SUM(s.CORRECT_COUNT) AS TOTAL_CORRECT_COUNT,
+                       SUM(s.IS_ANSWER) AS TOTAL_IS_ANSWER,
+                       COUNT(s.IS_ANSWER) AS QUESTIONS,
+                       CASE 
+                           WHEN COUNT(s.IS_ANSWER) = 0 THEN 0
+                           ELSE CAST((SUM(s.CORRECT_COUNT) * 100.0 / COUNT(s.IS_ANSWER)) AS DECIMAL (18,0))
+                       END AS SCORE,
+                       CASE 
+                           WHEN COUNT(s.IS_ANSWER) = 0 THEN 'TIDAK LULUS'
+                           ELSE CASE
+                               WHEN (SUM(s.CORRECT_COUNT) * 100.0 / COUNT(s.IS_ANSWER)) >= 80 THEN 'Lulus'
+                               ELSE 'Tidak Lulus'
+                           END
+                       END AS KETERANGAN
+                FROM TRAINING_TEST_SCHEDULE n
+                JOIN TRAINING_EXAM_QUESTION s ON n.SCHEDULE_ID = s.SCHEDULE_ID
+                WHERE s.EMPLOYEE_NIK = @EmployeeNik
+                GROUP BY s.SCHEDULE_ID, 
+                         n.ANAME, 
+                         s.EMPLOYEE_NIK, 
+                         CONVERT(DATE, n.CREATED_DATE);";
 
                 try
                 {
@@ -178,13 +177,13 @@ namespace Dashboard.Controllers
                             {
                                 var testResult = new
                                 {
-                                    name = reader["ANAME"].ToString(),
-                                    createdDate = reader["CREATED_DATE"].ToString(),
-                                    answerDate = reader["ANSWER_DATE"]?.ToString(),
-                                    correctAnswers = reader["TOTAL_CORRECT_COUNT"],
-                                    totalQuestions = reader["QUESTIONS"],
-                                    score = reader["SCORE"],
-                                    remarks = reader["KETERANGAN"].ToString()
+                                    Name = reader["ANAME"].ToString(),
+                                    CreatedDate = Convert.ToDateTime(reader["CREATED_DATE"]).ToString("yyyy-MM-dd"),
+                                    AnswerDate = reader["ANSWER_DATE"] != DBNull.Value ? Convert.ToDateTime(reader["ANSWER_DATE"]).ToString("yyyy-MM-dd") : null,
+                                    CorrectAnswers = Convert.ToInt32(reader["TOTAL_CORRECT_COUNT"]),
+                                    TotalQuestions = Convert.ToInt32(reader["QUESTIONS"]),
+                                    Score = Convert.ToInt32(reader["SCORE"]),
+                                    Remarks = reader["KETERANGAN"].ToString()
                                 };
 
                                 tests.Add(testResult);
@@ -192,8 +191,7 @@ namespace Dashboard.Controllers
                         }
                     }
 
-                    // Convert the results to JSON and pass it to the view
-                    ViewBag.TestResult = JsonConvert.SerializeObject(tests);
+                    return Json(tests);
                 }
                 catch (Exception ex)
                 {
@@ -209,8 +207,8 @@ namespace Dashboard.Controllers
                     }
                 }
             }
-
-                return View();
+            // Jika employeeNik tidak diset, hanya tampilkan daftar NIK
+            return View();
         }
 
     }
