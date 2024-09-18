@@ -36,39 +36,51 @@ namespace Dashboard.Controllers
             {
                 var sql = @"
                     WITH Results AS (
-                        SELECT s.SCHEDULE_ID, 
-                               n.ANAME, 
-                               s.EMPLOYEE_NIK, 
-                               CONVERT(DATE, n.CREATED_DATE) AS CREATED_DATE, 
-                               MAX(CONVERT(DATE, s.ANSWER_DATE)) AS ANSWER_DATE,
-                               SUM(s.CORRECT_COUNT) AS TOTAL_CORRECT_COUNT,
-                               SUM(s.IS_ANSWER) AS TOTAL_IS_ANSWER,
-                               COUNT(s.IS_ANSWER) AS QUESTIONS,
-                               CASE 
-                                   WHEN COUNT(s.IS_ANSWER) = 0 THEN 0
-                                   ELSE CAST((SUM(s.CORRECT_COUNT) * 100.0 / COUNT(s.IS_ANSWER)) AS DECIMAL (18,0))
-                               END AS SCORE,
-                               CASE 
-                                   WHEN COUNT(s.IS_ANSWER) = 0 THEN 'TIDAK LULUS'
-                                   ELSE CASE
-                                       WHEN (SUM(s.CORRECT_COUNT) * 100.0 / COUNT(s.IS_ANSWER)) >= 80 THEN 'LULUS'
-                                       ELSE 'TIDAK LULUS'
-                                   END
-                               END AS KETERANGAN
-                        FROM TRAINING_TEST_SCHEDULE n
-                        JOIN TRAINING_EXAM_QUESTION s ON n.SCHEDULE_ID = s.SCHEDULE_ID
-                        GROUP BY s.SCHEDULE_ID, 
-                                 n.ANAME, 
-                                 s.EMPLOYEE_NIK, 
-                                 CONVERT(DATE, n.CREATED_DATE)
-                    )
-                    SELECT EMPLOYEE_NIK,
-                           SUM(CASE WHEN KETERANGAN = 'LULUS' THEN 1 ELSE 0 END) AS TOTAL_LULUS,
-                           SUM(CASE WHEN KETERANGAN = 'TIDAK LULUS' THEN 1 ELSE 0 END) AS TOTAL_TIDAK_LULUS
-                    FROM Results
-                    WHERE EMPLOYEE_NIK = @EmployeeNik
-                    GROUP BY EMPLOYEE_NIK;
-                ";
+                    SELECT s.SCHEDULE_ID, 
+                           n.ANAME, 
+                           s.EMPLOYEE_NIK, 
+                           CONVERT(DATE, n.CREATED_DATE) AS CREATED_DATE, 
+                           MAX(CONVERT(DATE, s.ANSWER_DATE)) AS ANSWER_DATE,
+                           SUM(s.CORRECT_COUNT) AS TOTAL_CORRECT_COUNT,
+                           SUM(s.IS_ANSWER) AS TOTAL_IS_ANSWER,
+                           COUNT(s.IS_ANSWER) AS QUESTIONS,
+                           CASE 
+                               WHEN COUNT(s.IS_ANSWER) = 0 THEN 0
+                               ELSE CAST((SUM(s.CORRECT_COUNT) * 100.0 / COUNT(s.IS_ANSWER)) AS DECIMAL (18,0))
+                           END AS SCORE,
+                           CASE 
+                               WHEN COUNT(s.IS_ANSWER) = 0 THEN 'TIDAK LULUS'
+                               ELSE CASE
+                                   WHEN (SUM(s.CORRECT_COUNT) * 100.0 / COUNT(s.IS_ANSWER)) >= 80 THEN 'LULUS'
+                                   ELSE 'TIDAK LULUS'
+                               END
+                           END AS KETERANGAN
+                    FROM TRAINING_TEST_SCHEDULE n
+                    JOIN TRAINING_EXAM_QUESTION s ON n.SCHEDULE_ID = s.SCHEDULE_ID
+                    GROUP BY s.SCHEDULE_ID, 
+                             n.ANAME, 
+                             s.EMPLOYEE_NIK, 
+                             CONVERT(DATE, n.CREATED_DATE)
+                ),
+                Grade_Count AS (
+                    SELECT v.MR_NIK,
+                           SUM(CASE WHEN v.DOCTOR_CLASS = 'A' THEN 1 ELSE 0 END) AS GRADE_A_COUNT,
+                           SUM(CASE WHEN v.DOCTOR_CLASS = 'B' THEN 1 ELSE 0 END) AS GRADE_B_COUNT,
+                           SUM(CASE WHEN v.DOCTOR_CLASS = 'C' THEN 1 ELSE 0 END) AS GRADE_C_COUNT
+                    FROM VISITING_JUKUDO_NOTES v
+                    GROUP BY v.MR_NIK
+                )
+                SELECT r.EMPLOYEE_NIK,
+                       SUM(CASE WHEN r.KETERANGAN = 'LULUS' THEN 1 ELSE 0 END) AS TOTAL_LULUS,
+                       SUM(CASE WHEN r.KETERANGAN = 'TIDAK LULUS' THEN 1 ELSE 0 END) AS TOTAL_TIDAK_LULUS,
+                       g.GRADE_A_COUNT,
+                       g.GRADE_B_COUNT,
+                       g.GRADE_C_COUNT
+                FROM Results r
+                JOIN Grade_Count g ON r.EMPLOYEE_NIK = g.MR_NIK
+                WHERE r.EMPLOYEE_NIK = @EmployeeNik
+                GROUP BY r.EMPLOYEE_NIK, g.GRADE_A_COUNT, g.GRADE_B_COUNT, g.GRADE_C_COUNT;
+                                ";
 
                 // Membuka koneksi dan mengeksekusi perintah
                 try
@@ -88,7 +100,10 @@ namespace Dashboard.Controllers
                                 var testResult = new
                                 {
                                     TotalLulus = result.GetInt32(result.GetOrdinal("TOTAL_LULUS")),
-                                    TotalTidakLulus = result.GetInt32(result.GetOrdinal("TOTAL_TIDAK_LULUS"))
+                                    TotalTidakLulus = result.GetInt32(result.GetOrdinal("TOTAL_TIDAK_LULUS")),
+                                    TotalGradeA = result.GetInt32(result.GetOrdinal("GRADE_A_COUNT")),
+                                    TotalGradeB = result.GetInt32(result.GetOrdinal("GRADE_B_COUNT")),
+                                    TotalGradeC = result.GetInt32(result.GetOrdinal("GRADE_C_COUNT")),
                                 };
 
                                 return Json(testResult);

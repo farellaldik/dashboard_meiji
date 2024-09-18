@@ -333,11 +333,14 @@ h6 {
 }
 
 /* Card */
+
 .card {
-    margin-bottom: 30px;
+    margin-bottom: 20px;
+    margin-bottom: 20px;
     border: none;
     border-radius: 5px;
     box-shadow: 0px 0 30px rgba(1, 41, 112, 0.1);
+    height ; 100%;
 }
 
 .card-header,
@@ -1182,7 +1185,7 @@ h6 {
 /*--------------------------------------------------------------
 # Footer
 --------------------------------------------------------------*/
-.footer {
+/*.footer {
     padding: 20px 0;
     font-size: 14px;
     transition: all 0.3s;
@@ -1199,4 +1202,8 @@ h6 {
         text-align: center;
         font-size: 13px;
         color: #012970;
-    }
+    }*/
+
+.footer{
+    background-color : white;
+}

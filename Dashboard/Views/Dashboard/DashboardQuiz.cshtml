@@ -32,6 +32,7 @@
 
     <!-- Template Main CSS File -->
     <link href="~/assets/css/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 
     <!-- Data Table -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
@@ -281,10 +282,10 @@
                         </div> -->
 
                         <div class="card-body pb-0">
-                            <h5 class="card-title">Quiz E-Test <span>| Yearly</span></h5>
+                            <h5 class="card-title">Quiz E-Test</h5>
 
                             <!-- Column Chart -->
-                            <a href="./Quiz Dashboard.html"><div id="columnChartTest"></div></a>
+                            <a><div id="columnChartTest"></div></a>
                             <!-- End Column Chart -->
 
                         </div>
@@ -360,15 +361,14 @@
 
             var tests = [];
 
+
             $(document).on('dropdownChanged', function (event, selectedValue) {
-                $('#cardTitle').text(selectedValue);
                 updateDataQuiz(selectedValue);
             });
 
             // Load the saved dropdown selection from sessionStorage
             var savedSelection = sessionStorage.getItem('dropdownSelection')
             if (savedSelection) {
-                $('#cardTitle').text(savedSelection);
                 updateDataQuiz(savedSelection);
             }
 
@@ -433,18 +433,40 @@
 
                 console.log(filteredTests);
 
-                dropdownMenu.innerHTML = filteredTests.map(test => `
-                                <li>
-                                    <label class="dropdown-item">
-                                        <input type="checkbox" value="${test.name}" checked>
-                                        ${test.name}
-                                    </label>
-                                </li>
-                            `).join('');
+                dropdownMenu.innerHTML = `
+                <li><a href="#" id="select-all" class="dropdown-item">Select All</a></li>
+                <li><a href="#" id="deselect-all" class="dropdown-item">Deselect All</a></li>
+                <li><hr class="dropdown-divider"></li>
+                ${filteredTests.map(test => `
+                    <li>
+                        <label class="dropdown-item">
+                            <input type="checkbox" value="${test.name}" checked>
+                            ${test.name}
+                        </label>
+                    </li>
+                `).join('')}
+            `;
 
                 // Add event listener to new checkboxes
                 dropdownMenu.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
                     checkbox.addEventListener('change', updateData);
+                });
+
+                // Tambahkan event listener untuk Select All dan Deselect All
+                document.getElementById('select-all').addEventListener('click', (event) => {
+                    event.preventDefault();
+                    dropdownMenu.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                        checkbox.checked = true;
+                    });
+                    updateData();
+                });
+
+                document.getElementById('deselect-all').addEventListener('click', (event) => {
+                    event.preventDefault();
+                    dropdownMenu.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                        checkbox.checked = false;
+                    });
+                    updateData();
                 });
 
                 updateData();

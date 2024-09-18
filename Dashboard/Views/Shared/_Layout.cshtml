@@ -73,14 +73,20 @@
         </main>
     </div>
 
-    @if (!(ViewContext.RouteData.Values["controller"].ToString() == "Dashboard" && (ViewContext.RouteData.Values["action"].ToString() == "Index" || ViewContext.RouteData.Values["action"].ToString() == "DashboardQuiz")))
+    <footer class="border-top footer text-muted">
+        <div class="container">
+            &copy; 2024 - Dashboard - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+        </div>
+    </footer>
+
+    @* @if (!(ViewContext.RouteData.Values["controller"].ToString() == "Dashboard" && (ViewContext.RouteData.Values["action"].ToString() == "Index" || ViewContext.RouteData.Values["action"].ToString() == "DashboardQuiz")))
     {
         <footer class="border-top footer text-muted">
             <div class="container">
                 &copy; 2024 - Dashboard - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
             </div>
         </footer>
-    }
+    } *@
 
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
