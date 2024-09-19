@@ -90,7 +90,7 @@
                     </div>
                 </div>
 
-                <div class="col-lg-4">
+                <div class="col-lg-3">
                     <div class="card info-card sales-card">
 
                         <!-- <div class="filter">
@@ -122,7 +122,7 @@
                     </div>
                 </div>
 
-                <div class="col-lg-4">
+                <div class="col-lg-3">
                     <div class="card info-card sales-card">
 
                         <!-- <div class="filter">
@@ -154,7 +154,39 @@
                     </div>
                 </div>
 
-                <div class="col-lg-4">
+                <div class="col-lg-3">
+                    <div class="card info-card sales-card">
+
+                        <!-- <div class="filter">
+                          <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                            <li class="dropdown-header text-start">
+                              <h6>Filter</h6>
+                            </li>
+
+                            <li><a class="dropdown-item" href="#">Today</a></li>
+                            <li><a class="dropdown-item" href="#">This Month</a></li>
+                            <li><a class="dropdown-item" href="#">This Year</a></li>
+                          </ul>
+                        </div> -->
+
+                        <div class="card-body">
+                            <h5 class="card-title">Skor Rata-Rata</h5>
+
+                            <div class="d-flex align-items-center">
+                                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-bar-chart"></i>
+                                </div>
+                                <div class="ps-3 w-100">
+                                    <h6 id="skorAvg"></h6>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="col-lg-3">
                     <div class="card info-card sales-card">
 
                         <!-- <div class="filter">
@@ -484,10 +516,14 @@
                 const skorTerbaik = filteredTests.length > 0
                     ? Math.max(...filteredTests.map(test => test.score))
                     : 0;
+                const skorAvg = filteredTests.length > 0
+                    ? parseFloat((filteredTests.reduce((total, test) => total + test.score, 0) / filteredTests.length).toFixed(2))
+                    : 0;
 
                 document.getElementById('jumlahTestDiikuti').textContent = `${jumlahTestDiikuti} Quiz`;
                 document.getElementById('jumlahQuizLulus').textContent = `${jumlahQuizLulus} Quiz`;
                 document.getElementById('skorTerbaik').textContent = `${skorTerbaik}`;
+                document.getElementById('skorAvg').textContent = `${skorAvg}`;
 
                 // Update column chart (Jumlah Soal dan Soal Benar)
                 var chart = new ApexCharts(columnChartTest, {
