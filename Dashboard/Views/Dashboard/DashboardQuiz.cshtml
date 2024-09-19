@@ -304,6 +304,7 @@
                                         <th>Created Date</th>
                                         <th>Answer Date</th>
                                         <th>Correct Answers</th>
+                                        <th>False Answers</th>
                                         <th>Total Questions</th>
                                         <th>Score</th>
                                         <th>Remarks</th>
@@ -357,7 +358,7 @@
             const lineChart = document.querySelector("#lineChart");
             const trafficChart = document.querySelector("#trafficChart");
             const dataTableElement = $('#dataTable');
-            const passingScore = 80;
+            const passingScore = 85;
 
             var tests = [];
 
@@ -491,15 +492,16 @@
                 // Update column chart (Jumlah Soal dan Soal Benar)
                 var chart = new ApexCharts(columnChartTest, {
                     series: [{
-                        name: 'Jumlah Soal',
+                        name: 'Jumlah Benar',
                         data: []
                     }, {
-                        name: 'Jumlah Benar',
+                        name: 'Jumlah Salah',
                         data: []
                     }],
                     chart: {
                         type: 'bar',
-                        height: 350
+                        height: 350,
+                        stacked: true
                     },
                     plotOptions: {
                         bar: {
@@ -509,7 +511,7 @@
                         },
                     },
                     dataLabels: {
-                        enabled: true
+                        enabled: true,
                     },
                     stroke: {
                         show: true,
@@ -524,8 +526,10 @@
                             text: 'Questions'
                         }
                     },
+                    colors: ['#28a745', '#dc3545'],
                     fill: {
-                        opacity: 1
+                        opacity: 1,
+                        colors: ['#28a745', '#dc3545']
                     },
                     tooltip: {
                         y: {
@@ -539,12 +543,12 @@
                 chart.render();
 
                 chart.updateSeries([{
-                    name: 'Jumlah Soal',
-                    data: filteredTests.map(test => test.totalQuestions)
-                },
-                {
                     name: 'Jumlah Benar',
                     data: filteredTests.map(test => test.correctAnswers)
+                },
+                {
+                    name: 'Jumlah Salah',
+                    data: filteredTests.map(test => test.falseAnswers)
                 }]);
 
                 chart.updateOptions({
@@ -554,6 +558,23 @@
                 });
 
                 // Update column chart (Score)
+
+                function getColor(testName, score) {
+                    // Color based on test name
+                    let color;
+                    if (testName.includes("(R)")) {
+                        color = '#17a2b8'; // Hijau Muda
+                    } else {
+                        // Color based on score
+                        if (score < 85) {
+                            color = '#dc3545'; // Merah
+                        } else {
+                            color = '#4CAF50'; // Hijau Terang
+                        }
+                    }
+                    return color;
+                }
+
                 var chart1 = new ApexCharts(columnChart, {
                     series: [{
                         name: 'Score',
@@ -563,11 +584,13 @@
                         type: 'bar',
                         height: 350
                     },
+                    colors: [],
                     plotOptions: {
                         bar: {
                             horizontal: false,
                             columnWidth: '55%',
-                            endingShape: 'rounded'
+                            endingShape: 'rounded',
+                            distributed: true
                         },
                     },
                     dataLabels: {
@@ -607,8 +630,9 @@
 
                 chart1.updateOptions({
                     xaxis: {
-                        categories: filteredTests.map(test => test.name),
-                    }
+                        categories: filteredTests.map(test => test.name)
+                    },
+                    colors: filteredTests.map(test => getColor(test.name, test.score))
                 });
 
                 // Update line chart (Trend Nilai Quiz)
@@ -708,13 +732,15 @@
                         { data: 'createdDate', title: 'Tanggal Dibuat' },
                         { data: 'answerDate', title: 'Tanggal Jawab' },
                         { data: 'correctAnswers', title: 'Jumlah Benar' },
+                        { data: 'falseAnswers', title: 'Jumlah Salah' },
                         { data: 'totalQuestions', title: 'Jumlah Soal' },
                         { data: 'score', title: 'Skor (%)' },
                         { data: 'remarks', title: 'Keterangan' }
                     ],
                     paging: true,
                     searching: true,
-                    ordering: true
+                    ordering: true,
+                    order: [[1, 'asc']]
                 });
             }
 

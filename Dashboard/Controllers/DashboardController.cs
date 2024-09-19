@@ -64,23 +64,24 @@ namespace Dashboard.Controllers
                 ),
                 Grade_Count AS (
                     SELECT v.MR_NIK,
-                           SUM(CASE WHEN v.DOCTOR_CLASS = 'A' THEN 1 ELSE 0 END) AS GRADE_A_COUNT,
-                           SUM(CASE WHEN v.DOCTOR_CLASS = 'B' THEN 1 ELSE 0 END) AS GRADE_B_COUNT,
-                           SUM(CASE WHEN v.DOCTOR_CLASS = 'C' THEN 1 ELSE 0 END) AS GRADE_C_COUNT
+                           SUM(CASE WHEN v.DOCTOR_CLASS = 'A' AND v.VISIT = '1' THEN 1 ELSE 0 END) AS GRADE_A_COUNT,
+                           SUM(CASE WHEN v.DOCTOR_CLASS = 'B' AND v.VISIT = '1' THEN 1 ELSE 0 END) AS GRADE_B_COUNT,
+                           SUM(CASE WHEN v.DOCTOR_CLASS = 'C' AND v.VISIT = '1' THEN 1 ELSE 0 END) AS GRADE_C_COUNT
                     FROM VISITING_JUKUDO_NOTES v
+                    WHERE v.VISIT = '1'
                     GROUP BY v.MR_NIK
                 )
                 SELECT r.EMPLOYEE_NIK,
                        SUM(CASE WHEN r.KETERANGAN = 'LULUS' THEN 1 ELSE 0 END) AS TOTAL_LULUS,
                        SUM(CASE WHEN r.KETERANGAN = 'TIDAK LULUS' THEN 1 ELSE 0 END) AS TOTAL_TIDAK_LULUS,
-                       g.GRADE_A_COUNT,
-                       g.GRADE_B_COUNT,
-                       g.GRADE_C_COUNT
+                       COALESCE(g.GRADE_A_COUNT, 0) AS GRADE_A_COUNT,
+                       COALESCE(g.GRADE_B_COUNT, 0) AS GRADE_B_COUNT,
+                       COALESCE(g.GRADE_C_COUNT, 0) AS GRADE_C_COUNT
                 FROM Results r
-                JOIN Grade_Count g ON r.EMPLOYEE_NIK = g.MR_NIK
+                LEFT JOIN Grade_Count g ON r.EMPLOYEE_NIK = g.MR_NIK
                 WHERE r.EMPLOYEE_NIK = @EmployeeNik
                 GROUP BY r.EMPLOYEE_NIK, g.GRADE_A_COUNT, g.GRADE_B_COUNT, g.GRADE_C_COUNT;
-                                ";
+                ";
 
                 // Membuka koneksi dan mengeksekusi perintah
                 try
@@ -152,16 +153,17 @@ namespace Dashboard.Controllers
                        CONVERT(DATE, n.CREATED_DATE) AS CREATED_DATE, 
                        MAX(CONVERT(DATE, s.ANSWER_DATE)) AS ANSWER_DATE,
                        SUM(s.CORRECT_COUNT) AS TOTAL_CORRECT_COUNT,
+	                   COUNT(s.IS_ANSWER) - SUM(s.CORRECT_COUNT) AS TOTAL_FALSE_COUNT,
                        SUM(s.IS_ANSWER) AS TOTAL_IS_ANSWER,
                        COUNT(s.IS_ANSWER) AS QUESTIONS,
                        CASE 
                            WHEN COUNT(s.IS_ANSWER) = 0 THEN 0
-                           ELSE CAST((SUM(s.CORRECT_COUNT) * 100.0 / COUNT(s.IS_ANSWER)) AS DECIMAL (18,0))
+                           ELSE CAST((SUM(s.CORRECT_COUNT) * 100.0 / COUNT(s.IS_ANSWER)) AS DECIMAL(18,0))
                        END AS SCORE,
                        CASE 
                            WHEN COUNT(s.IS_ANSWER) = 0 THEN 'TIDAK LULUS'
                            ELSE CASE
-                               WHEN (SUM(s.CORRECT_COUNT) * 100.0 / COUNT(s.IS_ANSWER)) >= 80 THEN 'Lulus'
+                               WHEN (SUM(s.CORRECT_COUNT) * 100.0 / COUNT(s.IS_ANSWER)) >= 85 THEN 'Lulus'
                                ELSE 'Tidak Lulus'
                            END
                        END AS KETERANGAN
@@ -171,7 +173,8 @@ namespace Dashboard.Controllers
                 GROUP BY s.SCHEDULE_ID, 
                          n.ANAME, 
                          s.EMPLOYEE_NIK, 
-                         CONVERT(DATE, n.CREATED_DATE);";
+                         CONVERT(DATE, n.CREATED_DATE)
+                ";
 
                 try
                 {
@@ -196,6 +199,7 @@ namespace Dashboard.Controllers
                                     CreatedDate = Convert.ToDateTime(reader["CREATED_DATE"]).ToString("yyyy-MM-dd"),
                                     AnswerDate = reader["ANSWER_DATE"] != DBNull.Value ? Convert.ToDateTime(reader["ANSWER_DATE"]).ToString("yyyy-MM-dd") : null,
                                     CorrectAnswers = Convert.ToInt32(reader["TOTAL_CORRECT_COUNT"]),
+                                    FalseAnswers = Convert.ToInt32(reader["TOTAL_FALSE_COUNT"]),
                                     TotalQuestions = Convert.ToInt32(reader["QUESTIONS"]),
                                     Score = Convert.ToInt32(reader["SCORE"]),
                                     Remarks = reader["KETERANGAN"].ToString()
