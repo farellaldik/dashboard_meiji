@@ -56,8 +56,8 @@ namespace Dashboard.Controllers
 
         public IActionResult Privacy()
         {
-            var employeeNiks = _context.TRAINING_EXAM_QUESTION
-                                   .Select(q => q.EMPLOYEE_NIK)
+            var employeeNiks = _context.TABLE_MR
+                                   .Select(q => q.NIK)
                                    .Distinct()
                                    .ToList();
 

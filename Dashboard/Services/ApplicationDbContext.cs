@@ -16,6 +16,8 @@ namespace Dashboard.Services
 
         public DbSet<TrainingTestSchedule> TRAINING_TEST_SCHEDULE { get; set; }
 
+        public DbSet<TableMR> TABLE_MR { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -25,6 +27,9 @@ namespace Dashboard.Services
 
             modelBuilder.Entity<TrainingTestSchedule>()
                         .HasKey(q => q.SCHEDULE_ID);
+
+            modelBuilder.Entity<TableMR>()
+                        .HasKey(q => q.NIK);
         }
 
     }

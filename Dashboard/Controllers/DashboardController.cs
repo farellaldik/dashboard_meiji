@@ -23,8 +23,8 @@ namespace Dashboard.Controllers
         public async Task<IActionResult> Index(string employeeNik = null)
         {
             // Ambil daftar NIK karyawan
-            var employeeNiks = _context.TRAINING_EXAM_QUESTION
-                                   .Select(q => q.EMPLOYEE_NIK)
+            var employeeNiks = _context.TABLE_MR
+                                   .Select(q => q.NIK)
                                    .Distinct()
                                    .ToList();
 
@@ -136,8 +136,8 @@ namespace Dashboard.Controllers
         public async Task<IActionResult> DashboardQuiz(string employeeNik = null)
         {
             // Ambil daftar NIK karyawan
-            var employeeNiks = _context.TRAINING_EXAM_QUESTION
-                                   .Select(q => q.EMPLOYEE_NIK)
+            var employeeNiks = _context.TABLE_MR
+                                   .Select(q => q.NIK)
                                    .Distinct()
                                    .ToList();
 
