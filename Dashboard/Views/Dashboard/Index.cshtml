@@ -138,7 +138,7 @@
                     <div class="card info-card sales-card" style="height: 100%">
 
                         <div class="card-body">
-                            <h5 class="card-title">Shortcut Button</h5>
+                            <h5 class="card-title">Top Selling Product</h5>
 
                             <div class="d-flex flex-row justify-content-between mx-auto" style="width: 80%;">
                                 <div class="card-icon rounded-circle d-flex flex-row align-items-center justify-content-center">
@@ -1134,7 +1134,8 @@
                 ],
                 chart: {
                     type: 'bar',
-                    height: 350
+                    height: 350,
+                    stacked : true
                 },
                 plotOptions: {
                     bar: {
@@ -1159,6 +1160,7 @@
                         text: 'Jumlah Quiz'
                     }
                 },
+                colors: ['#91cc75', '#ee6666'],
                 fill: {
                     opacity: 1
                 },

@@ -90,7 +90,7 @@
                     </div>
                 </div>
 
-                <div class="col-lg-3">
+                <div class="col-lg-2 col-md-4">
                     <div class="card info-card sales-card">
 
                         <!-- <div class="filter">
@@ -122,7 +122,7 @@
                     </div>
                 </div>
 
-                <div class="col-lg-3">
+                <div class="col-lg-2 col-md-4">
                     <div class="card info-card sales-card">
 
                         <!-- <div class="filter">
@@ -154,7 +154,39 @@
                     </div>
                 </div>
 
-                <div class="col-lg-3">
+                <div class="col-lg-2 col-md-4">
+                    <div class="card info-card sales-card">
+
+                        <!-- <div class="filter">
+                          <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                            <li class="dropdown-header text-start">
+                              <h6>Filter</h6>
+                            </li>
+
+                            <li><a class="dropdown-item" href="#">Today</a></li>
+                            <li><a class="dropdown-item" href="#">This Month</a></li>
+                            <li><a class="dropdown-item" href="#">This Year</a></li>
+                          </ul>
+                        </div> -->
+
+                        <div class="card-body">
+                            <h5 class="card-title">Jumlah Quiz Remedial</h5>
+
+                            <div class="d-flex align-items-center">
+                                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-check-circle"></i>
+                                </div>
+                                <div class="ps-3 w-100">
+                                    <h6 id="jumlahQuizTidakLulus">0 Quiz</h6>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="col-lg-2 col-md-4">
                     <div class="card info-card sales-card">
 
                         <!-- <div class="filter">
@@ -186,7 +218,7 @@
                     </div>
                 </div>
 
-                <div class="col-lg-3">
+                <div class="col-lg-2 col-md-4">
                     <div class="card info-card sales-card">
 
                         <!-- <div class="filter">
@@ -211,6 +243,38 @@
                                 </div>
                                 <div class="ps-3 w-100">
                                     <h6 id="skorTerbaik"></h6>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                
+                <div class="col-lg-2 col-md-4">
+                    <div class="card info-card sales-card">
+
+                        <!-- <div class="filter">
+                          <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                            <li class="dropdown-header text-start">
+                              <h6>Filter</h6>
+                            </li>
+
+                            <li><a class="dropdown-item" href="#">Today</a></li>
+                            <li><a class="dropdown-item" href="#">This Month</a></li>
+                            <li><a class="dropdown-item" href="#">This Year</a></li>
+                          </ul>
+                        </div> -->
+
+                        <div class="card-body">
+                            <h5 class="card-title">Skor Terendah</h5>
+
+                            <div class="d-flex align-items-center">
+                                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-trophy"></i>
+                                </div>
+                                <div class="ps-3 w-100">
+                                    <h6 id="skorTerendah"></h6>
                                 </div>
                             </div>
                         </div>
@@ -513,8 +577,13 @@
                 // Update cards
                 const jumlahTestDiikuti = filteredTests.length;
                 const jumlahQuizLulus = filteredTests.filter(test => test.remarks === 'Lulus').length;
+                const jumlahQuizTidakLulus = filteredTests.filter(test => test.remarks === 'Tidak Lulus').length;
+
                 const skorTerbaik = filteredTests.length > 0
                     ? Math.max(...filteredTests.map(test => test.score))
+                    : 0;
+                const skorTerendah = filteredTests.length > 0
+                    ? Math.min(...filteredTests.map(test => test.score))
                     : 0;
                 const skorAvg = filteredTests.length > 0
                     ? parseFloat((filteredTests.reduce((total, test) => total + test.score, 0) / filteredTests.length).toFixed(2))
@@ -522,7 +591,9 @@
 
                 document.getElementById('jumlahTestDiikuti').textContent = `${jumlahTestDiikuti} Quiz`;
                 document.getElementById('jumlahQuizLulus').textContent = `${jumlahQuizLulus} Quiz`;
+                document.getElementById('jumlahQuizTidakLulus').textContent = `${jumlahQuizTidakLulus} Quiz`;
                 document.getElementById('skorTerbaik').textContent = `${skorTerbaik}`;
+                document.getElementById('skorTerendah').textContent = `${skorTerendah}`;
                 document.getElementById('skorAvg').textContent = `${skorAvg}`;
 
                 // Update column chart (Jumlah Soal dan Soal Benar)
