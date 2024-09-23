@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Data.SqlClient;
 using Newtonsoft.Json;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Dashboard.Controllers
 {
@@ -83,10 +84,71 @@ namespace Dashboard.Controllers
                 GROUP BY r.EMPLOYEE_NIK, g.GRADE_A_COUNT, g.GRADE_B_COUNT, g.GRADE_C_COUNT;
                 ";
 
+                var sql2 = @"
+                    SELECT 
+                    NOTES_ID_MOBILE, 
+                    DATE_VISIT, 
+                    DOCTOR_CODE, 
+                    DOCTOR_NAME, 
+                    PRACTICE_NAME, 
+                    PROD_ID,
+                    CASE 
+                        WHEN STATUS_VISIT = 1 THEN 'Done' 
+                        ELSE 'Planned' 
+                    END AS VISIT_STATUS
+                FROM 
+                    VISITING_JUKUDO_NOTES_MOBILE
+                WHERE 
+                    PLAN_VISIT = '1' AND MR_NIK = @EmployeeNik AND CAST(DATE_VISIT AS DATE) = CAST(GETDATE() AS DATE)
+                ORDER BY 
+                    CASE 
+                        WHEN STATUS_VISIT = 1 THEN 2 
+                        ELSE 1 
+                    END, 
+                    DATE_VISIT;
+                ";
+
+                var sql3 = @"
+                    SELECT 
+                    NOTES_ID_MOBILE, 
+                    DATE_VISIT, 
+                    DOCTOR_CODE, 
+                    DOCTOR_NAME, 
+                    PRACTICE_NAME, 
+                    PROD_ID,
+                    CASE 
+                        WHEN STATUS_VISIT = 1 THEN 'DONE' 
+                        ELSE 'PLANNED' 
+                    END AS VISIT_STATUS
+                FROM 
+                    VISITING_JUKUDO_NOTES_MOBILE
+                WHERE 
+                    PLAN_VISIT = '1' 
+                    AND MR_NIK = @EmployeeNIk 
+                    AND CAST(DATE_VISIT AS DATE) > CAST(GETDATE() AS DATE)
+                ORDER BY 
+                    CASE 
+                        WHEN STATUS_VISIT = 1 THEN 2 
+                        ELSE 1 
+                    END, 
+                    DATE_VISIT;
+                ";
+
                 // Membuka koneksi dan mengeksekusi perintah
                 try
                 {
-                    using (var command = _context.Database.GetDbConnection().CreateCommand())
+                    var testResult = new
+                    {
+                        TotalLulus = 0,
+                        TotalTidakLulus = 0,
+                        TotalGradeA = 0,
+                        TotalGradeB = 0,
+                        TotalGradeC = 0
+                    };
+                    var visitToday = new List<dynamic>();
+                    var visitLater = new List<dynamic>();
+
+                    await using (var command = _context.Database.GetDbConnection().CreateCommand())
                     {
                         command.CommandText = sql;
                         command.CommandType = System.Data.CommandType.Text;
@@ -94,11 +156,11 @@ namespace Dashboard.Controllers
 
                         _context.Database.OpenConnection();
 
-                        using (var result = await command.ExecuteReaderAsync())
+                        await using (var result = await command.ExecuteReaderAsync())
                         {
                             if (await result.ReadAsync())
                             {
-                                var testResult = new
+                                testResult = new
                                 {
                                     TotalLulus = result.GetInt32(result.GetOrdinal("TOTAL_LULUS")),
                                     TotalTidakLulus = result.GetInt32(result.GetOrdinal("TOTAL_TIDAK_LULUS")),
@@ -106,15 +168,66 @@ namespace Dashboard.Controllers
                                     TotalGradeB = result.GetInt32(result.GetOrdinal("GRADE_B_COUNT")),
                                     TotalGradeC = result.GetInt32(result.GetOrdinal("GRADE_C_COUNT")),
                                 };
-
-                                return Json(testResult);
-                            }
-                            else
-                            {
-                                // Jika tidak ada hasil ditemukan, kembalikan NotFound
-                                return Json(new { TotalLulus = 0, TotalTidakLulus = 0 });
                             }
                         }
+
+                        command.Parameters.Clear();
+                        command.CommandText = sql2;
+                        command.CommandType = System.Data.CommandType.Text;
+                        command.Parameters.Add(new SqlParameter("@EmployeeNik", employeeNik));
+
+                        await using (var reader = await command.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                var visittoday = new
+                                {
+                                    NotesIdMobile = Convert.ToInt32(reader["NOTES_ID_MOBILE"]),
+                                    DateVisit = Convert.ToDateTime(reader["DATE_VISIT"]).ToString("yyyy-MM-dd"),
+                                    DoctorCode = reader["DOCTOR_CODE"].ToString(),
+                                    DoctorName = reader["DOCTOR_NAME"].ToString(),
+                                    PracticeName = reader["PRACTICE_NAME"].ToString(),
+                                    ProdID = reader["PROD_ID"].ToString(),
+                                    VisitStatus = reader["VISIT_STATUS"].ToString(),
+                                };
+
+                                visitToday.Add(visittoday);
+                            }
+                        }
+
+                        command.Parameters.Clear();
+                        command.CommandText = sql3;
+                        command.CommandType = System.Data.CommandType.Text;
+                        command.Parameters.Add(new SqlParameter("@EmployeeNik", employeeNik));
+
+                        await using (var reader = await command.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                var visitlater = new
+                                {
+                                    NotesIdMobile = Convert.ToInt32(reader["NOTES_ID_MOBILE"]),
+                                    DateVisit = Convert.ToDateTime(reader["DATE_VISIT"]).ToString("yyyy-MM-dd"),
+                                    DoctorCode = reader["DOCTOR_CODE"].ToString(),
+                                    DoctorName = reader["DOCTOR_NAME"].ToString(),
+                                    PracticeName = reader["PRACTICE_NAME"].ToString(),
+                                    ProdID = reader["PROD_ID"].ToString(),
+                                    VisitStatus = reader["VISIT_STATUS"].ToString(),
+                                };
+
+                                visitLater.Add(visitlater);
+                            }
+                        }
+
+                        return Json
+                            (
+                                new 
+                                { 
+                                    TestResults = testResult,
+                                    VisitToday = visitToday,
+                                    VisitLater = visitLater,
+                                }
+                            );
                     }
                 }
                 catch (Exception ex)

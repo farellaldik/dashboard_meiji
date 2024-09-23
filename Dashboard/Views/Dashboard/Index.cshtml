@@ -66,7 +66,7 @@
                         <div class="d-flex flex-row">
                             <!-- Bagian Kiri: Gambar Profil -->
                             <div class="d-flex align-items-center p-3 pr-0">
-                                <img src="https://d1tgyzt3mf06m9.cloudfront.net/v3-staging/2022/10/fakta-anya-forger-anime-spy-x-family7cfb4bbd-d135-49bb-8be6-585a4881ea70.jpg" alt="Profile Picture" class="profile-img">
+                                <img src="~/assets/img/anya.jpeg" alt="Profile Picture" class="profile-img">
                             </div>
 
                             <!-- Bagian Kanan: Konten Card -->
@@ -711,65 +711,13 @@
                                 <div class="card-body">
                                     <h5 class="card-title">Visit Plan <span>| Today</span></h5>
 
-                                    <div class="activity">
-
-                                        <div class="activity-item d-flex">
-                                            <div class="activite-label">Done</div>
-                                            <i class='bi bi-circle-fill activity-badge text-success align-self-start'></i>
-                                            <div class="activity-content">
-                                                <a href="#" class="fw-bold text-dark">Dr. Andi Nugroho, Sp.B.</a> <br>
-                                                Rumah Sakit Mitra Keluarga <br>
-                                                CFTMH
-                                            </div>
-                                        </div><!-- End activity item-->
-
-                                        <div class="activity-item d-flex">
-                                            <div class="activite-label">Done</div>
-                                            <i class='bi bi-circle-fill activity-badge text-danger align-self-start'></i>
-                                            <div class="activity-content">
-                                                <a href="#" class="fw-bold text-dark">Dr. Clara Wijaya, Sp.B.</a> <br>
-                                                Rumah Sakit Pondok Indah
-                                            </div>
-                                        </div><!-- End activity item-->
-
-                                        <div class="activity-item d-flex">
-                                            <div class="activite-label">Done</div>
-                                            <i class='bi bi-circle-fill activity-badge text-primary align-self-start'></i>
-                                            <div class="activity-content">
-                                                <a href="#" class="fw-bold text-dark">Dr. Dedi Prasetyo, Sp.B.</a> <br>
-                                                Rumah Sakit Primaya
-                                            </div>
-                                        </div><!-- End activity item-->
-
-                                        <div class="activity-item d-flex">
-                                            <div class="activite-label">Done</div>
-                                            <i class='bi bi-circle-fill activity-badge text-info align-self-start'></i>
-                                            <div class="activity-content">
-                                                <a href="#" class="fw-bold text-dark">Dr. Eva Sari, Sp.B.</a> <br>
-                                                Rumah Sakit Siloam
-                                            </div>
-                                        </div><!-- End activity item-->
-
-                                        <div class="activity-item d-flex">
-                                            <div class="activite-label">Done</div>
-                                            <i class='bi bi-circle-fill activity-badge text-warning align-self-start'></i>
-                                            <div class="activity-content">
-                                                <a href="#" class="fw-bold text-dark">Dr. Farhan Hidayat, Sp.B.</a> <br>
-                                                Rumah Sakit Hermina
-                                            </div>
-                                        </div><!-- End activity item-->
-
-                                        <div class="activity-item d-flex">
-                                            <div class="activite-label">Planned</div>
-                                            <i class='bi bi-circle-fill activity-badge text-muted align-self-start'></i>
-                                            <div class="activity-content">
-                                                <a href="#" class="fw-bold text-dark">Dr. Gita Rahmawati, Sp.B.</a> <br>
-                                                Rumah Sakit EMC
-                                            </div>
-                                        </div><!-- End activity item-->
-
+                                    <div id="activity-container" class="activity"></div>
+                                    <div id="empty-placeholder" class="text-center" style="display: none;">
+                                        <img src="~/assets/img/planning3d.png" alt="No Visits" style="width: 220px; margin: 0px auto;">
+                                        <p class="card-title">Visit Plan kamu masih kosong nih...</p>
                                     </div>
-
+                                    <a id="show-more" class="btn btn-primary mt-2" style="display: none;">Selengkapnya</a>
+                                    <a id="show-less" class="btn btn-secondary mt-2" style="display: none;">Kecilkan</a>
                                 </div>
                             </div><!-- End Recent Activity -->
                         </div>
@@ -793,64 +741,13 @@
                                 <div class="card-body">
                                     <h5 class="card-title">Visit Plan <span>| Later</span></h5>
 
-                                    <div class="activity">
-
-                                        <div class="activity-item d-flex">
-                                            <div class="activite-label">20/09/24</div>
-                                            <i class='bi bi-circle-fill activity-badge text-success align-self-start'></i>
-                                            <div class="activity-content">
-                                                <a href="#" class="fw-bold text-dark">Dr. Andi Nugroho, Sp.B.</a> <br>
-                                                Rumah Sakit Mitra Keluarga
-                                            </div>
-                                        </div><!-- End activity item-->
-
-                                        <div class="activity-item d-flex">
-                                            <div class="activite-label">20/09/24</div>
-                                            <i class='bi bi-circle-fill activity-badge text-danger align-self-start'></i>
-                                            <div class="activity-content">
-                                                <a href="#" class="fw-bold text-dark">Dr. Clara Wijaya, Sp.B.</a> <br>
-                                                Rumah Sakit Pondok Indah
-                                            </div>
-                                        </div><!-- End activity item-->
-
-                                        <div class="activity-item d-flex">
-                                            <div class="activite-label">30/09/24</div>
-                                            <i class='bi bi-circle-fill activity-badge text-primary align-self-start'></i>
-                                            <div class="activity-content">
-                                                <a href="#" class="fw-bold text-dark">Dr. Dedi Prasetyo, Sp.B.</a> <br>
-                                                Rumah Sakit Primaya
-                                            </div>
-                                        </div><!-- End activity item-->
-
-                                        <div class="activity-item d-flex">
-                                            <div class="activite-label">30/09/24</div>
-                                            <i class='bi bi-circle-fill activity-badge text-info align-self-start'></i>
-                                            <div class="activity-content">
-                                                <a href="#" class="fw-bold text-dark">Dr. Eva Sari, Sp.B.</a> <br>
-                                                Rumah Sakit Siloam
-                                            </div>
-                                        </div><!-- End activity item-->
-
-                                        <div class="activity-item d-flex">
-                                            <div class="activite-label">30/09/24</div>
-                                            <i class='bi bi-circle-fill activity-badge text-warning align-self-start'></i>
-                                            <div class="activity-content">
-                                                <a href="#" class="fw-bold text-dark">Dr. Farhan Hidayat, Sp.B.</a> <br>
-                                                Rumah Sakit Hermina
-                                            </div>
-                                        </div><!-- End activity item-->
-
-                                        <div class="activity-item d-flex">
-                                            <div class="activite-label">30/09/24</div>
-                                            <i class='bi bi-circle-fill activity-badge text-muted align-self-start'></i>
-                                            <div class="activity-content">
-                                                <a href="#" class="fw-bold text-dark">Dr. Gita Rahmawati, Sp.B.</a> <br>
-                                                Rumah Sakit EMC
-                                            </div>
-                                        </div><!-- End activity item-->
-
+                                    <div id="activity-container2" class="activity"></div>
+                                    <div id="empty-placeholder2" class="text-center" style="display: none;">
+                                        <img src="~/assets/img/planning3d.png" alt="No Visits" style="width: 220px; margin: 0px auto;">
+                                        <p class="card-title">Kamu belum membuat Visit Plan untuk besok...</p>
                                     </div>
-
+                                    <a id="show-more2" class="btn btn-primary mt-2" style="display: none;">Selengkapnya</a>
+                                    <a id="show-less2" class="btn btn-secondary mt-2" style="display: none;">Kecilkan</a>
                                 </div>
                             </div><!-- End Recent Activity -->
                         </div>
@@ -1094,29 +991,219 @@
                             {
                                
                                 name: 'Quiz Lulus',
-                                data: [data.totalLulus || 0] // Gunakan 0 jika data tidak ada
+                                data: [data.testResults.totalLulus || 0] // Gunakan 0 jika data tidak ada
                             },
                             {
                                 name: 'Quiz Tidak Lulus',
-                                data: [data.totalTidakLulus || 0] // Gunakan 0 jika data tidak ada
+                                data: [data.testResults.totalTidakLulus || 0] // Gunakan 0 jika data tidak ada
                             }
                         ]);
 
                         chart1.updateSeries([{
                             name: 'Grade A',
-                            data: [data.totalGradeA || 0]
+                            data: [data.testResults.totalGradeA || 0]
                         }, {
                             name: 'Grade B',
-                            data: [data.totalGradeB || 0]
+                            data: [data.testResults.totalGradeB || 0]
                         }, {
                             name: 'Grade C',
-                            data: [data.totalGradeC || 0]
+                            data: [data.testResults.totalGradeC || 0]
                         }]);
 
                         console.log(data)
                     },
                     error: function () {
                         console.error("Error fetching data.");
+                    }
+                });
+
+                $.ajax({
+                    url: '@Url.Action("Index", "Dashboard")',  // Ganti dengan URL dari JSON kamu
+                    type: 'GET',
+                    dataType: 'json',
+                    data: { employeeNik: employeeNik },
+                    success: function (data) {
+                        var visits = data.visitToday;
+                        var activityContainer = $('#activity-container');
+                        var placeholder = $('#empty-placeholder');
+
+                        activityContainer.empty();
+
+                        if (visits.length === 0) {
+                            // Jika VisitToday kosong, tampilkan gambar dan pesan
+                            placeholder.show();
+                            $('#show-more').hide();
+                            $('#show-less').hide();
+                        } else {
+                            // Jika VisitToday ada isinya, sembunyikan placeholder dan tampilkan activity items
+                            placeholder.hide();
+                            var visibleItems = visits.slice(0, 5);
+                            visibleItems.forEach(function (visit) {
+                                var badgeClass = visit.visitStatus === 'Done' ? 'text-success' : 'text-danger';
+                                var activityItem = `
+                                <div class="activity-item d-flex">
+                                    <div class="activite-label">${visit.visitStatus}</div>
+                                    <i class="bi bi-circle-fill activity-badge ${badgeClass} align-self-start"></i>
+                                    <div class="activity-content">
+                                        <a href="#" class="fw-bold text-dark">${visit.doctorName}</a> <br>
+                                        ${visit.practiceName} <br>
+                                        <a class="fw-bold text-dark">${visit.prodID}</a>
+                                    </div>
+                                </div><!-- End activity item-->
+                            `;
+                                activityContainer.append(activityItem);
+                            });
+
+                            // Tampilkan tombol jika ada lebih dari 5 item
+                            if (visits.length > 5) {
+                                $('#show-more').show();
+                            }
+                        }
+
+                        // Tombol "Selengkapnya"
+                        $('#show-more').off('click').on('click', function () {
+                            activityContainer.empty(); // Hapus isi sebelumnya
+                            visits.forEach(function (visit) {
+                                var badgeClass = visit.visitStatus === 'Done' ? 'text-success' : 'text-danger';
+                                var activityItem = `
+                        <div class="activity-item d-flex">
+                            <div class="activite-label">${visit.visitStatus}</div>
+                            <i class="bi bi-circle-fill activity-badge ${badgeClass} align-self-start"></i>
+                            <div class="activity-content">
+                                <a href="#" class="fw-bold text-dark">${visit.doctorName}</a> <br>
+                                ${visit.practiceName} <br>
+                                <a class="fw-bold text-dark">${visit.prodID}</a>
+                            </div>
+                        </div><!-- End activity item-->
+                        `;
+                                activityContainer.append(activityItem);
+                            });
+                            $('#show-more').hide(); // Sembunyikan tombol "Selengkapnya"
+                            $('#show-less').show(); // Tampilkan tombol "Kecilkan"
+                        });
+
+                        // Tombol "Kecilkan"
+                        $('#show-less').off('click').on('click', function () {
+                            activityContainer.empty(); // Hapus isi sebelumnya
+                            var visibleItems = visits.slice(0, 5);
+                            visibleItems.forEach(function (visit) {
+                                var badgeClass = visit.visitStatus === 'Done' ? 'text-success' : 'text-danger';
+                                var activityItem = `
+                        <div class="activity-item d-flex">
+                            <div class="activite-label">${visit.visitStatus}</div>
+                            <i class="bi bi-circle-fill activity-badge ${badgeClass} align-self-start"></i>
+                            <div class="activity-content">
+                                <a href="#" class="fw-bold text-dark">${visit.doctorName}</a> <br>
+                                ${visit.practiceName} <br>
+                                <a class="fw-bold text-dark">${visit.prodID}</a>
+                            </div>
+                        </div><!-- End activity item-->
+                        `;
+                                activityContainer.append(activityItem);
+                            });
+                            $('#show-less').hide(); // Sembunyikan tombol "Kecilkan"
+                            $('#show-more').show(); // Tampilkan tombol "Selengkapnya"
+                        });
+
+
+                    },
+                    error: function (error) {
+                        console.log("Error fetching data: ", error);
+                    }
+                });
+
+                $.ajax({
+                    url: '@Url.Action("Index", "Dashboard")',  // Ganti dengan URL dari JSON kamu
+                    type: 'GET',
+                    dataType: 'json',
+                    data: { employeeNik: employeeNik },
+                    success: function (data) {
+                        var visits = data.visitLater;
+                        var activityContainer = $('#activity-container2');
+                        var placeholder = $('#empty-placeholder2');
+
+                        activityContainer.empty();
+
+                        if (visits.length === 0) {
+                            // Jika VisitToday kosong, tampilkan gambar dan pesan
+                            placeholder.show();
+                            $('#show-more2').hide();
+                            $('#show-less2').hide();
+                        } else {
+                            // Jika VisitToday ada isinya, sembunyikan placeholder dan tampilkan activity items
+                            placeholder.hide();
+                            var visibleItems = visits.slice(0, 5);
+                            visibleItems.forEach(function (visit) {
+                                var badgeClass = visit.visitStatus === 'Done' ? 'text-success' : 'text-info';
+                                var activityItem = `
+                                        <div class="activity-item d-flex">
+                                            <div class="activite-label">${visit.dateVisit}</div>
+                                            <i class="bi bi-circle-fill activity-badge ${badgeClass} align-self-start"></i>
+                                            <div class="activity-content">
+                                                <a href="#" class="fw-bold text-dark">${visit.doctorName}</a> <br>
+                                                ${visit.practiceName} <br>
+                                                <a class="fw-bold text-dark">${visit.prodID}</a>
+                                            </div>
+                                        </div><!-- End activity item-->
+                                    `;
+                                activityContainer.append(activityItem);
+                            });
+
+                            // Tampilkan tombol jika ada lebih dari 5 item
+                            if (visits.length > 5) {
+                                $('#show-more2').show();
+                            }
+                        }
+
+                        // Tombol "Selengkapnya"
+                        $('#show-more2').off('click').on('click', function () {
+                            activityContainer.empty(); // Hapus isi sebelumnya
+                            visits.forEach(function (visit) {
+                                var badgeClass = visit.visitStatus === 'Done' ? 'text-success' : 'text-info';
+                                var activityItem = `
+                                <div class="activity-item d-flex">
+                                    <div class="activite-label">${visit.dateVisit}</div>
+                                    <i class="bi bi-circle-fill activity-badge ${badgeClass} align-self-start"></i>
+                                    <div class="activity-content">
+                                        <a href="#" class="fw-bold text-dark">${visit.doctorName}</a> <br>
+                                        ${visit.practiceName} <br>
+                                        <a class="fw-bold text-dark">${visit.prodID}</a>
+                                    </div>
+                                </div><!-- End activity item-->
+                                `;
+                                activityContainer.append(activityItem);
+                            });
+                            $('#show-more2').hide(); // Sembunyikan tombol "Selengkapnya"
+                            $('#show-less2').show(); // Tampilkan tombol "Kecilkan"
+                        });
+
+                        // Tombol "Kecilkan"
+                        $('#show-less2').off('click').on('click', function () {
+                            activityContainer.empty(); // Hapus isi sebelumnya
+                            var visibleItems = visits.slice(0, 5);
+                            visibleItems.forEach(function (visit) {
+                                var badgeClass = visit.visitStatus === 'Done' ? 'text-success' : 'text-info';
+                                var activityItem = `
+                                <div class="activity-item d-flex">
+                                    <div class="activite-label">${visit.dateVisit}</div>
+                                    <i class="bi bi-circle-fill activity-badge ${badgeClass} align-self-start"></i>
+                                    <div class="activity-content">
+                                        <a href="#" class="fw-bold text-dark">${visit.doctorName}</a> <br>
+                                        ${visit.practiceName} <br>
+                                        <a class="fw-bold text-dark">${visit.prodID}</a>
+                                    </div>
+                                </div><!-- End activity item-->
+                                `;
+                                activityContainer.append(activityItem);
+                            });
+                            $('#show-less2').hide(); // Sembunyikan tombol "Kecilkan"
+                            $('#show-more2').show(); // Tampilkan tombol "Selengkapnya"
+                        });
+
+
+                    },
+                    error: function (error) {
+                        console.log("Error fetching data: ", error);
                     }
                 });
             }
