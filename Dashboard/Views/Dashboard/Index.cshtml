@@ -986,29 +986,67 @@
                     url: '@Url.Action("Index", "Dashboard")',
                     data: { employeeNik: employeeNik },
                     success: function (data) {
+
+                        const testResults = data.testResults;
+
                         // Pastikan data.totalLulus dan data.totalTidakLulus ada
-                        chart.updateSeries([
-                            {
-                               
-                                name: 'Quiz Lulus',
-                                data: [data.testResults.totalLulus || 0] // Gunakan 0 jika data tidak ada
-                            },
-                            {
-                                name: 'Quiz Tidak Lulus',
-                                data: [data.testResults.totalTidakLulus || 0] // Gunakan 0 jika data tidak ada
+                        chart.updateSeries([{
+                            name: 'Jumlah Benar',
+                            data: testResults.map(test => test.correctAnswers)
+                        },
+                        {
+                            name: 'Jumlah Salah',
+                            data: testResults.map(test => test.falseAnswers)
+                        }]);
+
+                        chart.updateOptions({
+                            xaxis: {
+                                categories: testResults.map(test => test.name),
                             }
-                        ]);
+                        });
+
+                        console.log(data)
+                    },
+                    error: function () {
+                        console.error("Error fetching data.");
+                    }
+                });
+
+                $.ajax({
+                    url: '@Url.Action("Index", "Dashboard")',
+                    data: { employeeNik: employeeNik },
+                    success: function (data) {
+
+                        const actualVisit = data.actualVisit;
+
+                        actualVisit.forEach(test => {
+                            // Jika bulanTahun berbentuk Date, konversi ke format yang diinginkan
+                            const dateObj = new Date(test.bulanTahun);
+                            test.bulanTahun = dateObj.toLocaleDateString('id-ID', { year: 'numeric', month: 'long' });
+                        });
 
                         chart1.updateSeries([{
                             name: 'Grade A',
-                            data: [data.testResults.totalGradeA || 0]
+                            data: actualVisit.map(test => test.totalVisitA)
                         }, {
                             name: 'Grade B',
-                            data: [data.testResults.totalGradeB || 0]
+                            data: actualVisit.map(test => test.totalVisitB)
                         }, {
                             name: 'Grade C',
-                            data: [data.testResults.totalGradeC || 0]
+                            data: actualVisit.map(test => test.totalVisitC)
                         }]);
+
+                        chart1.updateOptions({
+                            xaxis: {
+                                type: 'category',
+                                categories: actualVisit.map(test => test.bulanTahun),
+                                labels: {
+                                    formatter: function (value) {
+                                        return value;
+                                    }
+                                }
+                            }
+                        });
 
                         console.log(data)
                     },
@@ -1245,7 +1283,7 @@
                 },
                 yaxis: {
                     title: {
-                        text: 'Jumlah Quiz'
+                        text: 'Jumlah Pertanyaan'
                     }
                 },
                 colors: ['#91cc75', '#ee6666'],
@@ -1264,17 +1302,18 @@
             var options1 = {
                 series: [{
                     name: 'Grade A',
-                    data: [0]
+                    data: []
                 }, {
                     name: 'Grade B',
-                    data: [0]
+                    data: []
                 }, {
                     name: 'Grade C',
-                    data: [0]
+                    data: []
                 }],
                 chart: {
                     type: 'bar',
-                    height: 350
+                    height: 350,
+                    stacked: 'true',
                 },
                 plotOptions: {
                     bar: {
@@ -1292,7 +1331,7 @@
                     colors: ['transparent']
                 },
                 xaxis: {
-                    categories: ['Grade Dokter'],
+                    categories: [],
                 },
                 yaxis: {
                     title: {
@@ -1305,7 +1344,7 @@
                 tooltip: {
                     y: {
                         formatter: function (val) {
-                            return  val + " Dokter"
+                            return val + " Dokter"
                         }
                     }
                 }
