@@ -37,32 +37,33 @@ namespace Dashboard.Controllers
             {
                 var sql = @"
                         SELECT s.SCHEDULE_ID, 
-                               n.ANAME, 
-                               s.EMPLOYEE_NIK, 
-                               CONVERT(DATE, n.CREATED_DATE) AS CREATED_DATE, 
-                               MAX(CONVERT(DATE, s.ANSWER_DATE)) AS ANSWER_DATE,
-                               SUM(s.CORRECT_COUNT) AS TOTAL_CORRECT_COUNT,
-	                           COUNT(s.IS_ANSWER) - SUM(s.CORRECT_COUNT) AS TOTAL_FALSE_COUNT,
-                               SUM(s.IS_ANSWER) AS TOTAL_IS_ANSWER,
-                               COUNT(s.IS_ANSWER) AS QUESTIONS,
-                               CASE 
-                                   WHEN COUNT(s.IS_ANSWER) = 0 THEN 0
-                                   ELSE CAST((SUM(s.CORRECT_COUNT) * 100.0 / COUNT(s.IS_ANSWER)) AS DECIMAL(18,0))
-                               END AS SCORE,
-                               CASE 
-                                   WHEN COUNT(s.IS_ANSWER) = 0 THEN 'TIDAK LULUS'
-                                   ELSE CASE
-                                       WHEN (SUM(s.CORRECT_COUNT) * 100.0 / COUNT(s.IS_ANSWER)) >= 85 THEN 'Lulus'
-                                       ELSE 'Tidak Lulus'
-                                   END
-                               END AS KETERANGAN
-                        FROM TRAINING_TEST_SCHEDULE n
-                        JOIN TRAINING_EXAM_QUESTION s ON n.SCHEDULE_ID = s.SCHEDULE_ID
-                        WHERE s.EMPLOYEE_NIK = @EmployeeNik
-                        GROUP BY s.SCHEDULE_ID, 
-                                 n.ANAME, 
-                                 s.EMPLOYEE_NIK, 
-                                 CONVERT(DATE, n.CREATED_DATE)                
+                            n.ANAME, 
+                            s.EMPLOYEE_NIK, 
+                            CONVERT(DATE, n.CREATED_DATE) AS CREATED_DATE, 
+                            MAX(CONVERT(DATE, s.ANSWER_DATE)) AS ANSWER_DATE,
+                            SUM(s.CORRECT_COUNT) AS TOTAL_CORRECT_COUNT,
+                            COUNT(s.IS_ANSWER) - SUM(s.CORRECT_COUNT) AS TOTAL_FALSE_COUNT,
+                            SUM(s.IS_ANSWER) AS TOTAL_IS_ANSWER,
+                            COUNT(s.IS_ANSWER) AS QUESTIONS,
+                            CASE 
+                                WHEN COUNT(s.IS_ANSWER) = 0 THEN 0
+                                ELSE CAST((SUM(s.CORRECT_COUNT) * 100.0 / COUNT(s.IS_ANSWER)) AS DECIMAL(18,0))
+                            END AS SCORE,
+                            CASE 
+                                WHEN COUNT(s.IS_ANSWER) = 0 THEN 'TIDAK LULUS'
+                                ELSE CASE
+                                    WHEN (SUM(s.CORRECT_COUNT) * 100.0 / COUNT(s.IS_ANSWER)) >= 85 THEN 'Lulus'
+                                    ELSE 'Tidak Lulus'
+                                END
+                            END AS KETERANGAN
+                    FROM TRAINING_TEST_SCHEDULE n
+                    JOIN TRAINING_EXAM_QUESTION s ON n.SCHEDULE_ID = s.SCHEDULE_ID
+                    WHERE s.EMPLOYEE_NIK = @EmployeeNik
+                        AND YEAR(CONVERT(DATE, n.CREATED_DATE)) = YEAR(GETDATE())
+                    GROUP BY s.SCHEDULE_ID, 
+                                n.ANAME, 
+                                s.EMPLOYEE_NIK, 
+                                CONVERT(DATE, n.CREATED_DATE);               
                 ";
 
                 var sql2 = @"
@@ -91,48 +92,58 @@ namespace Dashboard.Controllers
 
                 var sql3 = @"
                     SELECT 
-                    NOTES_ID_MOBILE, 
-                    DATE_VISIT, 
-                    DOCTOR_CODE, 
-                    DOCTOR_NAME, 
-                    PRACTICE_NAME, 
-                    PROD_ID,
-                    CASE 
-                        WHEN STATUS_VISIT = 1 THEN 'DONE' 
-                        ELSE 'PLANNED' 
-                    END AS VISIT_STATUS
-                FROM 
-                    VISITING_JUKUDO_NOTES_MOBILE
-                WHERE 
-                    PLAN_VISIT = '1' 
-                    AND MR_NIK = @EmployeeNIk 
-                    AND CAST(DATE_VISIT AS DATE) > CAST(GETDATE() AS DATE)
-                ORDER BY 
-                    CASE 
-                        WHEN STATUS_VISIT = 1 THEN 2 
-                        ELSE 1 
-                    END, 
-                    DATE_VISIT;
+                        NOTES_ID_MOBILE, 
+                        DATE_VISIT, 
+                        DOCTOR_CODE, 
+                        DOCTOR_NAME, 
+                        PRACTICE_NAME, 
+                        PROD_ID,
+                        CASE 
+                            WHEN STATUS_VISIT = 1 THEN 'DONE' 
+                            ELSE 'PLANNED' 
+                        END AS VISIT_STATUS
+                    FROM 
+                        VISITING_JUKUDO_NOTES_MOBILE
+                    WHERE 
+                        PLAN_VISIT = '1' 
+                        AND MR_NIK = @EmployeeNik 
+                        AND CAST(DATE_VISIT AS DATE) > CAST(GETDATE() AS DATE)
+                    ORDER BY
+                        ABS(DATEDIFF(DAY, GETDATE(), DATE_VISIT)) ASC;
                 ";
 
                 var sql4 = @"
+                WITH LatestVisits AS (
+                    SELECT 
+                        MR_NIK,
+                        CONVERT(DATE, DATE_VISIT, 101) AS TANGGAL,
+                        COUNT(CASE WHEN DOCTOR_CLASS = 'A' THEN 1 END) AS TOTAL_VISIT_GRADE_A,
+                        COUNT(CASE WHEN DOCTOR_CLASS = 'B' THEN 1 END) AS TOTAL_VISIT_GRADE_B,
+                        COUNT(CASE WHEN DOCTOR_CLASS = 'C' THEN 1 END) AS TOTAL_VISIT_GRADE_C,
+                        ROW_NUMBER() OVER (ORDER BY CONVERT(DATE, DATE_VISIT, 101) DESC) AS rn
+                    FROM 
+                        VISITING_JUKUDO_NOTES_MOBILE 
+                    WHERE 
+                        STATUS_VISIT = '1' 
+                        AND MR_NIK = @EmployeeNik
+                        AND DOCTOR_CLASS IN ('A', 'B', 'C') 
+                    GROUP BY 
+                        MR_NIK, 
+                        CONVERT(DATE, DATE_VISIT, 101)
+                )
+
                 SELECT 
                     MR_NIK,
-                    FORMAT(CONVERT(DATE, DATE_VISIT, 101), 'yyyy-MM') AS BULAN,
-                    COUNT(CASE WHEN DOCTOR_CLASS = 'A' THEN 1 END) AS TOTAL_VISIT_GRADE_A,
-                    COUNT(CASE WHEN DOCTOR_CLASS = 'B' THEN 1 END) AS TOTAL_VISIT_GRADE_B,
-                    COUNT(CASE WHEN DOCTOR_CLASS = 'C' THEN 1 END) AS TOTAL_VISIT_GRADE_C
+                    TANGGAL,
+                    TOTAL_VISIT_GRADE_A,
+                    TOTAL_VISIT_GRADE_B,
+                    TOTAL_VISIT_GRADE_C
                 FROM 
-                    VISITING_JUKUDO_NOTES_MOBILE 
+                    LatestVisits
                 WHERE 
-                    STATUS_VISIT = '1' 
-                    AND MR_NIK = @EmployeeNik
-                    AND DOCTOR_CLASS IN ('A', 'B', 'C') 
-                GROUP BY 
-                    MR_NIK, 
-                    FORMAT(CONVERT(DATE, DATE_VISIT, 101), 'yyyy-MM')
+                    rn <= 10
                 ORDER BY 
-                    BULAN;
+                    TANGGAL ASC;
                 ";
 
                 // Membuka koneksi dan mengeksekusi perintah
@@ -231,7 +242,7 @@ namespace Dashboard.Controllers
                                 var actualvisit = new
                                 {
                                     MrNik = Convert.ToInt32(reader["MR_NIK"]),
-                                    BulanTahun = Convert.ToDateTime(reader["BULAN"]).ToString("MMMM yyyy", new System.Globalization.CultureInfo("id-ID")),
+                                    TanggalVisit = Convert.ToDateTime(reader["TANGGAL"]).ToString("dd MMMM yyyy", new System.Globalization.CultureInfo("id-ID")),
                                     TotalVisitA = Convert.ToInt32(reader["TOTAL_VISIT_GRADE_A"]),
                                     TotalVisitB = Convert.ToInt32(reader["TOTAL_VISIT_GRADE_B"]),
                                     TotalVisitC = Convert.ToInt32(reader["TOTAL_VISIT_GRADE_C"]),

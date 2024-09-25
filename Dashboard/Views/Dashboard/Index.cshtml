@@ -725,21 +725,39 @@
                         <div class="col-sm-6 col-md-12 card-visit">
                             <!-- Recent Activity -->
                             <div class="card info-card">
-                                <!-- <div class="filter">
-                                  <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                                    <li class="dropdown-header text-start">
-                                      <h6>Filter</h6>
-                                    </li>
 
-                                    <li><a class="dropdown-item" href="#">Today</a></li>
-                                    <li><a class="dropdown-item" href="#">This Month</a></li>
-                                    <li><a class="dropdown-item" href="#">This Year</a></li>
+                                <div class="filter">
+                                  <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow p-2">
+                                    <li class="dropdown-header text-start">
+                                      <h6>Filter Date</h6>
+                                    </li>
+                                    <li>
+                                        <div class="form-group-index p-2">
+                                        <input type="date" id="startDate" class="form-control">
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div class="form-group-index p-2">
+                                        <input type="date" id="endDate" class="form-control">
+                                        </div>
+                                    </li>
                                   </ul>
-                                </div> -->
+                                </div>
 
                                 <div class="card-body">
-                                    <h5 class="card-title">Visit Plan <span>| Later</span></h5>
+
+                                    <div class="d-flex justify-content-between">
+                                        <h5 class="card-title">Visit Plan <span>| Later</span></h5>
+                                        @* <div class="date-filters mt-2 mb-4">
+                                            <div class="form-group p-0">
+                                                <input type="date" id="startDate" class="form-control">
+                                            </div>
+                                            <div class="form-group p-0">
+                                                <input type="date" id="endDate" class="form-control">
+                                            </div>
+                                        </div> *@
+                                    </div>
 
                                     <div id="activity-container2" class="activity"></div>
                                     <div id="empty-placeholder2" class="text-center" style="display: none;">
@@ -974,12 +992,41 @@
     <script src="~/assets/vendor/php-email-form/validate.js"></script>
 
     <!-- Template Main JS File -->
-    <script src="~/assets/js/main.js"></script>
+    @* <script src="~/assets/js/main.js"></script> *@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
         $(document).ready(function () {
+
+            const startDateInput = document.getElementById("startDate");
+            const endDateInput = document.getElementById("endDate");
+
+            const today = new Date();
+            const tomorrow = new Date(today);
+            tomorrow.setDate(today.getDate() + 1);
+
+            const oneMonthLater = new Date(tomorrow);
+            oneMonthLater.setMonth(tomorrow.getMonth() + 1);
+
+            // Format the date to yyyy-mm-dd
+            const formatDate = (date) => {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            };
+
+            const formattedTomorrow = formatDate(tomorrow);
+            const formattedOneMonthLater = formatDate(oneMonthLater);
+
+            // Set default values and constraints
+            startDateInput.value = formattedTomorrow;
+            startDateInput.min = formattedTomorrow;
+
+            endDateInput.value = formattedOneMonthLater;
+            endDateInput.min = formattedTomorrow;
+            endDateInput.max = formattedOneMonthLater;
 
             function updateChart(employeeNik) {
                 $.ajax({
@@ -1039,7 +1086,7 @@
                         chart1.updateOptions({
                             xaxis: {
                                 type: 'category',
-                                categories: actualVisit.map(test => test.bulanTahun),
+                                categories: actualVisit.map(test => test.tanggalVisit),
                                 labels: {
                                     formatter: function (value) {
                                         return value;

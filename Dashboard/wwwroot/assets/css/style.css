@@ -22,16 +22,21 @@
 }
 
 .form-label {
-    margin-right: 0.5rem;
+    margin-right: 0.0rem;
 }
 
 .form-control {
-    width: auto;
+    width: 100%;
 }
 
 .form-group {
     display: flex;
     gap: 1rem;
+    align-items: center;
+}
+
+.form-group-index {
+    display: flex;
     align-items: center;
 }
 
