@@ -9,6 +9,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Data.SqlClient;
 using Newtonsoft.Json;
 using static System.Net.Mime.MediaTypeNames;
+using Microsoft.IdentityModel.Tokens;
+using Dashboard.Models;
+using Dashboard.Components;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Dashboard.Controllers
 {
@@ -21,8 +25,9 @@ namespace Dashboard.Controllers
             _context = context;
         }
 
-        public async Task<IActionResult> Index(string employeeNik = null)
+        public async Task<IActionResult> Index(string employeeNik = null, string startDate = null, string endDate = null)
         {
+            //var visittoday = LoadDataVisitToday();
             // Ambil daftar NIK karyawan
             var employeeNiks = _context.TABLE_MR
                                    .Select(q => q.NIK)
@@ -146,9 +151,65 @@ namespace Dashboard.Controllers
                     TANGGAL ASC;
                 ";
 
+                var sql5 = @"
+                SELECT 
+                    NOTES_ID_MOBILE as notes_id_mobile, 
+                    DATE_VISIT, 
+                    DOCTOR_CODE, 
+                    DOCTOR_NAME, 
+                    PRACTICE_NAME, 
+                    PROD_ID,
+                CASE 
+                    WHEN STATUS_VISIT = 1 THEN 'DONE' 
+                    ELSE 'PLANNED' 
+                END AS VISIT_STATUS
+                FROM 
+                    VISITING_JUKUDO_NOTES_MOBILE
+                WHERE 
+                    PLAN_VISIT = '1' 
+                    AND MR_NIK = @EmployeeNik
+                    AND CAST(DATE_VISIT AS DATE) BETWEEN @StartDate AND @EndDate
+                ORDER BY
+                    ABS(DATEDIFF(DAY, GETDATE(), DATE_VISIT)) ASC;
+                ";
+
+                //var filter = "WHERE PLAN_VISIT = '1' ";
+                //if (blabla) 
+                //{
+                //    filter = filter + "AND MR_NIK = @EmployeeNik ";
+                //}
+                //if ()
+                //{
+
+                //}
+                //var sqlcontoh = @"
+                //    SELECT 
+                //        NOTES_ID_MOBILE, 
+                //        DATE_VISIT, 
+                //        DOCTOR_CODE, 
+                //        DOCTOR_NAME, 
+                //        PRACTICE_NAME, 
+                //        PROD_ID,
+                //        CASE 
+                //            WHEN STATUS_VISIT = 1 THEN 'DONE' 
+                //            ELSE 'PLANNED' 
+                //        END AS VISIT_STATUS
+                //    FROM 
+                //        VISITING_JUKUDO_NOTES_MOBILE
+                //    " + filter + " ";
+                //    //WHERE 
+                    //    PLAN_VISIT = '1' 
+                    //    AND MR_NIK = @EmployeeNik 
+                    //    AND CAST(DATE_VISIT AS DATE) > CAST(GETDATE() AS DATE)
+                    //ORDER BY
+                    //    ABS(DATEDIFF(DAY, GETDATE(), DATE_VISIT)) ASC;
+                
+
                 // Membuka koneksi dan mengeksekusi perintah
                 try
                 {
+                    //var list = StoredProcedureExecutor.ExecuteQueryList<VisitTodayReponse>(_context, sql5);
+
                     var tests = new List<dynamic>();
                     var visitToday = new List<dynamic>();
                     var visitLater = new List<dynamic>();
@@ -206,10 +267,21 @@ namespace Dashboard.Controllers
                             }
                         }
 
-                        command.Parameters.Clear();
-                        command.CommandText = sql3;
-                        command.CommandType = System.Data.CommandType.Text;
-                        command.Parameters.Add(new SqlParameter("@EmployeeNik", employeeNik));
+                        if (!string.IsNullOrEmpty(startDate) && !string.IsNullOrEmpty(endDate))
+                        {
+                            command.Parameters.Clear();
+                            command.CommandText = sql5;
+                            command.Parameters.Add(new SqlParameter("@EmployeeNik", employeeNik));
+                            command.Parameters.Add(new SqlParameter("@StartDate", startDate));
+                            command.Parameters.Add(new SqlParameter("@EndDate", endDate));
+                        }
+                        else
+                        {
+                            command.Parameters.Clear();
+                            command.CommandText = sql3;
+                            command.Parameters.Add(new SqlParameter("@EmployeeNik", employeeNik));
+                        }
+
 
                         await using (var reader = await command.ExecuteReaderAsync())
                         {
@@ -376,6 +448,12 @@ namespace Dashboard.Controllers
             // Jika employeeNik tidak diset, hanya tampilkan daftar NIK
             return View();
         }
+
+        //public async LoadDataVisitToday() 
+        //{
+
+        //}
+        //public async LoadDataVisitToday { }
 
     }
 }

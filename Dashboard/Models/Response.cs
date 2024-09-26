@@ -17,8 +17,14 @@
         public int QUESTIONS { get; set; }
         public int SCORE { get; set; }
         public string KETERANGAN { get; set; }
+        public string notes_id_mobile { get; set; }
 
     }
 
+    public class VisitTodayReponse
+    {
+        public string name { get; set; }
+        public DateTime? created_date { get; set; }
 
     }
+}

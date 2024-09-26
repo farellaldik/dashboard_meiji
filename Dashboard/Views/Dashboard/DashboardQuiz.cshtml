@@ -521,7 +521,8 @@
             function updateDropdownAndCharts() {
                 const startDate = new Date(startDateInput.value + "-01");
                 const endDate = new Date(endDateInput.value + "-01");
-                endDate.setMonth(endDate.getMonth()); // Menyesuaikan agar termasuk bulan akhir
+                endDate.setMonth(endDate.getMonth() + 1);
+                endDate.setDate(0);
 
                 const filteredTests = tests.filter(test => {
                     const testDate = new Date(test.createdDate);

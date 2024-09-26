@@ -1028,6 +1028,127 @@
             endDateInput.min = formattedTomorrow;
             endDateInput.max = formattedOneMonthLater;
 
+            document.getElementById('startDate').addEventListener('change', function () {
+                // Update min pada endDate berdasarkan pilihan startDate
+                const startDateValue = this.value;
+                document.getElementById('endDate').setAttribute('min', startDateValue);
+
+                // Jika endDate lebih kecil dari startDate, perbarui nilai endDate
+                if (document.getElementById('endDate').value < startDateValue) {
+                    document.getElementById('endDate').value = startDateValue;
+                }
+            });
+
+            function updateVisitLater() 
+            {
+                const startDate = $('#startDate').val();
+                const endDate = $('#endDate').val();
+                var savedSelection = sessionStorage.getItem('dropdownSelection');
+
+                $.ajax({
+                    url: '@Url.Action("Index", "Dashboard")',  // Ganti dengan URL dari JSON kamu
+                    type: 'GET',
+                    dataType: 'json',
+                    data: { employeeNik: savedSelection, startDate: startDate, endDate: endDate },
+                    success: function (data) {
+
+                        console.log(startDate);
+
+                        var visits = data.visitLater;
+                        var activityContainer = $('#activity-container2');
+                        var placeholder = $('#empty-placeholder2');
+
+                        activityContainer.empty();
+                        $('#show-more2').hide();
+                        $('#show-less2').hide();
+
+                        if (visits.length === 0) {
+                            // Jika VisitLater kosong, tampilkan gambar dan pesan
+                            placeholder.show();
+                            $('#show-more2').hide();
+                            $('#show-less2').hide();
+                        } else {
+                            // Jika VisitLater ada isinya, sembunyikan placeholder dan tampilkan activity items
+                            placeholder.hide();
+                            var visibleItems = visits.slice(0, 5);
+                            visibleItems.forEach(function (visit) {
+                                var badgeClass = visit.visitStatus === 'Done' ? 'text-success' : 'text-info';
+                                var activityItem = `
+                                                <div class="activity-item d-flex">
+                                                    <div class="activite-label">${visit.dateVisit}</div>
+                                                    <i class="bi bi-circle-fill activity-badge ${badgeClass} align-self-start"></i>
+                                                    <div class="activity-content">
+                                                        <a href="#" class="fw-bold text-dark">${visit.doctorName}</a> <br>
+                                                        ${visit.practiceName} <br>
+                                                        <a class="fw-bold text-dark">${visit.prodID}</a>
+                                                    </div>
+                                                </div><!-- End activity item-->
+                                            `;
+                                activityContainer.append(activityItem);
+                            });
+
+                            // Tampilkan tombol jika ada lebih dari 5 item
+                            if (visits.length > 5) {
+                                $('#show-more2').show();
+                            }
+                        }
+
+                        // Tombol "Selengkapnya"
+                        $('#show-more2').off('click').on('click', function () {
+                            activityContainer.empty(); // Hapus isi sebelumnya
+                            visits.forEach(function (visit) {
+                                var badgeClass = visit.visitStatus === 'Done' ? 'text-success' : 'text-info';
+                                var activityItem = `
+                                        <div class="activity-item d-flex">
+                                            <div class="activite-label">${visit.dateVisit}</div>
+                                            <i class="bi bi-circle-fill activity-badge ${badgeClass} align-self-start"></i>
+                                            <div class="activity-content">
+                                                <a href="#" class="fw-bold text-dark">${visit.doctorName}</a> <br>
+                                                ${visit.practiceName} <br>
+                                                <a class="fw-bold text-dark">${visit.prodID}</a>
+                                            </div>
+                                        </div><!-- End activity item-->
+                                        `;
+                                activityContainer.append(activityItem);
+                            });
+                            $('#show-more2').hide(); // Sembunyikan tombol "Selengkapnya"
+                            $('#show-less2').show(); // Tampilkan tombol "Kecilkan"
+                        });
+
+                        // Tombol "Kecilkan"
+                        $('#show-less2').off('click').on('click', function () {
+                            activityContainer.empty(); // Hapus isi sebelumnya
+                            var visibleItems = visits.slice(0, 5);
+                            visibleItems.forEach(function (visit) {
+                                var badgeClass = visit.visitStatus === 'Done' ? 'text-success' : 'text-info';
+                                var activityItem = `
+                                        <div class="activity-item d-flex">
+                                            <div class="activite-label">${visit.dateVisit}</div>
+                                            <i class="bi bi-circle-fill activity-badge ${badgeClass} align-self-start"></i>
+                                            <div class="activity-content">
+                                                <a href="#" class="fw-bold text-dark">${visit.doctorName}</a> <br>
+                                                ${visit.practiceName} <br>
+                                                <a class="fw-bold text-dark">${visit.prodID}</a>
+                                            </div>
+                                        </div><!-- End activity item-->
+                                        `;
+                                activityContainer.append(activityItem);
+                            });
+                            $('#show-less2').hide(); // Sembunyikan tombol "Kecilkan"
+                            $('#show-more2').show(); // Tampilkan tombol "Selengkapnya"
+                        });
+
+
+                    },
+                    error: function (error) {
+                        console.log(startDate);
+                        console.log(endDate);
+                        console.log("Error fetching data: ", error);
+                    }
+                });
+
+            }
+
             function updateChart(employeeNik) {
                 $.ajax({
                     url: '@Url.Action("Index", "Dashboard")',
@@ -1210,12 +1331,12 @@
                         activityContainer.empty();
 
                         if (visits.length === 0) {
-                            // Jika VisitToday kosong, tampilkan gambar dan pesan
+                            // Jika VisitLater kosong, tampilkan gambar dan pesan
                             placeholder.show();
                             $('#show-more2').hide();
                             $('#show-less2').hide();
                         } else {
-                            // Jika VisitToday ada isinya, sembunyikan placeholder dan tampilkan activity items
+                            // Jika VisitLater ada isinya, sembunyikan placeholder dan tampilkan activity items
                             placeholder.hide();
                             var visibleItems = visits.slice(0, 5);
                             visibleItems.forEach(function (visit) {
@@ -1415,6 +1536,9 @@
                 $('#cardTitle').text(savedSelection);
                 updateChart(savedSelection);
             }
+
+            startDate.addEventListener('change', updateVisitLater);
+            endDate.addEventListener('change', updateVisitLater);
 
         });
     </script>

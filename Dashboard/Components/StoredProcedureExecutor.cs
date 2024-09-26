@@ -121,5 +121,62 @@ namespace Dashboard.Components
 
             return returnObject;
         }
+
+        public static List<T> ExecuteQueryList<T>(this DbContext context, string query)
+        {
+            var returnObject = new List<T>();
+
+            using (var command = context.Database.GetDbConnection().CreateCommand())
+            {
+                command.CommandType = CommandType.Text;
+                command.CommandText = query;
+
+                context.Database.OpenConnection();
+
+                try
+                {
+                    var dataReader = command.ExecuteReader();
+                    returnObject = dataReader.ToList<T>();
+                }
+                catch (Exception)
+                {
+                    context.Database.CloseConnection();
+                    throw;
+                }
+
+                context.Database.CloseConnection();
+            }
+
+            return returnObject;
+        }
+
+        public static T ExecuteQuerySingle<T>(this DbContext context, string query)
+        {
+            T returnObject = default(T);
+
+            using (var command = context.Database.GetDbConnection().CreateCommand())
+            {
+                command.CommandType = CommandType.Text;
+                command.CommandText = query;
+
+                context.Database.OpenConnection();
+
+                try
+                {
+                    var dataReader = command.ExecuteReader();
+                    returnObject = SQLAutoMapper.ToSingle<T>(dataReader);
+                }
+                catch (Exception)
+                {
+                    context.Database.CloseConnection();
+                    throw;
+                }
+
+                context.Database.CloseConnection();
+            }
+
+            return returnObject;
+        }
+
     }
 }
