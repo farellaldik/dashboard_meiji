@@ -748,7 +748,7 @@
                                 <div class="card-body">
 
                                     <div class="d-flex justify-content-between">
-                                        <h5 class="card-title">Visit Plan <span>| Later</span></h5>
+                                        <h5 class="card-title">Visit Plan <span id="later-date">| Later</span></h5>
                                         @* <div class="date-filters mt-2 mb-4">
                                             <div class="form-group p-0">
                                                 <input type="date" id="startDate" class="form-control">
@@ -1017,16 +1017,33 @@
                 return `${year}-${month}-${day}`;
             };
 
+            const formatDateForDisplay = (date) => {
+                const day = String(date.getDate()).padStart(2, '0');
+                const monthNames = [
+                    "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+                    "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+                ];
+                const month = monthNames[date.getMonth()]; // Nama bulan
+                const year = date.getFullYear();
+                return `${day} ${month} ${year}`; // Format untuk tampilan
+            };
+
             const formattedTomorrow = formatDate(tomorrow);
             const formattedOneMonthLater = formatDate(oneMonthLater);
+
+            const formattedTomorrowForDisplay = formatDateForDisplay(tomorrow);
+            const formattedOneMonthLaterForDisplay = formatDateForDisplay(oneMonthLater);
 
             // Set default values and constraints
             startDateInput.value = formattedTomorrow;
             startDateInput.min = formattedTomorrow;
+            startDateInput.max = formattedOneMonthLater
 
             endDateInput.value = formattedOneMonthLater;
             endDateInput.min = formattedTomorrow;
             endDateInput.max = formattedOneMonthLater;
+
+            document.getElementById('later-date').textContent = `| ${formattedTomorrowForDisplay} - ${formattedOneMonthLaterForDisplay}`;
 
             document.getElementById('startDate').addEventListener('change', function () {
                 // Update min pada endDate berdasarkan pilihan startDate
@@ -1045,6 +1062,15 @@
                 const endDate = $('#endDate').val();
                 var savedSelection = sessionStorage.getItem('dropdownSelection');
 
+                // Konversi string tanggal ke objek Date
+                const startDateObj = new Date(startDate);
+                const endDateObj = new Date(endDate);
+
+                // Format tanggal untuk tampilan
+                const formattedStartDateForDisplay = formatDateForDisplay(startDateObj);
+                const formattedEndDateForDisplay = formatDateForDisplay(endDateObj);
+
+
                 $.ajax({
                     url: '@Url.Action("Index", "Dashboard")',  // Ganti dengan URL dari JSON kamu
                     type: 'GET',
@@ -1057,6 +1083,8 @@
                         var visits = data.visitLater;
                         var activityContainer = $('#activity-container2');
                         var placeholder = $('#empty-placeholder2');
+
+                        document.getElementById('later-date').textContent = `| ${formattedStartDateForDisplay} - ${formattedEndDateForDisplay}`;
 
                         activityContainer.empty();
                         $('#show-more2').hide();
