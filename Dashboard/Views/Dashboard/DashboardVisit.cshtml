@@ -1,0 +1,506 @@
+﻿@{
+    ViewBag.ContainerClass = "container-fluid";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+
+    <!-- <title>Dashboard - NiceAdmin Bootstrap Template</title> -->
+    <meta content="" name="description">
+    <meta content="" name="keywords">
+
+    <!-- Favicons -->
+    <link href="~/assets/img/favicon.png" rel="icon">
+    <link href="~/assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.gstatic.com" rel="preconnect">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+
+    <!-- Vendor CSS Files -->
+    <link href="~/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="~/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="~/assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+    <link href="~/assets/vendor/quill/quill.snow.css" rel="stylesheet">
+    <link href="~/assets/vendor/quill/quill.bubble.css" rel="stylesheet">
+    <link href="~/assets/vendor/remixicon/remixicon.css" rel="stylesheet">
+    <link href="~/assets/vendor/simple-datatables/style.css" rel="stylesheet">
+
+    <!-- Template Main CSS File -->
+    <link href="~/assets/css/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    <!-- Data Table -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+
+    <!-- =======================================================
+    * Template Name: NiceAdmin
+    * Template URL: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/
+    * Updated: Apr 20 2024 with Bootstrap v5.3.3
+    * Author: BootstrapMade.com
+    * License: https://bootstrapmade.com/license/
+    ======================================================== -->
+</head>
+
+<body>
+
+    <main id="main" class="main">
+
+        <div class="pagetitle">
+            <h1>Dashboard Visit</h1>
+            <nav>
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a asp-area="" asp-controller="Dashboard" asp-action="Index">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Dashboard Visit</li>
+                </ol>
+            </nav>
+        </div><!-- End Page Title -->
+
+        <section class="section dashboard">
+
+            <div class="row">
+
+                <div class="col-12">
+                    <div class="card info-card p-2">
+                        <div class="date-filter-container mx-3">
+
+                            @* <div class="dropdown">
+                                <button class="btn btn-primary dropdown-toggle" type="button" id="multiSelectDropdown"
+                                        data-bs-toggle="dropdown" aria-expanded="false">
+                                    Daftar Tes
+                                </button>
+                                <ul class="dropdown-menu" id="dropdownMenu" aria-labelledby="multiSelectDropdown">
+                                </ul>
+                            </div> *@
+
+                            <div class="date-filters">
+                                <div class="form-group">
+                                    <label for="visitMonth" class="card-title">Visit Month</label>
+                                    <input type="month" id="visitMonth" class="form-control">
+                                </div>
+                                @* <div class="form-group">
+                                    <label for="endDate" class="card-title">End Date</label>
+                                    <input type="month" id="endDate" class="form-control">
+                                </div> *@
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <div class="card info-card sales-card">
+
+                        <!-- <div class="filter">
+                          <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                            <li class="dropdown-header text-start">
+                              <h6>Filter</h6>
+                            </li>
+
+                            <li><a class="dropdown-item" href="#">Today</a></li>
+                            <li><a class="dropdown-item" href="#">This Month</a></li>
+                            <li><a class="dropdown-item" href="#">This Year</a></li>
+                          </ul>
+                        </div> -->
+
+                        <div class="card-body">
+                            <h5 class="card-title">Target Visit Bulanan</h5>
+
+                            <div class="d-flex align-items-center">
+                                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-calendar"></i>
+                                </div>
+                                <div class="ps-3 w-100">
+                                    <h6 id="visit-count">0 / 0 Dokter</h6>
+
+                                    <!-- Bagian ini akan diubah sesuai dengan needToVisit atau achievementRate -->
+                                    <span id="visit-target" class="text-success small mt-3 pt-3 fw-bold">0 visit</span>
+
+                                    <!-- Progress bar akan di-update sesuai achievementRate -->
+                                    <div class="progress mt-2">
+                                        <div id="progress-bar-target" class="progress-bar" role="progressbar" style="width: 50%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="col-lg-3 col-md-6">
+                    <div class="card info-card sales-card">
+
+                        <!-- <div class="filter">
+                          <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                            <li class="dropdown-header text-start">
+                              <h6>Filter</h6>
+                            </li>
+
+                            <li><a class="dropdown-item" href="#">Today</a></li>
+                            <li><a class="dropdown-item" href="#">This Month</a></li>
+                            <li><a class="dropdown-item" href="#">This Year</a></li>
+                          </ul>
+                        </div> -->
+
+                        <div class="card-body">
+                            <h5 class="card-title">Target Coverage Dokter</h5>
+
+                            <div class="d-flex align-items-center">
+                                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-pie-chart"></i>
+                                </div>
+                                <div class="ps-3 w-100">
+                                    <h6 id="jumlahQuizLulus">0 / 0 Dokter</h6>
+
+                                    <!-- Bagian ini akan diubah sesuai dengan needToVisit atau achievementRate -->
+                                    <span id="visit-target" class="text-success small mt-3 pt-3 fw-bold">0 coverage</span>
+
+                                    <!-- Progress bar akan di-update sesuai achievementRate -->
+                                    <div class="progress mt-2">
+                                        <div class="progress-bar" role="progressbar" style="width: 50%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="col-lg-2 col-md-4">
+                    <div class="card info-card sales-card">
+
+                        <!-- <div class="filter">
+                          <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                            <li class="dropdown-header text-start">
+                              <h6>Filter</h6>
+                            </li>
+
+                            <li><a class="dropdown-item" href="#">Today</a></li>
+                            <li><a class="dropdown-item" href="#">This Month</a></li>
+                            <li><a class="dropdown-item" href="#">This Year</a></li>
+                          </ul>
+                        </div> -->
+
+                        <div class="card-body">
+                            <h5 class="card-title">Jumlah Quiz Remedial</h5>
+
+                            <div class="d-flex align-items-center">
+                                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-check-circle"></i>
+                                </div>
+                                <div class="ps-3 w-100">
+                                    <h6 id="jumlahQuizTidakLulus">0 Quiz</h6>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="col-lg-2 col-md-4">
+                    <div class="card info-card sales-card">
+
+                        <!-- <div class="filter">
+                          <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                            <li class="dropdown-header text-start">
+                              <h6>Filter</h6>
+                            </li>
+
+                            <li><a class="dropdown-item" href="#">Today</a></li>
+                            <li><a class="dropdown-item" href="#">This Month</a></li>
+                            <li><a class="dropdown-item" href="#">This Year</a></li>
+                          </ul>
+                        </div> -->
+
+                        <div class="card-body">
+                            <h5 class="card-title">Skor Rata-Rata</h5>
+
+                            <div class="d-flex align-items-center">
+                                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-bar-chart"></i>
+                                </div>
+                                <div class="ps-3 w-100">
+                                    <h6 id="skorAvg"></h6>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="col-lg-2 col-md-4">
+                    <div class="card info-card sales-card">
+
+                        <!-- <div class="filter">
+                          <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                            <li class="dropdown-header text-start">
+                              <h6>Filter</h6>
+                            </li>
+
+                            <li><a class="dropdown-item" href="#">Today</a></li>
+                            <li><a class="dropdown-item" href="#">This Month</a></li>
+                            <li><a class="dropdown-item" href="#">This Year</a></li>
+                          </ul>
+                        </div> -->
+
+                        <div class="card-body">
+                            <h5 class="card-title">Skor Rata-Rata</h5>
+
+                            <div class="d-flex align-items-center">
+                                <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                                    <i class="bi bi-bar-chart"></i>
+                                </div>
+                                <div class="ps-3 w-100">
+                                    <h6 id="skorAvg"></h6>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <div class="col-xxl-6 col-md-6 col-lg-6">
+                    <!-- Visit -->
+                    <div class="card info-card">
+                        <!-- <div class="filter">
+                          <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                            <li class="dropdown-header text-start">
+                              <h6>Filter</h6>
+                            </li>
+
+                            <li><a class="dropdown-item" href="#">Today</a></li>
+                            <li><a class="dropdown-item" href="#">This Month</a></li>
+                            <li><a class="dropdown-item" href="#">This Year</a></li>
+                          </ul>
+                        </div> -->
+
+                        <div class="card-body pb-0">
+                            <h5 class="card-title">Skor Per Test</h5>
+
+                            <!-- Column Chart -->
+                            <div id="columnChart"></div>
+                            <!-- End Column Chart -->
+
+                        </div>
+                    </div><!-- End Visit -->
+                </div>
+
+                <div class="col-xxl-6 col-md-6 col-lg-6">
+                    <!-- Actual Sales -->
+                    <div class="card info-card">
+                        <!-- <div class="filter">
+                          <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                            <li class="dropdown-header text-start">
+                              <h6>Filter</h6>
+                            </li>
+
+                            <li><a class="dropdown-item" href="#">Today</a></li>
+                            <li><a class="dropdown-item" href="#">This Month</a></li>
+                            <li><a class="dropdown-item" href="#">This Year</a></li>
+                          </ul>
+                        </div> -->
+
+                        <div class="card-body pb-0">
+                            <h5 class="card-title">Trend Nilai Quiz</h5>
+
+                            <div id="lineChart" class="echart"></div>
+
+                        </div>
+                    </div><!-- End Actual Sales -->
+                </div>
+
+                <div class="col-xxl-6 col-md-6 col-lg-6">
+                    <!-- Website Traffic -->
+                    <div class="card info-card">
+                        <!-- <div class="filter">
+                          <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                            <li class="dropdown-header text-start">
+                              <h6>Filter</h6>
+                            </li>
+
+                            <li><a class="dropdown-item" href="#">Today</a></li>
+                            <li><a class="dropdown-item" href="#">This Month</a></li>
+                            <li><a class="dropdown-item" href="#">This Year</a></li>
+                          </ul>
+                        </div> -->
+
+                        <div class="card-body pb-0">
+                            <h5 class="card-title">Persentase Kelulusan </h5>
+
+                            <div id="trafficChart" style="height: 365px;" class="echart mb-0"></div>
+
+                        </div>
+                    </div>
+                    <!-- End Website Traffic -->
+
+                </div>
+
+                <div class="col-xxl-6 col-md-6 col-lg-6">
+                    <!-- Visit -->
+                    <div class="card info-card">
+                        <!-- <div class="filter">
+                          <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                            <li class="dropdown-header text-start">
+                              <h6>Filter</h6>
+                            </li>
+
+                            <li><a class="dropdown-item" href="#">Today</a></li>
+                            <li><a class="dropdown-item" href="#">This Month</a></li>
+                            <li><a class="dropdown-item" href="#">This Year</a></li>
+                          </ul>
+                        </div> -->
+
+                        <div class="card-body pb-0">
+                            <h5 class="card-title">Quiz E-Test</h5>
+
+                            <!-- Column Chart -->
+                            <a><div id="columnChartTest"></div></a>
+                            <!-- End Column Chart -->
+
+                        </div>
+                    </div><!-- End Visit -->
+                </div>
+
+                <!-- Top Selling -->
+                <div class="col-12">
+                    <div class="card top-selling overflow-auto pb-4">
+                        <div class="card-body pb-0">
+                            <h5 class="card-title">Data Quiz E-Test</h5>
+                            <table id="dataTable" class="display">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Created Date</th>
+                                        <th>Answer Date</th>
+                                        <th>Correct Answers</th>
+                                        <th>False Answers</th>
+                                        <th>Total Questions</th>
+                                        <th>Score</th>
+                                        <th>Remarks</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Baris data akan diisi dengan JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!-- End Top Selling -->
+
+            </div>
+
+        </section>
+
+    </main><!-- End #main -->
+    <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+    <!-- Vendor JS Files -->
+    <script src="~/assets/vendor/apexcharts/apexcharts.min.js"></script>
+    <script src="~/assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="~/assets/vendor/chart.js/chart.umd.js"></script>
+    <script src="~/assets/vendor/echarts/echarts.min.js"></script>
+    <script src="~/assets/vendor/quill/quill.js"></script>
+    <script src="~/assets/vendor/simple-datatables/simple-datatables.js"></script>
+    <script src="~/assets/vendor/tinymce/tinymce.min.js"></script>
+    <script src="~/assets/vendor/php-email-form/validate.js"></script>
+
+    <!-- JS Data Table -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+
+    <!-- Template Main JS File -->
+    @* <script src="~/assets/js/main.js"></script> *@
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <script>
+
+        $(document).ready(function () {
+
+            const visitMonthInput = document.getElementById('visitMonth');
+
+            $(document).on('dropdownChanged', function (event, selectedValue) {
+                updateDataVisit(selectedValue);
+            });
+
+            var savedSelection = sessionStorage.getItem('dropdownSelection')
+            if (savedSelection) {
+                updateDataVisit(savedSelection);
+            }
+
+            function setDefaultDates() {
+                const today = new Date();
+                const visitMonth = new Date(today.getFullYear(), today.getMonth() + 1);
+
+                const visitMonthFormatted = visitMonth.toISOString().slice(0, 7); // Ambil hanya YYYY-MM
+
+                visitMonthInput.value = visitMonthFormatted;
+
+            }
+
+            function updateDataVisit(employeeNik) {
+                $.ajax({
+                    url: '@Url.Action("DashboardVisit", "Dashboard")',
+                    type: 'GET',
+                    dataType: 'json',
+                    data: { employeeNik: employeeNik },
+                    success: function (data) {
+
+                        //Update Data Card Target Visit Bulanan
+                        const visitTargetData = data.visitTarget[0]; // Ambil data pertama dari array visitTarget
+                        const visitTarget = visitTargetData.visitTarget;
+                        const visitCount = visitTargetData.visitCount;
+                        const achievementRate = visitTargetData.achievementRate;
+                        const needToVisit = visitTargetData.needToVisit;
+                        // Update <h6> menjadi visitCount / visitTarget
+                        $('#visit-count').text(visitCount + ' / ' + visitTarget);
+                        // Update text jumlah visit yang dibutuhkan
+                        if (achievementRate >= 100) {
+                            $('#visit-target').html('Luar Biasa!</span> <span class="pt-2 ps-1">Target tercapai</span>');
+                        } else {
+                            $('#visit-target').html(needToVisit + ' visit</span><span class="pt-2 ps-1">lagi mencapai target!</span>');
+                        }
+                        // Update progress bar berdasarkan achievementRate
+                        $('#progress-bar-target').css('width', achievementRate + '%');
+                        // Jika achievementRate >= 100, tambahkan teks khusus
+                        if (achievementRate >= 100) {
+                            $('#progress-bar-target').attr('aria-valuenow', 100); // Set max ke 100
+                        } else {
+                            $('#progress-bar-target').attr('aria-valuenow', achievementRate); // Set nilai saat ini ke achievementRate
+                        }
+
+                        //Update Data Card Coverage MCL Bulanan
+
+
+                    },
+                    error: function () {
+                        console.error("Error fetching data.");
+                    }
+                });
+            }
+
+
+            setDefaultDates();
+
+        });
+
+    </script>
+
+</body>
+
+</html>

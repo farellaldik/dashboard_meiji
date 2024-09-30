@@ -173,6 +173,59 @@ namespace Dashboard.Controllers
                     ABS(DATEDIFF(DAY, GETDATE(), DATE_VISIT)) ASC;
                 ";
 
+                var sql6 = @"
+                DECLARE @CurrentMonth NVARCHAR(20) = FORMAT(GETDATE(), 'MMMM', 'id-ID');
+                DECLARE @MR_NIK NVARCHAR(20) = @EmployeeNik; -- Variabel untuk MR_NIK
+
+                SELECT
+                    b.MR_NIK,
+                    a.MONTH,
+                    a.WORKDAY,
+                    ((a.WORKDAY - 2) * 10) AS VISIT_TARGET,
+                    (SELECT COUNT(b2.NOTES_ID) 
+                     FROM VISITING_JUKUDO_NOTES b2
+                     WHERE b2.MR_NIK = @MR_NIK -- Menggunakan variabel
+                       AND MONTH(b2.ADATE) = MONTH(GETDATE())
+                       AND b2.VISIT = '1') AS VISIT_COUNT, -- Menambahkan filter VISIT = '1'
+                    -- Menghitung Achievement Rate
+                    CASE 
+                        WHEN ((a.WORKDAY - 2) * 10) > 0 THEN
+                            CAST((SELECT COUNT(b3.NOTES_ID) 
+                                  FROM VISITING_JUKUDO_NOTES b3
+                                  WHERE b3.MR_NIK = @MR_NIK -- Menggunakan variabel
+                                    AND MONTH(b3.ADATE) = MONTH(GETDATE())
+                                    AND b3.VISIT = '1') AS FLOAT)  -- Menambahkan filter VISIT = '1'
+                            / ((a.WORKDAY - 2) * 10) * 100
+                        ELSE 0
+                    END AS ACHIEVEMENT_RATE,
+                    -- Menambahkan kolom NEED_TO_VISIT
+                    CASE 
+                        WHEN ((a.WORKDAY - 2) * 10) - 
+                             (SELECT COUNT(b2.NOTES_ID) 
+                              FROM VISITING_JUKUDO_NOTES b2
+                              WHERE b2.MR_NIK = @MR_NIK 
+                                AND MONTH(b2.ADATE) = MONTH(GETDATE())
+                                AND b2.VISIT = '1') < 0  -- Menambahkan filter VISIT = '1'
+                        THEN 0
+                        ELSE ((a.WORKDAY - 2) * 10) - 
+                             (SELECT COUNT(b2.NOTES_ID) 
+                              FROM VISITING_JUKUDO_NOTES b2
+                              WHERE b2.MR_NIK = @MR_NIK 
+                                AND MONTH(b2.ADATE) = MONTH(GETDATE())
+                                AND b2.VISIT = '1')  -- Menambahkan filter VISIT = '1'
+                    END AS NEED_TO_VISIT
+                FROM 
+                    TABLE_WORKDAY a
+                LEFT JOIN 
+                    VISITING_JUKUDO_NOTES b ON b.MR_NIK = @MR_NIK -- Menggunakan variabel
+                WHERE 
+                    a.MONTH = @CurrentMonth
+                GROUP BY 
+                    a.MONTH, 
+                    a.WORKDAY,
+                    b.MR_NIK; -- Masukkan b.MR_NIK ke dalam GROUP BY
+                ";
+
                 //var filter = "WHERE PLAN_VISIT = '1' ";
                 //if (blabla) 
                 //{
@@ -209,7 +262,7 @@ namespace Dashboard.Controllers
                 try
                 {
                     //var list = StoredProcedureExecutor.ExecuteQueryList<VisitTodayReponse>(_context, sql5);
-
+                    var visitTarget = new List<dynamic>();
                     var tests = new List<dynamic>();
                     var visitToday = new List<dynamic>();
                     var visitLater = new List<dynamic>();
@@ -324,6 +377,28 @@ namespace Dashboard.Controllers
                             }
                         }
 
+                        command.Parameters.Clear();
+                        command.CommandText = sql6;
+                        command.CommandType = System.Data.CommandType.Text;
+                        command.Parameters.Add(new SqlParameter("@EmployeeNik", employeeNik));
+
+                        await using (var reader = await command.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                var visittarget = new
+                                {
+                                    VisitTarget = Convert.ToInt32(reader["VISIT_TARGET"]),
+                                    VisitCount = Convert.ToInt32(reader["VISIT_COUNT"]),
+                                    AchievementRate = Convert.ToDecimal(reader["ACHIEVEMENT_RATE"]),
+                                    NeedToVisit = Convert.ToInt32(reader["NEED_TO_VISIT"])
+                                };
+
+
+                                visitTarget.Add(visittarget);
+                            }
+                        }
+
                         return Json
                             (
                                 new 
@@ -332,6 +407,7 @@ namespace Dashboard.Controllers
                                     VisitToday = visitToday,
                                     VisitLater = visitLater,
                                     ActualVisit = actualVisit,
+                                    VisitTarget = visitTarget,
                                 }
                             );
                     }
@@ -446,6 +522,160 @@ namespace Dashboard.Controllers
                 }
             }
             // Jika employeeNik tidak diset, hanya tampilkan daftar NIK
+            return View();
+        }
+
+        public async Task<IActionResult> DashboardVisit(string employeeNik = null)
+        {
+            // Ambil daftar NIK karyawan
+            var employeeNiks = _context.TABLE_MR
+                                   .Select(q => q.NIK)
+                                   .Distinct()
+                                   .ToList();
+
+            // Kirim daftar NIK ke ViewBag untuk dropdown
+            ViewBag.EmployeeNiks = employeeNiks;
+
+            if (!string.IsNullOrEmpty(employeeNik))
+            {
+                var sqlVisitTarget = @"
+                DECLARE @CurrentMonth NVARCHAR(20) = FORMAT(GETDATE(), 'MMMM', 'id-ID');
+                DECLARE @MR_NIK NVARCHAR(20) = @EmployeeNik; -- Variabel untuk MR_NIK
+
+                SELECT
+                    b.MR_NIK,
+                    a.MONTH,
+                    a.WORKDAY,
+                    ((a.WORKDAY - 2) * 10) AS VISIT_TARGET,
+                    (SELECT COUNT(b2.NOTES_ID) 
+                     FROM VISITING_JUKUDO_NOTES b2
+                     WHERE b2.MR_NIK = @MR_NIK -- Menggunakan variabel
+                       AND MONTH(b2.ADATE) = MONTH(GETDATE())
+                       AND b2.VISIT = '1') AS VISIT_COUNT, -- Menambahkan filter VISIT = '1'
+                    -- Menghitung Achievement Rate
+                    CASE 
+                        WHEN ((a.WORKDAY - 2) * 10) > 0 THEN
+                            CAST((SELECT COUNT(b3.NOTES_ID) 
+                                  FROM VISITING_JUKUDO_NOTES b3
+                                  WHERE b3.MR_NIK = @MR_NIK -- Menggunakan variabel
+                                    AND MONTH(b3.ADATE) = MONTH(GETDATE())
+                                    AND b3.VISIT = '1') AS FLOAT)  -- Menambahkan filter VISIT = '1'
+                            / ((a.WORKDAY - 2) * 10) * 100
+                        ELSE 0
+                    END AS ACHIEVEMENT_RATE,
+                    -- Menambahkan kolom NEED_TO_VISIT
+                    CASE 
+                        WHEN ((a.WORKDAY - 2) * 10) - 
+                             (SELECT COUNT(b2.NOTES_ID) 
+                              FROM VISITING_JUKUDO_NOTES b2
+                              WHERE b2.MR_NIK = @MR_NIK 
+                                AND MONTH(b2.ADATE) = MONTH(GETDATE())
+                                AND b2.VISIT = '1') < 0  -- Menambahkan filter VISIT = '1'
+                        THEN 0
+                        ELSE ((a.WORKDAY - 2) * 10) - 
+                             (SELECT COUNT(b2.NOTES_ID) 
+                              FROM VISITING_JUKUDO_NOTES b2
+                              WHERE b2.MR_NIK = @MR_NIK 
+                                AND MONTH(b2.ADATE) = MONTH(GETDATE())
+                                AND b2.VISIT = '1')  -- Menambahkan filter VISIT = '1'
+                    END AS NEED_TO_VISIT
+                FROM 
+                    TABLE_WORKDAY a
+                LEFT JOIN 
+                    VISITING_JUKUDO_NOTES b ON b.MR_NIK = @MR_NIK -- Menggunakan variabel
+                WHERE 
+                    a.MONTH = @CurrentMonth
+                GROUP BY 
+                    a.MONTH, 
+                    a.WORKDAY,
+                    b.MR_NIK; -- Masukkan b.MR_NIK ke dalam GROUP BY
+                ";
+
+                //var filter = "WHERE PLAN_VISIT = '1' ";
+                //if (blabla) 
+                //{
+                //    filter = filter + "AND MR_NIK = @EmployeeNik ";
+                //}
+                //if ()
+                //{
+
+                //}
+                //var sqlcontoh = @"
+                //    SELECT 
+                //        NOTES_ID_MOBILE, 
+                //        DATE_VISIT, 
+                //        DOCTOR_CODE, 
+                //        DOCTOR_NAME, 
+                //        PRACTICE_NAME, 
+                //        PROD_ID,
+                //        CASE 
+                //            WHEN STATUS_VISIT = 1 THEN 'DONE' 
+                //            ELSE 'PLANNED' 
+                //        END AS VISIT_STATUS
+                //    FROM 
+                //        VISITING_JUKUDO_NOTES_MOBILE
+                //    " + filter + " ";
+                //    //WHERE 
+                //    PLAN_VISIT = '1' 
+                //    AND MR_NIK = @EmployeeNik 
+                //    AND CAST(DATE_VISIT AS DATE) > CAST(GETDATE() AS DATE)
+                //ORDER BY
+                //    ABS(DATEDIFF(DAY, GETDATE(), DATE_VISIT)) ASC;
+
+
+                // Membuka koneksi dan mengeksekusi perintah
+                try
+                {
+                    //var list = StoredProcedureExecutor.ExecuteQueryList<VisitTodayReponse>(_context, sql5);
+                    var visitTarget = new List<dynamic>();
+
+                    await using (var command = _context.Database.GetDbConnection().CreateCommand())
+                    {
+                        command.CommandText = sqlVisitTarget;
+                        command.CommandType = System.Data.CommandType.Text;
+                        command.Parameters.Add(new SqlParameter("@EmployeeNik", employeeNik));
+
+                        _context.Database.OpenConnection();
+
+                        await using (var reader = await command.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                var visittarget = new
+                                {
+                                    VisitTarget = Convert.ToInt32(reader["VISIT_TARGET"]),
+                                    VisitCount = Convert.ToInt32(reader["VISIT_COUNT"]),
+                                    AchievementRate = Convert.ToDecimal(reader["ACHIEVEMENT_RATE"]),
+                                    NeedToVisit = Convert.ToInt32(reader["NEED_TO_VISIT"])
+                                };
+
+                                visitTarget.Add(visittarget);
+                            }
+                        }
+
+                        
+
+                        return Json
+                            (
+                                new
+                                {
+                                    VisitTarget = visitTarget,
+                                }
+                            );
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Log exception (misalnya dengan logging framework) dan tampilkan error page
+                    // LogError(ex); 
+                    return StatusCode(500, "Internal server error. Please try again later.");
+                }
+                finally
+                {
+                    _context.Database.CloseConnection();
+                }
+            }
+
             return View();
         }
 

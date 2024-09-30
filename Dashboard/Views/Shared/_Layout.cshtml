@@ -148,6 +148,19 @@
                         console.error('Terjadi kesalahan saat mengirim data:', error);
                     }
                 });
+
+                $.ajax({
+                    url: '@Url.Action("DashboardVisit", "Dashboard")',
+                    type: 'POST',
+                    data: { employeeNik: selectedText },
+                    success: function (response) {
+                        console.log("Request URL:", '@Url.Action("DashboardVisit", "Dashboard")');
+                    },
+                    error: function (error) {
+                        console.error('Terjadi kesalahan saat mengirim data:', error);
+                    }
+                });
+
             }
         });
 
