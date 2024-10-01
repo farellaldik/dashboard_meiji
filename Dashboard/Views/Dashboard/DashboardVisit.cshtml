@@ -155,14 +155,14 @@
                                     <i class="bi bi-pie-chart"></i>
                                 </div>
                                 <div class="ps-3 w-100">
-                                    <h6 id="jumlahQuizLulus">0 / 0 Dokter</h6>
+                                    <h6 id="visit-coverage">0 / 0 Dokter</h6>
 
                                     <!-- Bagian ini akan diubah sesuai dengan needToVisit atau achievementRate -->
-                                    <span id="visit-target" class="text-success small mt-3 pt-3 fw-bold">0 coverage</span>
+                                    <span id="visit-coverage-target" class="text-success small mt-3 pt-3 fw-bold">0 coverage</span>
 
                                     <!-- Progress bar akan di-update sesuai achievementRate -->
                                     <div class="progress mt-2">
-                                        <div class="progress-bar" role="progressbar" style="width: 50%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                        <div id="progess-bar-coverage" class="progress-bar" role="progressbar" style="width: 50%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                                     </div>
 
                                 </div>
@@ -189,14 +189,20 @@
                         </div> -->
 
                         <div class="card-body">
-                            <h5 class="card-title">Jumlah Quiz Remedial</h5>
+                            <h5 class="card-title">Target Visit Dokter Kelas A</h5>
 
                             <div class="d-flex align-items-center">
                                 <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                                    <i class="bi bi-check-circle"></i>
+                                    <i class="bi bi-person"></i>
                                 </div>
                                 <div class="ps-3 w-100">
-                                    <h6 id="jumlahQuizTidakLulus">0 Quiz</h6>
+                                    <h6 id="visit-count-a">0 / 0</h6>
+
+                                    <span id="visit-target-a" class="text-success small mt-3 pt-3 fw-bold">0 visit lagi</span>
+
+                                    <div class="progress mt-2">
+                                        <div id="progess-bar-target-a" class="progress-bar" role="progressbar" style="width: 50%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -221,14 +227,20 @@
                         </div> -->
 
                         <div class="card-body">
-                            <h5 class="card-title">Skor Rata-Rata</h5>
+                            <h5 class="card-title">Target Visit Dokter Kelas B</h5>
 
                             <div class="d-flex align-items-center">
                                 <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                                    <i class="bi bi-bar-chart"></i>
+                                    <i class="bi bi-person"></i>
                                 </div>
                                 <div class="ps-3 w-100">
-                                    <h6 id="skorAvg"></h6>
+                                    <h6 id="visit-count-b">0 / 0</h6>
+
+                                    <span id="visit-target-b" class="text-success small mt-3 pt-3 fw-bold">0 visit lagi</span>
+
+                                    <div class="progress mt-2">
+                                        <div id="progess-bar-target-b" class="progress-bar" role="progressbar" style="width: 50%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -253,14 +265,20 @@
                         </div> -->
 
                         <div class="card-body">
-                            <h5 class="card-title">Skor Rata-Rata</h5>
+                            <h5 class="card-title">Target Visit Dokter Kelas C</h5>
 
                             <div class="d-flex align-items-center">
                                 <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                                    <i class="bi bi-bar-chart"></i>
+                                    <i class="bi bi-person"></i>
                                 </div>
                                 <div class="ps-3 w-100">
-                                    <h6 id="skorAvg"></h6>
+                                    <h6 id="visit-count-c">0 / 0</h6>
+
+                                    <span id="visit-target-c" class="text-success small mt-3 pt-3 fw-bold">0 visit lagi</span>
+
+                                    <div class="progress mt-2">
+                                        <div id="progess-bar-target-c" class="progress-bar" role="progressbar" style="width: 50%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -271,31 +289,30 @@
                 <div class="col-xxl-6 col-md-6 col-lg-6">
                     <!-- Visit -->
                     <div class="card info-card">
-                        <!-- <div class="filter">
+                        @* <div class="filter">
                           <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
                           <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
                             <li class="dropdown-header text-start">
-                              <h6>Filter</h6>
+                              <h6>OPSI CHART</h6>
                             </li>
 
-                            <li><a class="dropdown-item" href="#">Today</a></li>
-                            <li><a class="dropdown-item" href="#">This Month</a></li>
-                            <li><a class="dropdown-item" href="#">This Year</a></li>
+                            <li><a class="dropdown-item" href="#">Per Hari</a></li>
+                            <li><a class="dropdown-item" href="#">Per Bulan</a></li>
                           </ul>
-                        </div> -->
+                        </div> *@
 
                         <div class="card-body pb-0">
-                            <h5 class="card-title">Skor Per Test</h5>
+                            <h5 class="card-title">Visit Berdasarkan Produk</h5>
 
                             <!-- Column Chart -->
-                            <div id="columnChart"></div>
+                            <div id="ChartVisitProduct"></div>
                             <!-- End Column Chart -->
 
                         </div>
                     </div><!-- End Visit -->
                 </div>
 
-                <div class="col-xxl-6 col-md-6 col-lg-6">
+                <div class="col-xxl-3 col-md-3 col-lg-3">
                     <!-- Actual Sales -->
                     <div class="card info-card">
                         <!-- <div class="filter">
@@ -312,7 +329,32 @@
                         </div> -->
 
                         <div class="card-body pb-0">
-                            <h5 class="card-title">Trend Nilai Quiz</h5>
+                            <h5 class="card-title">Visit By Plan</h5>
+
+                            <div id="PieChartVisitPlan" style="height: 365px;" class="echart"></div>
+
+                        </div>
+                    </div><!-- End Actual Sales -->
+                </div>
+
+                <div class="col-xxl-3 col-md-3 col-lg-3">
+                    <!-- Actual Sales -->
+                    <div class="card info-card">
+                        <!-- <div class="filter">
+                          <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
+                          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
+                            <li class="dropdown-header text-start">
+                              <h6>Filter</h6>
+                            </li>
+
+                            <li><a class="dropdown-item" href="#">Today</a></li>
+                            <li><a class="dropdown-item" href="#">This Month</a></li>
+                            <li><a class="dropdown-item" href="#">This Year</a></li>
+                          </ul>
+                        </div> -->
+
+                        <div class="card-body pb-0">
+                            <h5 class="card-title">Visit By Class</h5>
 
                             <div id="lineChart" class="echart"></div>
 
@@ -374,7 +416,18 @@
                     </div><!-- End Visit -->
                 </div>
 
-                <!-- Top Selling -->
+                <!-- Card Table -->
+                <div class="col-12">
+                    <div class="card top-selling overflow-auto pb-4">
+                        <div class="card-body pb-0">
+                            <h5 class="card-title">Button</h5>
+                            
+                        </div>
+                    </div>
+                </div>
+                <!-- End Card Table -->
+
+                <!-- Card Table -->
                 <div class="col-12">
                     <div class="card top-selling overflow-auto pb-4">
                         <div class="card-body pb-0">
@@ -399,7 +452,7 @@
                         </div>
                     </div>
                 </div>
-                <!-- End Top Selling -->
+                <!-- End Card Table -->
 
             </div>
 
@@ -485,7 +538,247 @@
                         }
 
                         //Update Data Card Coverage MCL Bulanan
+                        const visitCoverageData = data.visitCoverage[0]; // Ambil data pertama dari array visitTarget
+                        const mcl = visitCoverageData?.mcl ?? 0;
+                        const visited = visitCoverageData?.visited ?? 0;
+                        const coverage = visitCoverageData?.coverage ?? 0;
+                        const needToVisitCoverage = visitCoverageData?.needToVisit ?? 0;
+                        // Update <h6> menjadi visitCount / visitTarget
+                        $('#visit-coverage').text(visited + ' / ' + mcl);
+                        // Update text jumlah visit yang dibutuhkan
+                        if (coverage >= 100) {
+                            $('#visit-coverage-target').html('Luar Biasa!</span> <span class="pt-2 ps-1">Target tercapai</span>');
+                        } else {
+                            $('#visit-coverage-target').html(needToVisitCoverage + ' visit</span><span class="pt-2 ps-1">lagi mencapai target!</span>');
+                        }
+                        // Update progress bar berdasarkan achievementRate
+                        $('#progess-bar-coverage').css('width', coverage + '%');
+                        // Jika achievementRate >= 100, tambahkan teks khusus
+                        if (coverage >= 100) {
+                            $('#progress-bar-coverage').attr('aria-valuenow', 100); // Set max ke 100
+                        } else {
+                            $('#progress-bar-coverage').attr('aria-valuenow', coverage); // Set nilai saat ini ke achievementRate
+                        }
 
+                        //Update Data Card Target Visit Dokter Class A
+                        const visitTargetByClass_a = data.visitTargetByClass[0]; // Ambil data pertama dari array visitTarget
+                        const doctorCount_a = visitTargetByClass_a?.doctorCount ?? 0;
+                        const targetVisit_a = visitTargetByClass_a?.targetVisit ?? 0;
+                        const visited_a = visitTargetByClass_a?.visited ?? 0;
+                        const needToVisit_a = visitTargetByClass_a?.needToVisit ?? 0;
+                        const progress_a = visitTargetByClass_a?.progress ?? 0;
+                        // Update <h6> menjadi visitCount / visitTarget
+                        $('#visit-count-a').text(visited_a + ' / ' + targetVisit_a);
+                        // Update text jumlah visit yang dibutuhkan
+                        if (progress_a >= 100) {
+                            $('#visit-target-a').html('</span><span class="pt-2 ps-1">Target tercapai</span>');
+                        } else {
+                            $('#visit-target-a').html(needToVisit_a + ' visit</span><span class="pt-2 ps-1">lagi</span>');
+                        }
+                        // Update progress bar berdasarkan achievementRate
+                        $('#progess-bar-target-a').css('width', progress_a + '%');
+                        // Jika achievementRate >= 100, tambahkan teks khusus
+                        if (progress_a >= 100) {
+                            $('#progess-bar-target-a').attr('aria-valuenow', 100); // Set max ke 100
+                        } else {
+                            $('#progess-bar-target-a').attr('aria-valuenow', progress_a); // Set nilai saat ini ke achievementRate
+                        }
+
+                        //Update Data Card Target Visit Dokter Class B
+                        const visitTargetByClass_b = data.visitTargetByClass[1]; // Ambil data pertama dari array visitTarget
+                        const doctorCount_b = visitTargetByClass_b?.doctorCount ?? 0;
+                        const targetVisit_b = visitTargetByClass_b?.targetVisit ?? 0;
+                        const visited_b = visitTargetByClass_b?.visited ?? 0;
+                        const needToVisit_b = visitTargetByClass_b?.needToVisit ?? 0;
+                        const progress_b = visitTargetByClass_b?.progress ?? 0;
+                        // Update <h6> menjadi visitCount / visitTarget
+                        $('#visit-count-b').text(visited_b + ' / ' + targetVisit_b);
+                        // Update text jumlah visit yang dibutuhkan
+                        if (progress_b >= 100) {
+                            $('#visit-target-b').html('</span><span class="pt-2 ps-1">Target tercapai</span>');
+                        } else {
+                            $('#visit-target-b').html(needToVisit_b + ' visit</span><span class="pt-2 ps-1">lagi</span>');
+                        }
+                        // Update progress bar berdasarkan achievementRate
+                        $('#progess-bar-target-b').css('width', progress_b + '%');
+                        // Jika achievementRate >= 100, tambahkan teks khusus
+                        if (progress_b >= 100) {
+                            $('#progess-bar-target-b').attr('aria-valuenow', 100); // Set max ke 100
+                        } else {
+                            $('#progess-bar-target-b').attr('aria-valuenow', progress_b); // Set nilai saat ini ke achievementRate
+                        }
+
+                        //Update Data Card Target Visit Dokter Class C
+                        const visitTargetByClass_c = data.visitTargetByClass[2]; // Ambil data pertama dari array visitTarget
+                        const doctorCount_c = visitTargetByClass_c?.doctorCount ?? 0;
+                        const targetVisit_c = visitTargetByClass_c?.targetVisit ?? 0;
+                        const visited_c = visitTargetByClass_c?.visited ?? 0;
+                        const needToVisit_c = visitTargetByClass_c?.needToVisit ?? 0;
+                        const progress_c = visitTargetByClass_c?.progress ?? 0;
+                        // Update <h6> menjadi visitCount / visitTarget
+                        $('#visit-count-c').text(visited_c + ' / ' + targetVisit_c);
+                        // Update text jumlah visit yang dibutuhkan
+                        if (progress_c >= 100) {
+                            $('#visit-target-c').html('</span><span class="pt-2 ps-1">Target tercapai</span>');
+                        } else {
+                            $('#visit-target-c').html(needToVisit_c + ' visit</span><span class="pt-2 ps-1">lagi</span>');
+                        }
+                        // Update progress bar berdasarkan achievementRate
+                        $('#progess-bar-target-c').css('width', progress_c + '%');
+                        // Jika achievementRate >= 100, tambahkan teks khusus
+                        if (progress_c >= 100) {
+                            $('#progess-bar-target-c').attr('aria-valuenow', 100); // Set max ke 100
+                        } else {
+                            $('#progess-bar-target-c').attr('aria-valuenow', progress_c); // Set nilai saat ini ke achievementRate
+                        }
+
+                        //Update Data Chart Visit By Product
+                        const countProductsById = (data) => {
+                            const productCounts = {};
+
+                            data.forEach(item => {
+                                const prodId = item.prodId; // Ambil prodId
+                                productCounts[prodId] = (productCounts[prodId] || 0) + 1; // Hitung jumlah produk
+                            });
+
+                            return Object.keys(productCounts).map(prodId => ({
+                                prodId,
+                                count: productCounts[prodId]
+                            }));
+                        };
+
+                        const ChartVisitProduct = document.querySelector("#ChartVisitProduct");
+                        const visitChartTableData = data.visitChartTableData;
+                        const chartDataProduct = countProductsById(visitChartTableData);
+                        const newSeriesData = chartDataProduct.map(data => data.count);
+                        const newCategories = chartDataProduct.map(data => data.prodId);
+
+                        // Inisialisasi chart
+                        var chart = new ApexCharts(ChartVisitProduct, {
+                            series: [{
+                                name: 'Jumlah Produk',
+                                data: [] // Data jumlah produk
+                            }],
+                            chart: {
+                                type: 'bar',
+                                height: 350,
+                                stacked: false
+                            },
+                            plotOptions: {
+                                bar: {
+                                    horizontal: false,
+                                    columnWidth: '55%',
+                                    endingShape: 'rounded'
+                                },
+                            },
+                            dataLabels: {
+                                enabled: true,
+                            },
+                            stroke: {
+                                show: true,
+                                width: 2,
+                                colors: ['transparent']
+                            },
+                            xaxis: {
+                                categories: [] // Menggunakan prodId sebagai kategori
+                            },
+                            yaxis: {
+                                title: {
+                                    text: 'Jumlah'
+                                }
+                            },
+                            colors: ['#28a745'],
+                            fill: {
+                                opacity: 1,
+                                colors: ['#28a745']
+                            },
+                            tooltip: {
+                                y: {
+                                    formatter: function (val) {
+                                        return val + " Produk"
+                                    }
+                                }
+                            }
+                        });
+
+                        // Render chart
+                        chart.render();
+
+                        // Update series dan options
+                        chart.updateSeries([{
+                            name: 'Jumlah Produk',
+                            data: newSeriesData
+                        }]);
+
+                        chart.updateOptions({
+                            xaxis: {
+                                categories: newCategories,
+                            }
+                        });
+
+                        //Update Data Chart Visit By Plan
+                        const countPlanUnplan = (data) => {
+                            let plannedCount = 0;
+                            let unplannedCount = 0;
+
+                            data.forEach(item => {
+                                if (item.planVisit === "1") {
+                                    plannedCount++; // Jika planVisit 1, hitung sebagai Planned
+                                } else if (item.planVisit === "0") {
+                                    unplannedCount++; // Jika planVisit 0, hitung sebagai Unplanned
+                                }
+                            });
+
+                            return {
+                                planned: plannedCount,
+                                unplanned: unplannedCount
+                            };
+                        };
+
+                        const PieChartVisitPlanData = countPlanUnplan(visitChartTableData);
+                        const PieChartVisitPlan = document.querySelector("#PieChartVisitPlan");
+
+                        const pieData = [
+                            { value: PieChartVisitPlanData.planned, name: 'Planned', itemStyle: { color: '#28a745' } },
+                            { value: PieChartVisitPlanData.unplanned, name: 'Unplanned', itemStyle: { color: '#dc3545' } }
+                        ];
+
+                        const totalPie = pieData.reduce((sum, item) => sum + item.value, 0);
+
+                        echarts.init(PieChartVisitPlan).setOption({
+                            tooltip: {
+                                trigger: 'item',
+                                formatter: function (params) {
+                                    let percent = (params.value / totalPie * 100).toFixed(2);
+                                    return `${params.name}: ${params.value} (${percent}%)`;
+                                }
+                            },
+                            legend: {
+                                top: '0%',
+                                left: 'center'
+                            },
+                            series: [{
+                                name: 'Status Kunjungan',
+                                type: 'pie',
+                                radius: ['40%', '70%'],
+                                avoidLabelOverlap: false,
+                                label: {
+                                    show: false,
+                                    position: 'center',
+                                },
+                                emphasis: {
+                                    label: {
+                                        show: true,
+                                        fontSize: '18',
+                                        fontWeight: 'bold'
+                                    }
+                                },
+                                labelLine: {
+                                    show: false
+                                },
+                                data: pieData
+                            }]
+                        });;
 
                     },
                     error: function () {

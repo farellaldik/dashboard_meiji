@@ -13,6 +13,8 @@ using Microsoft.IdentityModel.Tokens;
 using Dashboard.Models;
 using Dashboard.Components;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using System.ComponentModel;
+using System.Net;
 
 namespace Dashboard.Controllers
 {
@@ -591,6 +593,211 @@ namespace Dashboard.Controllers
                     b.MR_NIK; -- Masukkan b.MR_NIK ke dalam GROUP BY
                 ";
 
+                var sqlVisitCoverage = @"
+                
+                SELECT 
+                    MR.NIK, 
+                    MR.MR_RESPOSIBLE, 
+                    COUNT(DISTINCT MCL.ID) AS MCL, 
+                    COUNT(DISTINCT VJN.DOCTOR_CODE) AS VISITED,  
+                    CAST(COUNT(DISTINCT VJN.DOCTOR_CODE) AS FLOAT) / NULLIF(COUNT(DISTINCT MCL.ID), 0) * 100 AS COVERAGE,
+                    NULLIF(COUNT(DISTINCT MCL.ID), 0) - CAST(COUNT(DISTINCT VJN.DOCTOR_CODE) AS FLOAT) AS NEED_TO_VISIT
+                FROM 
+                    TABLE_MR MR
+                JOIN 
+                    TABLE_MCL MCL 
+                ON 
+                    MR.MR_RESPOSIBLE = MCL.Fieldforce
+                LEFT JOIN 
+                    VISITING_JUKUDO_NOTES VJN
+                ON 
+                    MCL.ID = VJN.DOCTOR_CODE 
+                    AND MONTH(VJN.ADATE) = MONTH(GETDATE()) 
+                    AND YEAR(VJN.ADATE) = YEAR(GETDATE())
+                    AND VJN.VISIT = '1'
+                WHERE 
+                    MR.NIK = @EmployeeNik
+                GROUP BY 
+                    MR.NIK, 
+                    MR.MR_RESPOSIBLE;
+
+                ";
+
+                var sqlVisitTargetByClass = @"
+
+                DECLARE @MR_NIK NVARCHAR(50);
+                DECLARE @Month INT;
+                DECLARE @Year INT;
+
+                -- Set nilai variabel
+                SET @MR_NIK = @EmployeeNik;
+                SET @Month = MONTH(GETDATE());
+                SET @Year = YEAR(GETDATE());
+
+                SELECT 
+                    MR.NIK, 
+                    MR.MR_RESPOSIBLE, 
+                    MCL.CLASS, 
+                    COUNT(DISTINCT MCL.ID) AS DOCTOR_COUNT, 
+                    CASE 
+                        WHEN MCL.CLASS = 'A' THEN COUNT(DISTINCT MCL.ID) * 3
+                        WHEN MCL.CLASS = 'B' THEN COUNT(DISTINCT MCL.ID) * 2
+                        WHEN MCL.CLASS = 'C' THEN COUNT(DISTINCT MCL.ID) * 1
+                    END AS TARGET_VISIT,
+                    (SELECT COUNT(DOCTOR_CLASS) 
+                     FROM VISITING_JUKUDO_NOTES 
+                     WHERE MR_NIK = @MR_NIK 
+                       AND MONTH(ADATE) = @Month 
+                       AND YEAR(ADATE) = @Year 
+                       AND VISIT = '1' 
+                       AND DOCTOR_CLASS = MCL.CLASS) AS VISITED,
+                    -- Perhitungan Progress dengan pembagian float
+                    ROUND(
+                        CASE 
+                            -- Jika TARGET_VISIT adalah 0, return 0 untuk menghindari pembagian dengan nol
+                            WHEN (CASE 
+                                     WHEN MCL.CLASS = 'A' THEN COUNT(DISTINCT MCL.ID) * 3
+                                     WHEN MCL.CLASS = 'B' THEN COUNT(DISTINCT MCL.ID) * 2
+                                     WHEN MCL.CLASS = 'C' THEN COUNT(DISTINCT MCL.ID) * 1
+                                 END) = 0 
+                            THEN 0 
+                            ELSE 
+                                -- Pastikan salah satu nilai dalam pembagian adalah decimal/float
+                                CAST((SELECT COUNT(DOCTOR_CLASS) 
+                                      FROM VISITING_JUKUDO_NOTES 
+                                      WHERE MR_NIK = @MR_NIK 
+                                        AND MONTH(ADATE) = @Month 
+                                        AND YEAR(ADATE) = @Year 
+                                        AND VISIT = '1' 
+                                        AND DOCTOR_CLASS = MCL.CLASS) AS FLOAT) 
+                                * 100.0 / 
+                                CAST((CASE 
+                                         WHEN MCL.CLASS = 'A' THEN COUNT(DISTINCT MCL.ID) * 3
+                                         WHEN MCL.CLASS = 'B' THEN COUNT(DISTINCT MCL.ID) * 2
+                                         WHEN MCL.CLASS = 'C' THEN COUNT(DISTINCT MCL.ID) * 1
+                                     END) AS FLOAT)
+                        END, 2) AS PROGRESS,
+                    CASE 
+                        WHEN MCL.CLASS = 'A' THEN 
+                            CASE WHEN COUNT(DISTINCT MCL.ID) * 3 - (SELECT COUNT(DOCTOR_CLASS) 
+                                                                       FROM VISITING_JUKUDO_NOTES 
+                                                                       WHERE MR_NIK = @MR_NIK 
+                                                                         AND MONTH(ADATE) = @Month 
+                                                                         AND YEAR(ADATE) = @Year 
+                                                                         AND VISIT = '1' 
+                                                                         AND DOCTOR_CLASS = 'A') < 0 
+                                THEN 0 
+                                ELSE COUNT(DISTINCT MCL.ID) * 3 - (SELECT COUNT(DOCTOR_CLASS) 
+                                                                     FROM VISITING_JUKUDO_NOTES 
+                                                                     WHERE MR_NIK = @MR_NIK 
+                                                                       AND MONTH(ADATE) = @Month 
+                                                                       AND YEAR(ADATE) = @Year 
+                                                                       AND VISIT = '1' 
+                                                                       AND DOCTOR_CLASS = 'A') 
+                            END
+                        WHEN MCL.CLASS = 'B' THEN 
+                            CASE WHEN COUNT(DISTINCT MCL.ID) * 2 - (SELECT COUNT(DOCTOR_CLASS) 
+                                                                       FROM VISITING_JUKUDO_NOTES 
+                                                                       WHERE MR_NIK = @MR_NIK 
+                                                                         AND MONTH(ADATE) = @Month 
+                                                                         AND YEAR(ADATE) = @Year 
+                                                                         AND VISIT = '1' 
+                                                                         AND DOCTOR_CLASS = 'B') < 0 
+                                THEN 0 
+                                ELSE COUNT(DISTINCT MCL.ID) * 2 - (SELECT COUNT(DOCTOR_CLASS) 
+                                                                     FROM VISITING_JUKUDO_NOTES 
+                                                                     WHERE MR_NIK = @MR_NIK 
+                                                                       AND MONTH(ADATE) = @Month 
+                                                                       AND YEAR(ADATE) = @Year 
+                                                                       AND VISIT = '1' 
+                                                                       AND DOCTOR_CLASS = 'B') 
+                            END
+                        WHEN MCL.CLASS = 'C' THEN 
+                            CASE WHEN COUNT(DISTINCT MCL.ID) * 1 - (SELECT COUNT(DOCTOR_CLASS) 
+                                                                       FROM VISITING_JUKUDO_NOTES 
+                                                                       WHERE MR_NIK = @MR_NIK 
+                                                                         AND MONTH(ADATE) = @Month 
+                                                                         AND YEAR(ADATE) = @Year 
+                                                                         AND VISIT = '1' 
+                                                                         AND DOCTOR_CLASS = 'C') < 0 
+                                THEN 0 
+                                ELSE COUNT(DISTINCT MCL.ID) * 1 - (SELECT COUNT(DOCTOR_CLASS) 
+                                                                     FROM VISITING_JUKUDO_NOTES 
+                                                                     WHERE MR_NIK = @MR_NIK 
+                                                                       AND MONTH(ADATE) = @Month 
+                                                                       AND YEAR(ADATE) = @Year 
+                                                                       AND VISIT = '1' 
+                                                                       AND DOCTOR_CLASS = 'C') 
+                            END
+                    END AS NEED_TO_VISIT
+                FROM 
+                    TABLE_MR MR
+                JOIN 
+                    TABLE_MCL MCL 
+                ON 
+                    MR.MR_RESPOSIBLE = MCL.Fieldforce
+                LEFT JOIN 
+                    VISITING_JUKUDO_NOTES VJN
+                ON 
+                    MCL.ID = VJN.DOCTOR_CODE 
+                    AND MONTH(VJN.ADATE) = @Month
+                    AND YEAR(VJN.ADATE) = @Year
+                    AND VJN.VISIT = '1'
+                WHERE 
+                    MR.NIK = @MR_NIK
+                GROUP BY 
+                    MR.NIK, 
+                    MR.MR_RESPOSIBLE,
+                    MCL.CLASS;
+
+
+                ";
+
+                var sqlDataChartTableVisit = @"
+                SELECT 
+                    a.NOTES_ID, 
+                    MIN(a.NOTES_ID_MOBILE) AS NOTES_ID_MOBILE, 
+                    MIN(a.MR_NIK) AS MR_NIK, 
+                    MIN(b.MR_RESPOSIBLE) AS MR_RESPOSIBLE,
+                    MIN(a.USER_ID) AS USER_ID,
+                    MIN(a.VISIT) AS VISIT,
+                    MIN(a.ADATE) AS ADATE,
+                    MIN(a.TIME_CALL) AS TIME_CALL,
+                    MIN(a.DOCTOR_CODE) AS DOCTOR_CODE,
+                    MIN(CONCAT(c.FirstName, ' ', c.LastName)) AS DOCTOR_NAME,
+                    MIN(a.DOCTOR_CLASS) AS DOCTOR_CLASS,
+                    MIN(a.JUKUDO_STEP) AS JUKUDO_STEP,
+                    MIN(a.PROD_ID) AS PROD_ID,
+                    MIN(d.DESCRIPTION) AS PROD_DESC,
+                    MIN(e.PRACTICE_NAME) AS PRACTICE_NAME,
+                    MIN(c.Address) AS Address,
+                    MIN(a.PLAN_VISIT) AS PLAN_VISIT,
+                    MIN(a.VISIT_QUALITY) AS VISIT_QUALITY,
+                    MIN(e.VISIT_QUALITY) AS VISIT_QUALITY_DESC,
+                    MIN(a.ANOTES) AS ANOTES,
+                    MIN(a.VISIT_COUNT) AS VISIT_COUNT,
+                    MIN(a.ASM_NIK) AS ASM_NIK,
+                    MIN(a.TEAM_ID) AS TEAM_ID,
+                    MIN(a.MRO_ID) AS MRO_ID
+                FROM 
+                    VISITING_JUKUDO_NOTES a
+                LEFT JOIN 
+                    TABLE_MR b ON a.MR_NIK = b.NIK
+                LEFT JOIN
+                    TABLE_MCL c ON a.DOCTOR_CODE = c.ID
+                LEFT JOIN
+                    TABLE_PRODUCT d ON a.PROD_ID = d.PROD_ID
+                LEFT JOIN
+                    VISITING_JUKUDO_NOTES_MOBILE e ON a.NOTES_ID_MOBILE = e.NOTES_ID_MOBILE
+                WHERE 
+                    a.VISIT = '1' 
+                    AND a.MR_NIK = @EmployeeNik 
+                    AND MONTH(a.ADATE) = 9 
+                    AND YEAR(a.ADATE) = 2024
+                GROUP BY 
+                    a.NOTES_ID;
+                ";
+
                 //var filter = "WHERE PLAN_VISIT = '1' ";
                 //if (blabla) 
                 //{
@@ -628,6 +835,9 @@ namespace Dashboard.Controllers
                 {
                     //var list = StoredProcedureExecutor.ExecuteQueryList<VisitTodayReponse>(_context, sql5);
                     var visitTarget = new List<dynamic>();
+                    var visitCoverage = new List<dynamic>();
+                    var visitTargetByClass = new List<dynamic>();
+                    var visitChartTableData = new List<dynamic>();
 
                     await using (var command = _context.Database.GetDbConnection().CreateCommand())
                     {
@@ -653,13 +863,99 @@ namespace Dashboard.Controllers
                             }
                         }
 
-                        
+                        command.Parameters.Clear();
+                        command.CommandText = sqlVisitCoverage;
+                        command.CommandType = System.Data.CommandType.Text;
+                        command.Parameters.Add(new SqlParameter("@EmployeeNik", employeeNik));
+
+                        await using (var reader = await command.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                var visitcoverage = new
+                                {
+                                    Mcl = Convert.ToInt32(reader["MCL"]),
+                                    Visited = Convert.ToInt32(reader["VISITED"]),
+                                    Coverage = Convert.ToInt32(reader["COVERAGE"]),
+                                    NeedToVisit = Convert.ToInt32(reader["NEED_TO_VISIT"])
+                                };
+
+                                visitCoverage.Add(visitcoverage);
+                            }
+                        }
+
+                        command.Parameters.Clear();
+                        command.CommandText = sqlVisitTargetByClass;
+                        command.CommandType = System.Data.CommandType.Text;
+                        command.Parameters.Add(new SqlParameter("@EmployeeNik", employeeNik));
+
+                        await using (var reader = await command.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                var visittargetbyclass = new
+                                {
+                                    Class = reader["CLASS"].ToString(),
+                                    DoctorCount = Convert.ToInt32(reader["DOCTOR_COUNT"]),
+                                    TargetVisit = Convert.ToInt32(reader["TARGET_VISIT"]),
+                                    Visited = Convert.ToInt32(reader["VISITED"]),
+                                    NeedToVisit = Convert.ToInt32(reader["NEED_TO_VISIT"]),
+                                    Progress = Math.Round(Convert.ToDecimal(reader["PROGRESS"]), 2),
+                                };
+
+                                visitTargetByClass.Add(visittargetbyclass);
+                            }
+                        }
+
+                        command.Parameters.Clear();
+                        command.CommandText = sqlDataChartTableVisit;
+                        command.CommandType = System.Data.CommandType.Text;
+                        command.Parameters.Add(new SqlParameter("@EmployeeNik", employeeNik));
+
+                        await using (var reader = await command.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                var visitcharttabledata = new
+                                {
+                                    NotesId = reader["NOTES_ID"].ToString(),
+                                    NotesIdMobile = reader["NOTES_ID_MOBILE"].ToString(),
+                                    MrNik = reader["MR_NIK"].ToString(),
+                                    MrResponsible = reader["MR_RESPOSIBLE"].ToString(),
+                                    UserId = reader["USER_ID"].ToString(),
+                                    Visit = reader["VISIT"].ToString(),
+                                    Adate = Convert.ToDateTime(reader["ADATE"]).ToString("yyyy-MM-dd"),
+                                    TimeCall = reader["TIME_CALL"].ToString(),
+                                    DoctorCode = reader["DOCTOR_CODE"].ToString(),
+                                    DoctorName = reader["DOCTOR_NAME"].ToString(),
+                                    DoctorClass = reader["DOCTOR_CLASS"].ToString(),
+                                    JukudoStep = reader["JUKUDO_STEP"].ToString(),
+                                    ProdId = reader["PROD_ID"].ToString(),
+                                    ProdDesc = reader["PROD_DESC"].ToString(),
+                                    PracticeName = reader["PRACTICE_NAME"].ToString(),
+                                    Address = reader["Address"].ToString(),
+                                    PlanVisit = reader["PLAN_VISIT"].ToString(),
+                                    VisitQuality = reader["VISIT_QUALITY"].ToString(),
+                                    VisitQualityDesc = reader["VISIT_QUALITY_DESC"].ToString(),
+                                    Anotes = reader["ANOTES"].ToString(),
+                                    VisitCount = Convert.ToInt32(reader["VISIT_COUNT"]),
+                                    AsmNik = reader["ASM_NIK"].ToString(),
+                                    TeamId = reader["TEAM_ID"].ToString(),
+                                    MroId = reader["MRO_ID"].ToString(),
+                            };
+
+                                visitChartTableData.Add(visitcharttabledata);
+                            }
+                        }
 
                         return Json
                             (
                                 new
                                 {
                                     VisitTarget = visitTarget,
+                                    VisitCoverage = visitCoverage,
+                                    VisitTargetByClass = visitTargetByClass,
+                                    VisitChartTableData = visitChartTableData,
                                 }
                             );
                     }
