@@ -356,7 +356,7 @@
                         <div class="card-body pb-0">
                             <h5 class="card-title">Visit By Class</h5>
 
-                            <div id="lineChart" class="echart"></div>
+                            <div id="PieChartDoctorClass" style="height: 365px;" class="echart"></div>
 
                         </div>
                     </div><!-- End Actual Sales -->
@@ -379,7 +379,7 @@
                         </div> -->
 
                         <div class="card-body pb-0">
-                            <h5 class="card-title">Persentase Kelulusan </h5>
+                            <h5 class="card-title">Visit By Class </h5>
 
                             <div id="trafficChart" style="height: 365px;" class="echart mb-0"></div>
 
@@ -739,8 +739,8 @@
                         const PieChartVisitPlan = document.querySelector("#PieChartVisitPlan");
 
                         const pieData = [
-                            { value: PieChartVisitPlanData.planned, name: 'Planned', itemStyle: { color: '#28a745' } },
-                            { value: PieChartVisitPlanData.unplanned, name: 'Unplanned', itemStyle: { color: '#dc3545' } }
+                            { value: PieChartVisitPlanData.planned, name: 'Planned'},
+                            { value: PieChartVisitPlanData.unplanned, name: 'Unplanned'}
                         ];
 
                         const totalPie = pieData.reduce((sum, item) => sum + item.value, 0);
@@ -777,6 +777,75 @@
                                     show: false
                                 },
                                 data: pieData
+                            }]
+                        });;
+
+                        //Update Data Chart Visit By Doctor Class
+                        const countByDoctorClass = (data) => {
+                            let DoctorClassA = 0;
+                            let DoctorClassB = 0;
+                            let DoctorClassC = 0;
+
+                            data.forEach(item => {
+                                if (item.doctorClass === "A") {
+                                    DoctorClassA++; 
+                                } else if (item.doctorClass === "B") {
+                                    DoctorClassB++;
+                                } else if (item.doctorClass === "C") {
+                                    DoctorClassC++;
+                                }
+                            });
+
+                            return {
+                                DoctorClassA: DoctorClassA,
+                                DoctorClassB: DoctorClassB,
+                                DoctorClassC: DoctorClassC
+                            };
+                        };
+
+                        const PieChartVisitByDoctorClassData = countByDoctorClass(visitChartTableData);
+                        const PieChartDoctorClass = document.querySelector("#PieChartDoctorClass");
+
+                        const pieData2 = [
+                            { value: PieChartVisitByDoctorClassData.DoctorClassA, name: 'Kelas A'},
+                            { value: PieChartVisitByDoctorClassData.DoctorClassB, name: 'Kelas B'},
+                            { value: PieChartVisitByDoctorClassData.DoctorClassC, name: 'Kelas C'}
+                        ];
+
+                        const totalPie2 = pieData2.reduce((sum, item) => sum + item.value, 0);
+
+                        echarts.init(PieChartDoctorClass).setOption({
+                            tooltip: {
+                                trigger: 'item',
+                                formatter: function (params) {
+                                    let percent = (params.value / totalPie2 * 100).toFixed(2);
+                                    return `${params.name}: ${params.value} (${percent}%)`;
+                                }
+                            },
+                            legend: {
+                                top: '0%',
+                                left: 'center'
+                            },
+                            series: [{
+                                name: 'Status Kunjungan',
+                                type: 'pie',
+                                radius: ['40%', '70%'],
+                                avoidLabelOverlap: false,
+                                label: {
+                                    show: false,
+                                    position: 'center',
+                                },
+                                emphasis: {
+                                    label: {
+                                        show: true,
+                                        fontSize: '18',
+                                        fontWeight: 'bold'
+                                    }
+                                },
+                                labelLine: {
+                                    show: false
+                                },
+                                data: pieData2
                             }]
                         });;
 
