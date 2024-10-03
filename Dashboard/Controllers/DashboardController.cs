@@ -542,7 +542,12 @@ namespace Dashboard.Controllers
             {
                 var sqlVisitTarget = @"
                 DECLARE @CurrentMonth NVARCHAR(20) = FORMAT(GETDATE(), 'MMMM', 'id-ID');
+                DECLARE @CurrentYear INT = 2024 -- Variabel untuk tahun saat ini
                 DECLARE @MR_NIK NVARCHAR(20) = @EmployeeNik; -- Variabel untuk MR_NIK
+
+                -- Variabel untuk bulan dan tahun yang diinginkan
+                DECLARE @TargetMonth INT = 9; -- Ganti dengan bulan yang diinginkan
+                DECLARE @TargetYear INT = @CurrentYear; -- Ganti dengan tahun yang diinginkan
 
                 SELECT
                     b.MR_NIK,
@@ -552,7 +557,8 @@ namespace Dashboard.Controllers
                     (SELECT COUNT(b2.NOTES_ID) 
                      FROM VISITING_JUKUDO_NOTES b2
                      WHERE b2.MR_NIK = @MR_NIK -- Menggunakan variabel
-                       AND MONTH(b2.ADATE) = MONTH(GETDATE())
+                       AND MONTH(b2.ADATE) = @TargetMonth
+                       AND YEAR(b2.ADATE) = @TargetYear
                        AND b2.VISIT = '1') AS VISIT_COUNT, -- Menambahkan filter VISIT = '1'
                     -- Menghitung Achievement Rate
                     CASE 
@@ -560,7 +566,8 @@ namespace Dashboard.Controllers
                             CAST((SELECT COUNT(b3.NOTES_ID) 
                                   FROM VISITING_JUKUDO_NOTES b3
                                   WHERE b3.MR_NIK = @MR_NIK -- Menggunakan variabel
-                                    AND MONTH(b3.ADATE) = MONTH(GETDATE())
+                                    AND MONTH(b3.ADATE) = @TargetMonth
+                                    AND YEAR(b3.ADATE) = @TargetYear
                                     AND b3.VISIT = '1') AS FLOAT)  -- Menambahkan filter VISIT = '1'
                             / ((a.WORKDAY - 2) * 10) * 100
                         ELSE 0
@@ -571,14 +578,16 @@ namespace Dashboard.Controllers
                              (SELECT COUNT(b2.NOTES_ID) 
                               FROM VISITING_JUKUDO_NOTES b2
                               WHERE b2.MR_NIK = @MR_NIK 
-                                AND MONTH(b2.ADATE) = MONTH(GETDATE())
+                                AND MONTH(b2.ADATE) = @TargetMonth
+                                AND YEAR(b2.ADATE) = @TargetYear
                                 AND b2.VISIT = '1') < 0  -- Menambahkan filter VISIT = '1'
                         THEN 0
                         ELSE ((a.WORKDAY - 2) * 10) - 
                              (SELECT COUNT(b2.NOTES_ID) 
                               FROM VISITING_JUKUDO_NOTES b2
                               WHERE b2.MR_NIK = @MR_NIK 
-                                AND MONTH(b2.ADATE) = MONTH(GETDATE())
+                                AND MONTH(b2.ADATE) = @TargetMonth
+                                AND YEAR(b2.ADATE) = @TargetYear
                                 AND b2.VISIT = '1')  -- Menambahkan filter VISIT = '1'
                     END AS NEED_TO_VISIT
                 FROM 
@@ -586,7 +595,7 @@ namespace Dashboard.Controllers
                 LEFT JOIN 
                     VISITING_JUKUDO_NOTES b ON b.MR_NIK = @MR_NIK -- Menggunakan variabel
                 WHERE 
-                    a.MONTH = @CurrentMonth
+                    a.MONTH = 'September'
                 GROUP BY 
                     a.MONTH, 
                     a.WORKDAY,
@@ -612,8 +621,8 @@ namespace Dashboard.Controllers
                     VISITING_JUKUDO_NOTES VJN
                 ON 
                     MCL.ID = VJN.DOCTOR_CODE 
-                    AND MONTH(VJN.ADATE) = MONTH(GETDATE()) 
-                    AND YEAR(VJN.ADATE) = YEAR(GETDATE())
+                    AND MONTH(VJN.ADATE) = 9
+                    AND YEAR(VJN.ADATE) = 2024
                     AND VJN.VISIT = '1'
                 WHERE 
                     MR.NIK = @EmployeeNik
@@ -631,8 +640,8 @@ namespace Dashboard.Controllers
 
                 -- Set nilai variabel
                 SET @MR_NIK = @EmployeeNik;
-                SET @Month = MONTH(GETDATE());
-                SET @Year = YEAR(GETDATE());
+                SET @Month = 9;
+                SET @Year = 2024;
 
                 SELECT 
                     MR.NIK, 
@@ -798,6 +807,135 @@ namespace Dashboard.Controllers
                     a.NOTES_ID;
                 ";
 
+                var sqlDataMcl = @"
+                DECLARE @MR_NIK NVARCHAR(50) = @EmployeeNik;
+                DECLARE @MONTH_ADATE INT = 9;
+                DECLARE @YEAR_ADATE INT = 2024;
+
+                SELECT 
+                    MR.NIK,
+                    MCL.Fieldforce,
+                    MCL.ID,
+                    CONCAT(MIN(MCL.FirstName), ' ', MIN(MCL.LastName)) AS DOCTOR_NAME,
+                    MIN(MCL.Class) AS Class,
+                    (CASE 
+                        WHEN MIN(MCL.Class) = 'A' THEN 3
+                        WHEN MIN(MCL.Class) = 'B' THEN 2
+                        WHEN MIN(MCL.Class) = 'C' THEN 1
+                        ELSE 0 -- jika ada Class selain A, B, atau C
+                     END) AS TARGET_VISIT,
+                    (SELECT COALESCE(COUNT(DISTINCT VJ.NOTES_ID), 0)
+                     FROM VISITING_JUKUDO_NOTES VJ
+                     WHERE VJ.DOCTOR_CODE = MCL.ID
+                       AND VJ.PLAN_VISIT = '1'
+                       AND MONTH(VJ.ADATE) = @MONTH_ADATE
+                       AND YEAR(VJ.ADATE) = @YEAR_ADATE
+                       AND VJ.MR_NIK = @MR_NIK
+                       AND VJ.VISIT = '1'
+                    ) AS PLANNED_VISIT,
+                    (SELECT COALESCE(COUNT(DISTINCT VJ.NOTES_ID), 0)
+                     FROM VISITING_JUKUDO_NOTES VJ
+                     WHERE VJ.DOCTOR_CODE = MCL.ID
+                       AND VJ.PLAN_VISIT = '0'
+                       AND MONTH(VJ.ADATE) = @MONTH_ADATE
+                       AND YEAR(VJ.ADATE) = @YEAR_ADATE
+                       AND VJ.MR_NIK = @MR_NIK
+                       AND VJ.VISIT = '1'
+                    ) AS UNPLANNED_VISIT,
+                    (SELECT COALESCE(COUNT(DISTINCT VJ.NOTES_ID), 0)
+                     FROM VISITING_JUKUDO_NOTES VJ
+                     WHERE VJ.DOCTOR_CODE = MCL.ID
+                       AND VJ.VISIT = '1'
+                       AND MONTH(VJ.ADATE) = @MONTH_ADATE
+                       AND YEAR(VJ.ADATE) = @YEAR_ADATE
+                       AND VJ.MR_NIK = @MR_NIK
+                    ) AS VISITED,
+                    -- Kalkulasi Progress
+                    CASE 
+                        WHEN (CASE 
+                                WHEN MIN(MCL.Class) = 'A' THEN 3
+                                WHEN MIN(MCL.Class) = 'B' THEN 2
+                                WHEN MIN(MCL.Class) = 'C' THEN 1
+                                ELSE 0 
+                              END) = 0 THEN '0' -- Jika Target 0, progress 0%
+                        ELSE 
+                            CASE 
+                                WHEN (CAST((SELECT COALESCE(COUNT(DISTINCT VJ.NOTES_ID), 0)
+                                           FROM VISITING_JUKUDO_NOTES VJ
+                                           WHERE VJ.DOCTOR_CODE = MCL.ID
+                                             AND VJ.VISIT = '1'
+                                             AND MONTH(VJ.ADATE) = @MONTH_ADATE
+                                             AND YEAR(VJ.ADATE) = @YEAR_ADATE
+                                             AND VJ.MR_NIK = @MR_NIK
+                                        ) AS FLOAT) / 
+                                     CAST((CASE 
+                                            WHEN MIN(MCL.Class) = 'A' THEN 3
+                                            WHEN MIN(MCL.Class) = 'B' THEN 2
+                                            WHEN MIN(MCL.Class) = 'C' THEN 1
+                                            ELSE 0 
+                                          END) AS FLOAT)) > 1 THEN '100' -- Membatasi hasil di atas 100%
+                                ELSE 
+                                    CAST(ROUND(CAST((SELECT COALESCE(COUNT(DISTINCT VJ.NOTES_ID), 0)
+                                           FROM VISITING_JUKUDO_NOTES VJ
+                                           WHERE VJ.DOCTOR_CODE = MCL.ID
+                                             AND VJ.VISIT = '1'
+                                             AND MONTH(VJ.ADATE) = @MONTH_ADATE
+                                             AND YEAR(VJ.ADATE) = @YEAR_ADATE
+                                             AND VJ.MR_NIK = @MR_NIK
+                                        ) AS FLOAT) * 100 / 
+                                     CAST((CASE 
+                                            WHEN MIN(MCL.Class) = 'A' THEN 3
+                                            WHEN MIN(MCL.Class) = 'B' THEN 2
+                                            WHEN MIN(MCL.Class) = 'C' THEN 1
+                                            ELSE 0 
+                                          END) AS FLOAT), 2) AS NVARCHAR) -- Membatasi 2 angka dibelakang koma
+                            END 
+                    END AS PROGRESS,
+                    -- Kalkulasi Need to Visit
+                    CASE 
+                        WHEN (CASE 
+                                WHEN MIN(MCL.Class) = 'A' THEN 3
+                                WHEN MIN(MCL.Class) = 'B' THEN 2
+                                WHEN MIN(MCL.Class) = 'C' THEN 1
+                                ELSE 0 
+                              END) - 
+                             (SELECT COALESCE(COUNT(DISTINCT VJ.NOTES_ID), 0)
+                              FROM VISITING_JUKUDO_NOTES VJ
+                              WHERE VJ.DOCTOR_CODE = MCL.ID
+                                AND VJ.VISIT = '1'
+                                AND MONTH(VJ.ADATE) = @MONTH_ADATE
+                                AND YEAR(VJ.ADATE) = @YEAR_ADATE
+                                AND VJ.MR_NIK = @MR_NIK
+                             ) < 0 THEN 0 -- Jika hasil negatif, set ke 0
+                        ELSE 
+                            (CASE 
+                                WHEN MIN(MCL.Class) IN ('A', 'B', 'C') THEN 
+                                    (CASE 
+                                        WHEN MIN(MCL.Class) = 'A' THEN 3
+                                        WHEN MIN(MCL.Class) = 'B' THEN 2
+                                        WHEN MIN(MCL.Class) = 'C' THEN 1
+                                     END) - 
+                                    (SELECT COALESCE(COUNT(DISTINCT VJ.NOTES_ID), 0)
+                                     FROM VISITING_JUKUDO_NOTES VJ
+                                     WHERE VJ.DOCTOR_CODE = MCL.ID
+                                       AND VJ.VISIT = '1'
+                                       AND MONTH(VJ.ADATE) = @MONTH_ADATE
+                                       AND YEAR(VJ.ADATE) = @YEAR_ADATE
+                                       AND VJ.MR_NIK = @MR_NIK
+                                    )
+                                ELSE 0
+                            END)
+                    END AS NEED_TO_VISIT
+                FROM 
+                    TABLE_MR MR
+                JOIN
+                    TABLE_MCL MCL ON MR.MR_RESPOSIBLE = MCL.Fieldforce
+                WHERE 
+                    MR.NIK = @MR_NIK
+                GROUP BY 
+                    MR.NIK, MCL.Fieldforce, MCL.ID;
+                ";
+
                 //var filter = "WHERE PLAN_VISIT = '1' ";
                 //if (blabla) 
                 //{
@@ -838,6 +976,7 @@ namespace Dashboard.Controllers
                     var visitCoverage = new List<dynamic>();
                     var visitTargetByClass = new List<dynamic>();
                     var visitChartTableData = new List<dynamic>();
+                    var mclTableData = new List<dynamic>();
 
                     await using (var command = _context.Database.GetDbConnection().CreateCommand())
                     {
@@ -948,6 +1087,34 @@ namespace Dashboard.Controllers
                             }
                         }
 
+                        command.Parameters.Clear();
+                        command.CommandText = sqlDataMcl;
+                        command.CommandType = System.Data.CommandType.Text;
+                        command.Parameters.Add(new SqlParameter("@EmployeeNik", employeeNik));
+
+                        await using (var reader = await command.ExecuteReaderAsync())
+                        {
+                            while (await reader.ReadAsync())
+                            {
+                                var mcltabledata = new
+                                {
+                                    Nik = reader["NIK"].ToString(),
+                                    Fieldforce = reader["Fieldforce"].ToString(),
+                                    Id = reader["ID"].ToString(),
+                                    DoctorName = reader["DOCTOR_NAME"].ToString(),
+                                    Class = reader["Class"].ToString(),
+                                    TargetVisit = Convert.ToInt32(reader["TARGET_VISIT"]),
+                                    PlannedVisit = Convert.ToInt32(reader["PLANNED_VISIT"]),
+                                    UnplannedVisit = Convert.ToInt32(reader["UNPLANNED_VISIT"]),
+                                    Visited = Convert.ToInt32(reader["VISITED"]),
+                                    Progress = reader["PROGRESS"].ToString(),
+                                    NeedToVisit = Convert.ToInt32(reader["NEED_TO_VISIT"]),
+                                };
+
+                                mclTableData.Add(mcltabledata);
+                            }
+                        }
+
                         return Json
                             (
                                 new
@@ -956,6 +1123,7 @@ namespace Dashboard.Controllers
                                     VisitCoverage = visitCoverage,
                                     VisitTargetByClass = visitTargetByClass,
                                     VisitChartTableData = visitChartTableData,
+                                    MclTableData = mclTableData,
                                 }
                             );
                     }

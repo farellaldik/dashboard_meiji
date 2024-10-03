@@ -329,7 +329,7 @@
                         </div> -->
 
                         <div class="card-body pb-0">
-                            <h5 class="card-title">Visit By Plan</h5>
+                            <h5 class="card-title">Visit By Plan | Monthly</h5>
 
                             <div id="PieChartVisitPlan" style="height: 365px;" class="echart"></div>
 
@@ -354,7 +354,7 @@
                         </div> -->
 
                         <div class="card-body pb-0">
-                            <h5 class="card-title">Visit By Class</h5>
+                            <h5 class="card-title">Visit By Class | Monthly</h5>
 
                             <div id="PieChartDoctorClass" style="height: 365px;" class="echart"></div>
 
@@ -379,9 +379,9 @@
                         </div> -->
 
                         <div class="card-body pb-0">
-                            <h5 class="card-title">Visit By Class </h5>
+                            <h5 class="card-title">Visit By Class | Daily </h5>
 
-                            <div id="trafficChart" style="height: 365px;" class="echart mb-0"></div>
+                            <div id="VisitByClassDaily" style="height: 365px;" class="echart mb-0"></div>
 
                         </div>
                     </div>
@@ -406,10 +406,10 @@
                         </div> -->
 
                         <div class="card-body pb-0">
-                            <h5 class="card-title">Quiz E-Test</h5>
+                            <h5 class="card-title">Visit By Plan | Daily</h5>
 
                             <!-- Column Chart -->
-                            <a><div id="columnChartTest"></div></a>
+                            <a><div id="VisitByPlanDaily"></div></a>
                             <!-- End Column Chart -->
 
                         </div>
@@ -418,10 +418,14 @@
 
                 <!-- Card Table -->
                 <div class="col-12">
-                    <div class="card top-selling overflow-auto pb-4">
-                        <div class="card-body pb-0">
-                            <h5 class="card-title">Button</h5>
-                            
+                    <div class="card top-selling overflow-auto">
+                        <div class="card-body d-flex gap-3 p-3">
+                            <!-- Mengatur gap menggunakan kelas gap -->
+                            <button type="button" id="button-all" class="btn btn-outline-primary flex-fill">All</button>
+                            <button type="button" id="button-completed" class="btn btn-outline-primary flex-fill">Completed</button>
+                            <button type="button" id="button-progress" class="btn btn-outline-primary flex-fill">Progress</button>
+                            <button type="button" id="button-unvisited" class="btn btn-outline-primary flex-fill">Univisited</button>
+                            <button type="button" id="button-history" class="btn btn-outline-primary flex-fill">Visit History</button>
                         </div>
                     </div>
                 </div>
@@ -429,20 +433,135 @@
 
                 <!-- Card Table -->
                 <div class="col-12">
-                    <div class="card top-selling overflow-auto pb-4">
+                    <div id="card-all" style="display:none;" class="card top-selling overflow-auto pb-4">
                         <div class="card-body pb-0">
-                            <h5 class="card-title">Data Quiz E-Test</h5>
+                            <h5 class="card-title">All Visit Data By Doctor</h5>
                             <table id="dataTable" class="display">
                                 <thead>
                                     <tr>
-                                        <th>Name</th>
-                                        <th>Created Date</th>
-                                        <th>Answer Date</th>
-                                        <th>Correct Answers</th>
-                                        <th>False Answers</th>
-                                        <th>Total Questions</th>
-                                        <th>Score</th>
+                                        <th>Doctor Code</th>
+                                        <th>Doctor Name</th>
+                                        <th>Class</th>
+                                        <th>Planned Visit</th>
+                                        <th>Unplanned Visit</th>
+                                        <th>Visit Target</th>
+                                        <th>Visited</th>
+                                        <th>Progress</th>
                                         <th>Remarks</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Baris data akan diisi dengan JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!-- End Card Table -->
+
+                <!-- Card Table -->
+                <div class="col-12">
+                    <div id="card-completed" style="display:none;" class="card top-selling overflow-auto pb-4">
+                        <div class="card-body pb-0">
+                            <h5 class="card-title">Target Visit Completed</h5>
+                            <table id="dataTable" class="display">
+                                <thead>
+                                    <tr>
+                                        <th>Doctor Code</th>
+                                        <th>Doctor Name</th>
+                                        <th>Class</th>
+                                        <th>Planned Visit</th>
+                                        <th>Unplanned Visit</th>
+                                        <th>Visit Target</th>
+                                        <th>Visited</th>
+                                        <th>Progress</th>
+                                        <th>Remarks</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Baris data akan diisi dengan JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!-- End Card Table -->
+
+                <!-- Card Table -->
+                <div class="col-12">
+                    <div id="card-progress" style="display:none;" class="card top-selling overflow-auto pb-4">
+                        <div class="card-body pb-0">
+                            <h5 class="card-title">Target Visit Progressed</h5>
+                            <table id="dataTable" class="display">
+                                <thead>
+                                    <tr>
+                                        <th>Doctor Code</th>
+                                        <th>Doctor Name</th>
+                                        <th>Class</th>
+                                        <th>Planned Visit</th>
+                                        <th>Unplanned Visit</th>
+                                        <th>Visit Target</th>
+                                        <th>Visited</th>
+                                        <th>Progress</th>
+                                        <th>Remarks</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Baris data akan diisi dengan JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!-- End Card Table -->
+
+                <!-- Card Table -->
+                <div class="col-12">
+                    <div id="card-unvisited" style="display:none;" class="card top-selling overflow-auto pb-4">
+                        <div class="card-body pb-0">
+                            <h5 class="card-title">Not Visited Yet</h5>
+                            <table id="dataTable" class="display">
+                                <thead>
+                                    <tr>
+                                        <th>Doctor Code</th>
+                                        <th>Doctor Name</th>
+                                        <th>Class</th>
+                                        <th>Planned Visit</th>
+                                        <th>Unplanned Visit</th>
+                                        <th>Visit Target</th>
+                                        <th>Visited</th>
+                                        <th>Progress</th>
+                                        <th>Remarks</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Baris data akan diisi dengan JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!-- End Card Table -->
+
+                <!-- Card Table -->
+                <div class="col-12">
+                    <div id="card-history" style="display:none;" class="card top-selling overflow-auto pb-4">
+                        <div class="card-body pb-0">
+                            <h5 class="card-title">Visit History By Date</h5>
+                            <table id="visitHistoryDataTable" class="display">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Time</th>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>Class</th>
+                                        <th>Jukudo</th>
+                                        <th>Product ID</th>
+                                        <th>Product</th>
+                                        <th>Visit Quality</th>
+                                        <th>Notes</th>
+                                        <th>Practice</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -695,7 +814,7 @@
                             tooltip: {
                                 y: {
                                     formatter: function (val) {
-                                        return val + " Produk"
+                                        return val + " Kunjungan"
                                     }
                                 }
                             }
@@ -739,8 +858,8 @@
                         const PieChartVisitPlan = document.querySelector("#PieChartVisitPlan");
 
                         const pieData = [
-                            { value: PieChartVisitPlanData.planned, name: 'Planned'},
-                            { value: PieChartVisitPlanData.unplanned, name: 'Unplanned'}
+                            { value: PieChartVisitPlanData.planned, name: 'Planned', itemStyle: { color: '#88bc6c' } },  // warna hijau
+                            { value: PieChartVisitPlanData.unplanned, name: 'Unplanned', itemStyle: { color: '#FF4560' } }  // warna merah
                         ];
 
                         const totalPie = pieData.reduce((sum, item) => sum + item.value, 0);
@@ -807,9 +926,9 @@
                         const PieChartDoctorClass = document.querySelector("#PieChartDoctorClass");
 
                         const pieData2 = [
-                            { value: PieChartVisitByDoctorClassData.DoctorClassA, name: 'Kelas A'},
-                            { value: PieChartVisitByDoctorClassData.DoctorClassB, name: 'Kelas B'},
-                            { value: PieChartVisitByDoctorClassData.DoctorClassC, name: 'Kelas C'}
+                            { value: PieChartVisitByDoctorClassData.DoctorClassA, name: 'Class A', color : '#008FFB'},
+                            { value: PieChartVisitByDoctorClassData.DoctorClassB, name: 'Class B', color : '#00E396'},
+                            { value: PieChartVisitByDoctorClassData.DoctorClassC, name: 'Class C', color : '#FEB019' }
                         ];
 
                         const totalPie2 = pieData2.reduce((sum, item) => sum + item.value, 0);
@@ -849,6 +968,258 @@
                             }]
                         });;
 
+                        //Update Data Chart Visit By Class Daily
+                        const countByDoctorClassDaily = (data) => {
+                            const result = {};
+
+                            data.forEach(visit => {
+                                const adate = visit.adate;
+                                const doctorClass = visit.doctorClass;
+
+                                // Jika tanggal belum ada di result, tambahkan
+                                if (!result[adate]) {
+                                    result[adate] = {
+                                        visitCountA: 0,
+                                        visitCountB: 0,
+                                        visitCountC: 0
+                                    };
+                                }
+
+                                // Tambahkan jumlah visit berdasarkan doctorClass
+                                if (doctorClass === 'A') {
+                                    result[adate].visitCountA += 1;
+                                } else if (doctorClass === 'B') {
+                                    result[adate].visitCountB += 1;
+                                } else if (doctorClass === 'C') {
+                                    result[adate].visitCountC += 1;
+                                }
+                            });
+
+                            return result;
+                        };
+
+                        const PieChartVisitByDoctorClassDataDaily = countByDoctorClassDaily(visitChartTableData);
+                        const VisitByClassDaily = document.querySelector("#VisitByClassDaily");
+
+                        // Siapkan data untuk update chart
+                        const VisitDay = Object.keys(PieChartVisitByDoctorClassDataDaily); // Mengambil tanggal sebagai kategori (xAxis)
+                        const visitCountAData = Object.values(PieChartVisitByDoctorClassDataDaily).map(data => data.visitCountA);
+                        const visitCountBData = Object.values(PieChartVisitByDoctorClassDataDaily).map(data => data.visitCountB);
+                        const visitCountCData = Object.values(PieChartVisitByDoctorClassDataDaily).map(data => data.visitCountC);
+
+                        // Inisialisasi chart dengan data kosong
+                        var chart1 = new ApexCharts(VisitByClassDaily, {
+                            series: [], // Data awal kosong
+                            chart: {
+                                type: 'bar',
+                                height: 350,
+                                stacked: true
+                            },
+                            plotOptions: {
+                                bar: {
+                                    horizontal: false,
+                                    columnWidth: '55%',
+                                    endingShape: 'rounded'
+                                },
+                            },
+                            dataLabels: {
+                                enabled: true,
+                            },
+                            stroke: {
+                                show: true,
+                                width: 2,
+                                colors: ['transparent']
+                            },
+                            xaxis: {
+                                categories: [] // Kategori awal kosong
+                            },
+                            yaxis: {
+                                title: {
+                                    text: 'Jumlah Kunjungan'
+                                }
+                            },
+                            fill: {
+                                opacity: 1
+                            },
+                            tooltip: {
+                                y: {
+                                    formatter: function (val) {
+                                        return val + " Kunjungan";
+                                    }
+                                }
+                            }
+                        });
+
+                        // Render chart dengan data kosong
+                        chart1.render();
+
+                        // Update series dan options setelah chart dirender
+                        chart1.updateSeries([
+                            {
+                                name: 'Visit Class A',
+                                data: visitCountAData // Data jumlah kunjungan doctorClass A
+                            },
+                            {
+                                name: 'Visit Class B',
+                                data: visitCountBData // Data jumlah kunjungan doctorClass B
+                            },
+                            {
+                                name: 'Visit Class C',
+                                data: visitCountCData // Data jumlah kunjungan doctorClass C
+                            }
+                        ]);
+
+                        chart1.updateOptions({
+                            xaxis: {
+                                categories: VisitDay // Menggunakan adate sebagai kategori (xAxis)
+                            }
+                        });
+
+                        //Update Chart Visit By Plan Daily
+                        const countPlannedUnplannedDaily = (data) => {
+                            const result = {};
+
+                            data.forEach(visit => {
+                                const adate = visit.adate;
+                                const planVisit = visit.planVisit;
+
+                                // Jika tanggal belum ada di result, tambahkan
+                                if (!result[adate]) {
+                                    result[adate] = {
+                                        Visitplanned: 0,
+                                        Visitunplanned: 0
+                                    };
+                                }
+
+                                // Tambahkan jumlah visit berdasarkan planVisit
+                                if (planVisit === '1') {
+                                    result[adate].Visitplanned += 1;
+                                } else if (planVisit === '0') {
+                                    result[adate].Visitunplanned += 1;
+                                }
+                            });
+
+                            return result;
+                        };
+
+                        const ChartVisitByPlanDaily = countPlannedUnplannedDaily(visitChartTableData);
+                        const VisitByPlanDaily = document.querySelector("#VisitByPlanDaily");
+
+                        // Siapkan data untuk update chart
+                        const VisitDoctorDay = Object.keys(ChartVisitByPlanDaily); // Mengambil tanggal sebagai kategori (xAxis)
+                        const visitPlanned = Object.values(ChartVisitByPlanDaily).map(data => data.Visitplanned);
+                        const visitUnplanned = Object.values(ChartVisitByPlanDaily).map(data => data.Visitunplanned);
+
+                        // Inisialisasi chart dengan data kosong
+                        var chart2 = new ApexCharts(VisitByPlanDaily, {
+                            series: [], // Data awal kosong
+                            chart: {
+                                type: 'bar',
+                                height: 350,
+                                stacked: true
+                            },
+                            plotOptions: {
+                                bar: {
+                                    horizontal: false,
+                                    columnWidth: '55%',
+                                    endingShape: 'rounded'
+                                },
+                            },
+                            dataLabels: {
+                                enabled: true,
+                            },
+                            stroke: {
+                                show: true,
+                                width: 2,
+                                colors: ['transparent']
+                            },
+                            xaxis: {
+                                categories: [] // Kategori awal kosong
+                            },
+                            yaxis: {
+                                title: {
+                                    text: 'Jumlah Kunjungan'
+                                }
+                            },
+                            colors: ['#88BC6C', '#FF4560'],
+                            fill: {
+                                opacity: 1
+                            },
+                            tooltip: {
+                                y: {
+                                    formatter: function (val) {
+                                        return val + " Kunjungan";
+                                    }
+                                }
+                            }
+                        });
+
+                        // Render chart dengan data kosong
+                        chart2.render();
+
+                        // Update series dan options setelah chart dirender
+                        chart2.updateSeries([
+                            {
+                                name: 'Planned Visit',
+                                data: visitPlanned // Data jumlah kunjungan doctorClass A
+                            },
+                            {
+                                name: 'Unplanned Visit',
+                                data: visitUnplanned // Data jumlah kunjungan doctorClass C
+                            }
+                        ]);
+
+                        chart2.updateOptions({
+                            xaxis: {
+                                categories: VisitDoctorDay // Menggunakan adate sebagai kategori (xAxis)
+                            }
+                        });
+
+                        const dataTableElement = $('#visitHistoryDataTable');
+
+                        // Update DataTable
+                        if ($.fn.DataTable.isDataTable('#visitHistoryDataTable')) {
+                            dataTableElement.DataTable().clear().destroy();
+                        }
+
+                        dataTableElement.DataTable({
+                            data: visitChartTableData,
+                            columns: [
+                                { data: 'adate', title: 'Date' },
+                                { data: 'timeCall', title: 'Time' },
+                                { data: 'doctorCode', title: 'ID Doctor' },
+                                { data: 'doctorName', title: 'Name' },
+                                { data: 'doctorClass', title: 'Class' },
+                                { data: 'prodId', title: 'Product ID' },
+                                { data: 'prodDesc', title: 'Product' },
+                                {
+                                    data: 'visitQuality',
+                                    title: 'Visit Quality',
+                                    render: function (data, type, row) {
+                                        // Ubah visitQuality menjadi label sesuai dengan nilainya
+                                        if (data == 3) {
+                                            return 'C';
+                                        } else if (data == 4) {
+                                            return 'B';
+                                        } else if (data == 5) {
+                                            return 'A';
+                                        } else {
+                                            return data; // Jika nilai tidak sesuai, tampilkan angka asli
+                                        }
+                                    }
+                                },
+                                { data: 'anotes', title: 'Notes' },
+                                { data: 'practiceName', title: 'Practice' },
+                                { data: 'address', title: 'Address' }
+                            ],
+                            autoWidth: false, // Matikan autoWidth jika ingin kontrol penuh
+                            scrollX: true, // Mengaktifkan scroll horizontal jika tabel lebih lebar dari kontainer
+                            paging: true,
+                            searching: true,
+                            ordering: true,
+                            order: [[0, 'desc']]
+                        });
+
                     },
                     error: function () {
                         console.error("Error fetching data.");
@@ -856,10 +1227,160 @@
                 });
             }
 
+            // Menambahkan event listener pada semua tombol setelah DOM siap
+            document.addEventListener("DOMContentLoaded", function () {
+                const buttonIds = ['button-all', 'button-completed', 'button-progress', 'button-unvisited', 'button-history'];
+
+                buttonIds.forEach(id => {
+                    const button = document.getElementById(id);
+                    button.addEventListener('click', function () {
+                        toggleButtons(id);
+                    });
+                });
+            });
+
+            // Menambahkan event listener pada semua tombol setelah DOM siap
+            document.addEventListener("DOMContentLoaded", function () {
+                const buttonIds = [
+                    'button-all',
+                    'button-completed',
+                    'button-progress',
+                    'button-unvisited',
+                    'button-history'
+                ];
+
+                buttonIds.forEach(id => {
+                    const button = document.getElementById(id);
+                    button.addEventListener('click', function () {
+                        toggleButtons(id);
+                    });
+                });
+            });
+
+            function toggleButtons(selectedId) {
+                // Mengambil semua tombol berdasarkan ID
+                const buttonIds = [
+                    'button-all',
+                    'button-completed',
+                    'button-progress',
+                    'button-unvisited',
+                    'button-history'
+                ];
+
+                buttonIds.forEach(id => {
+                    const button = document.getElementById(id);
+                    // Menonaktifkan semua tombol dan mengubah kelasnya
+                    button.disabled = true;
+                    button.classList.remove('btn-primary');
+                    button.classList.add('btn-outline-primary');
+                });
+
+                // Mengaktifkan tombol yang dipilih
+                const selectedButton = document.getElementById(selectedId);
+                selectedButton.disabled = false;
+                selectedButton.classList.remove('btn-outline-primary');
+                selectedButton.classList.add('btn-primary');
+            }
 
             setDefaultDates();
 
         });
+
+        // Menambahkan event listener pada semua tombol setelah DOM siap
+        document.addEventListener("DOMContentLoaded", function () {
+            const buttonIds = [
+                'button-all',
+                'button-completed',
+                'button-progress',
+                'button-unvisited',
+                'button-history'
+            ];
+
+            buttonIds.forEach(id => {
+                const button = document.getElementById(id);
+                button.addEventListener('click', function () {
+                    toggleButtons(id);
+                });
+            });
+        });
+
+        function toggleButtons(selectedId) {
+            // Mengambil semua tombol berdasarkan ID
+            const buttonIds = [
+                'button-all',
+                'button-completed',
+                'button-progress',
+                'button-unvisited',
+                'button-history'
+            ];
+
+            buttonIds.forEach(id => {
+                const button = document.getElementById(id);
+                // Menonaktifkan semua tombol dan mengubah kelasnya
+                button.classList.remove('btn-primary');
+                button.classList.add('btn-outline-primary');
+            });
+
+            // Mengaktifkan tombol yang dipilih
+            const selectedButton = document.getElementById(selectedId);
+            selectedButton.classList.remove('btn-outline-primary');
+            selectedButton.classList.add('btn-primary');
+        }
+
+        // Fungsi untuk menampilkan card yang sesuai dan menyembunyikan card lainnya
+        function showCard(selectedCardId) {
+            // Array berisi semua ID card
+            const cardIds = [
+                'card-all',
+                'card-completed',
+                'card-progress',
+                'card-unvisited',
+                'card-history'
+            ];
+
+            // Loop untuk menyembunyikan semua card
+            cardIds.forEach(cardId => {
+                const card = document.getElementById(cardId);
+                card.style.display = 'none'; // Sembunyikan card
+            });
+
+            // Tampilkan card yang dipilih
+            const selectedCard = document.getElementById(selectedCardId);
+            selectedCard.style.display = 'block'; // Tampilkan card yang sesuai
+        }
+
+        // Event listener pada setiap tombol
+        document.getElementById('button-all').addEventListener('click', () => {
+            toggleButtons('button-all');
+            showCard('card-all');
+        });
+
+        document.getElementById('button-completed').addEventListener('click', () => {
+            toggleButtons('button-completed');
+            showCard('card-completed');
+        });
+
+        document.getElementById('button-progress').addEventListener('click', () => {
+            toggleButtons('button-progress');
+            showCard('card-progress');
+        });
+
+        document.getElementById('button-unvisited').addEventListener('click', () => {
+            toggleButtons('button-unvisited');
+            showCard('card-unvisited');
+        });
+
+        document.getElementById('button-history').addEventListener('click', () => {
+            toggleButtons('button-history');
+            showCard('card-history');
+        });
+
+        document.addEventListener('DOMContentLoaded', function () {
+            // Simulasikan klik tombol "All"
+            toggleButtons('button-all');
+            showCard('card-all');
+        });
+
 
     </script>
 
