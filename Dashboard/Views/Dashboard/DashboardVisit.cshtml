@@ -37,6 +37,9 @@
     <!-- Data Table -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
 
+    <!--Swal Alert-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
+
     <!-- =======================================================
     * Template Name: NiceAdmin
     * Template URL: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/
@@ -426,6 +429,7 @@
                             <button type="button" id="button-progress" class="btn btn-outline-primary flex-fill">Progress</button>
                             <button type="button" id="button-unvisited" class="btn btn-outline-primary flex-fill">Univisited</button>
                             <button type="button" id="button-history" class="btn btn-outline-primary flex-fill">Visit History</button>
+                            <button type="button" id="button-insight" class="btn btn-outline-primary flex-fill">Insight</button>
                         </div>
                     </div>
                 </div>
@@ -436,18 +440,10 @@
                     <div id="card-all" style="display:none;" class="card top-selling overflow-auto pb-4">
                         <div class="card-body pb-0">
                             <h5 class="card-title">All Visit Data By Doctor</h5>
-                            <table id="dataTable" class="display">
+                            <table id="TableAllDoctor" class="display">
                                 <thead>
                                     <tr>
-                                        <th>Doctor Code</th>
-                                        <th>Doctor Name</th>
-                                        <th>Class</th>
-                                        <th>Planned Visit</th>
-                                        <th>Unplanned Visit</th>
-                                        <th>Visit Target</th>
-                                        <th>Visited</th>
-                                        <th>Progress</th>
-                                        <th>Remarks</th>
+
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -549,19 +545,8 @@
                         <div class="card-body pb-0">
                             <h5 class="card-title">Visit History By Date</h5>
                             <table id="visitHistoryDataTable" class="display">
-                                <thead>
+                                <thead class="w-100">
                                     <tr>
-                                        <th>Date</th>
-                                        <th>Time</th>
-                                        <th>ID</th>
-                                        <th>Name</th>
-                                        <th>Class</th>
-                                        <th>Jukudo</th>
-                                        <th>Product ID</th>
-                                        <th>Product</th>
-                                        <th>Visit Quality</th>
-                                        <th>Notes</th>
-                                        <th>Practice</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -599,6 +584,10 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script src="https://cdn.datatables.net/2.1.7/js/dataTables.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
 
     <script>
 
@@ -626,12 +615,25 @@
             }
 
             function updateDataVisit(employeeNik) {
+
+                Swal.fire({
+                    title: 'Loading...',
+                    text: 'Mohon tunggu data sedang diambil...',
+                    allowOutsideClick: false, // Cegah user menutup alert
+                    showConfirmButton: false, // Hilangkan tombol OK
+                    didOpen: () => {
+                        Swal.showLoading(); // Tampilkan loading animation
+                    }
+                });
+
                 $.ajax({
                     url: '@Url.Action("DashboardVisit", "Dashboard")',
                     type: 'GET',
                     dataType: 'json',
                     data: { employeeNik: employeeNik },
                     success: function (data) {
+
+                        Swal.close();
 
                         //Update Data Card Target Visit Bulanan
                         const visitTargetData = data.visitTarget[0]; // Ambil data pertama dari array visitTarget
@@ -1175,14 +1177,14 @@
                             }
                         });
 
-                        const dataTableElement = $('#visitHistoryDataTable');
+                        const dataTableVisitHistory = $('#visitHistoryDataTable');
 
                         // Update DataTable
                         if ($.fn.DataTable.isDataTable('#visitHistoryDataTable')) {
-                            dataTableElement.DataTable().clear().destroy();
+                            dataTableVisitHistory.DataTable().clear().destroy();
                         }
 
-                        dataTableElement.DataTable({
+                        dataTableVisitHistory.DataTable({
                             data: visitChartTableData,
                             columns: [
                                 { data: 'adate', title: 'Date' },
@@ -1210,7 +1212,7 @@
                                 },
                                 { data: 'anotes', title: 'Notes' },
                                 { data: 'practiceName', title: 'Practice' },
-                                { data: 'address', title: 'Address' }
+                                { data: 'address', title: 'Address'}
                             ],
                             autoWidth: false, // Matikan autoWidth jika ingin kontrol penuh
                             scrollX: true, // Mengaktifkan scroll horizontal jika tabel lebih lebar dari kontainer
@@ -1220,9 +1222,177 @@
                             order: [[0, 'desc']]
                         });
 
+                        // Mengelompokkan data
+                        const doctors = data.mclTableData.map(doctor => {
+                            const visits = data.visitChartTableData
+                                .filter(visit => visit.doctorCode === doctor.id)
+                                .map(visit => ({
+                                    date: visit.adate,
+                                    time: visit.timeCall,
+                                    jukudo: visit.jukudoStep,
+                                    prodId: visit.prodId,
+                                    prodDesc: visit.prodDesc,
+                                    visitQuality: visit.visitQuality,
+                                    notes: visit.anotes,
+                                    practice: visit.practiceName,
+                                    address: visit.address,
+                                    planVisit: visit.planVisit
+                                }));
+
+                            return {
+                                id: doctor.id,
+                                name: doctor.doctorName,
+                                class: doctor.class,
+                                targetVisit: doctor.targetVisit,
+                                plannedVisit: doctor.plannedVisit,
+                                unplannedVisit: doctor.unplannedVisit,
+                                visited: doctor.visited,
+                                progress: `${doctor.progress}%`,
+                                needToVisit: doctor.needToVisit,
+                                visitHistory: visits
+                            };
+                        });
+
+                        console.log(doctors);
+
+                        const TableAllDoctor = $('#TableAllDoctor');
+
+                        // Update DataTable
+                        if ($.fn.DataTable.isDataTable('#TableAllDoctor')) {
+                            TableAllDoctor.DataTable().clear().destroy();
+                        }
+
+                        // Function untuk mendapatkan label kualitas kunjungan
+                        function getVisitQualityLabel(quality) {
+                            switch (quality) {
+                                case 5:
+                                    return "A";
+                                case 4:
+                                    return "B";
+                                case 3:
+                                    return "C";
+                                default:
+                                    return "N/A"; // Jika kualitas tidak diketahui
+                            }
+                        }
+
+                        // Function untuk mendapatkan label rencana kunjungan
+                        function getVisitPlanLabel(plan) {
+                            switch (plan) {
+                                case 0:
+                                    return "Unplanned";
+                                case 1:
+                                    return "Planned";
+                                default:
+                                    return "N/A"; // Jika rencana tidak diketahui
+                            }
+                        }
+
+                        // Formatting function for row details
+                        function format(d) {
+                            let visitDetails = d.visitHistory.map(visit => {
+                                return `<tr>
+                                <td>${visit.date}</td>
+                                <td>${visit.time}</td>
+                                <td>${visit.jukudo}</td>
+                                <td>${visit.prodId}</td>
+                                <td>${visit.prodDesc}</td>
+                                <td>${getVisitQualityLabel(visit.visitQuality)}</td>
+                                <td>${getVisitPlanLabel(visit.planVisit)}</td>
+                                <td>${visit.notes}</td>
+                                <td>${visit.practice}</td>
+                                <td>${visit.address}</td>
+                                </tr>`;
+                            }).join('');
+
+                            return (
+                                '<div class="card">' +
+                                '<div class="card-header">' +
+                                '<h6 class="card-title">Visit History</h6>' +
+                                '</div>' +
+                                '<div class="card-body">' +
+                                '<table class="table table-bordered">' +
+                                '<thead>' +
+                                '<tr>' +
+                                '<th>Date</th>' +
+                                '<th>Time</th>' +
+                                '<th>Jukudo</th>' +
+                                '<th>Prod ID</th>' +
+                                '<th>Prod Desc</th>' +
+                                '<th>Visit Quality</th>' +
+                                '<th>Visit Plan</th>' +
+                                '<th>Notes</th>' +
+                                '<th>Practice</th>' +
+                                '<th>Adress</th>' +
+                                '</tr>' +
+                                '</thead>' +
+                                '<tbody>' +
+                                visitDetails +
+                                '</tbody>' +
+                                '</table>' +
+                                '</div>' +
+                                '</div>'
+                            );
+                        }
+
+                        // Membuat DataTable
+                        var table = $('#TableAllDoctor').DataTable({
+                            data: doctors.map(doctor => ({
+                                id: doctor.id,
+                                name: doctor.name,
+                                class: doctor.class,
+                                targetVisit: doctor.targetVisit,
+                                plannedVisit: doctor.plannedVisit,
+                                unplannedVisit: doctor.unplannedVisit,
+                                visited: doctor.visited,
+                                progress: doctor.progress,
+                                remarks: doctor.needToVisit === 0 ? "Target Tercapai" : doctor.needToVisit + " Kali Visit Lagi",
+                                visitHistory: doctor.visitHistory // Menyimpan history kunjungan
+                            })),
+                            columns: [
+                                {
+                                    className: 'dt-control',
+                                    orderable: false,
+                                    data: null,
+                                    defaultContent: ''
+                                },
+                                { data: 'id', title: 'ID Doctor'},
+                                { data: 'name', title: 'Name' },
+                                { data: 'class', title: 'Class' },
+                                { data: 'targetVisit', title: 'Target Visit' },
+                                { data: 'plannedVisit', title: 'Planned Visit' },
+                                { data: 'unplannedVisit', title: 'Unplanned Visit' },
+                                { data: 'visited', title: 'Visited' },
+                                { data: 'progress', title: 'Progress' },
+                                { data: 'remarks', title: 'Remarks' }
+                            ],
+                            order: [[3, 'asc']],
+                            autoWidth: false, // Matikan autoWidth jika ingin kontrol penuh
+                            scrollX: true // Mengaktifkan scroll horizontal jika tabel lebih lebar dari kontainer
+                        });
+
+                        // $('#TableAllDoctor tbody').on('click', 'td.dt-control', function () {
+                        //     let tr = $(this).closest('tr');
+                        //     let row = table.row(tr);
+
+                        //     if (row.child.isShown()) {
+                        //         row.child.hide();
+                        //         tr.removeClass('shown');
+                        //     } else {
+                        //         row.child(format(row.data())).show();
+                        //         tr.addClass('shown');
+                        //     }
+                        // });
+
                     },
                     error: function () {
                         console.error("Error fetching data.");
+                        Swal.fire({
+                            title: 'Error!',
+                            text: 'Terjadi kesalahan saat mengambil data.',
+                            icon: 'error',
+                            showConfirmButton: true
+                        });
                     }
                 });
             }
@@ -1283,6 +1453,7 @@
             }
 
             setDefaultDates();
+
 
         });
 
@@ -1380,7 +1551,6 @@
             toggleButtons('button-all');
             showCard('card-all');
         });
-
 
     </script>
 
