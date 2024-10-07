@@ -1222,6 +1222,7 @@
                             order: [[0, 'desc']]
                         });
 
+
                         // Mengelompokkan data
                         const doctors = data.mclTableData.map(doctor => {
                             const visits = data.visitChartTableData
@@ -1249,7 +1250,7 @@
                                 visited: doctor.visited,
                                 progress: `${doctor.progress}%`,
                                 needToVisit: doctor.needToVisit,
-                                visitHistory: visits
+                                visitHistory: visits.length > 0 ? visits : []
                             };
                         });
 
@@ -1265,11 +1266,11 @@
                         // Function untuk mendapatkan label kualitas kunjungan
                         function getVisitQualityLabel(quality) {
                             switch (quality) {
-                                case 5:
+                                case '5':
                                     return "A";
-                                case 4:
+                                case '4':
                                     return "B";
-                                case 3:
+                                case '3':
                                     return "C";
                                 default:
                                     return "N/A"; // Jika kualitas tidak diketahui
@@ -1279,9 +1280,9 @@
                         // Function untuk mendapatkan label rencana kunjungan
                         function getVisitPlanLabel(plan) {
                             switch (plan) {
-                                case 0:
+                                case '0':
                                     return "Unplanned";
-                                case 1:
+                                case '1':
                                     return "Planned";
                                 default:
                                     return "N/A"; // Jika rencana tidak diketahui
@@ -1290,21 +1291,29 @@
 
                         // Formatting function for row details
                         function format(d) {
-                            let visitDetails = d.visitHistory.map(visit => {
-                                return `<tr>
-                                <td>${visit.date}</td>
-                                <td>${visit.time}</td>
-                                <td>${visit.jukudo}</td>
-                                <td>${visit.prodId}</td>
-                                <td>${visit.prodDesc}</td>
-                                <td>${getVisitQualityLabel(visit.visitQuality)}</td>
-                                <td>${getVisitPlanLabel(visit.planVisit)}</td>
-                                <td>${visit.notes}</td>
-                                <td>${visit.practice}</td>
-                                <td>${visit.address}</td>
-                                </tr>`;
-                            }).join('');
+                            let visitDetails = '';
+                            // Mengecek apakah visitHistory ada dan memiliki data
+                            if (!d.visitHistory || d.visitHistory.length === 0) {
+                                visitDetails = '<tr><td colspan="10" class="text-center">No Visit History Data Available</td></tr>';
+                            } else {
+                                // Format data jika ada
+                                visitDetails = d.visitHistory.map(visit => `
+                                <tr>
+                                    <td>${visit.date}</td>
+                                    <td>${visit.time}</td>
+                                    <td>${visit.jukudo}</td>
+                                    <td>${visit.prodId}</td>
+                                    <td>${visit.prodDesc}</td>
+                                    <td>${getVisitQualityLabel(visit.visitQuality)}</td>
+                                    <td>${getVisitPlanLabel(visit.planVisit)}</td>
+                                    <td>${visit.notes}</td>
+                                    <td>${visit.practice}</td>
+                                    <td>${visit.address}</td>
+                                </tr>
+                            `).join('');
+                            }
 
+                            // Kembalikan struktur HTML dengan header
                             return (
                                 '<div class="card">' +
                                 '<div class="card-header">' +
@@ -1323,7 +1332,7 @@
                                 '<th>Visit Plan</th>' +
                                 '<th>Notes</th>' +
                                 '<th>Practice</th>' +
-                                '<th>Adress</th>' +
+                                '<th>Address</th>' +
                                 '</tr>' +
                                 '</thead>' +
                                 '<tbody>' +
@@ -1334,6 +1343,7 @@
                                 '</div>'
                             );
                         }
+
 
                         // Membuat DataTable
                         var table = $('#TableAllDoctor').DataTable({
@@ -1371,18 +1381,29 @@
                             scrollX: true // Mengaktifkan scroll horizontal jika tabel lebih lebar dari kontainer
                         });
 
-                        // $('#TableAllDoctor tbody').on('click', 'td.dt-control', function () {
-                        //     let tr = $(this).closest('tr');
-                        //     let row = table.row(tr);
+                        function logValidData(data) {
+                            if (data !== undefined) {
+                                console.log(data);
+                            }
+                        }
 
-                        //     if (row.child.isShown()) {
-                        //         row.child.hide();
-                        //         tr.removeClass('shown');
-                        //     } else {
-                        //         row.child(format(row.data())).show();
-                        //         tr.addClass('shown');
-                        //     }
-                        // });
+                        $('#TableAllDoctor tbody').on('click', 'td.dt-control', function () {
+                            event.stopPropagation();
+                            let tr = $(this).closest('tr');
+                            let row = table.row(tr);
+
+                            if (row.child.isShown()) {
+                                row.child.hide();
+                                tr.removeClass('shown');
+                            } else {
+                                const rowData = row.data(); // Ambil data dari row
+                                logValidData(rowData);
+                                if (rowData !== undefined) {
+                                    row.child(format(rowData)).show(); // Panggil format dengan rowData yang valid
+                                    tr.addClass('shown'); // Tambahkan class 'shown'
+                                }
+                            }
+                        });
 
                     },
                     error: function () {
