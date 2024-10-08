@@ -604,13 +604,36 @@ namespace Dashboard.Controllers
 
                 var sqlVisitCoverage = @"
                 
+                DECLARE @MR_NIK VARCHAR(50) = @EmployeeNik; -- Ganti dengan NIK yang diinginkan
+                DECLARE @Month INT = 9; -- Ganti dengan bulan yang diinginkan
+                DECLARE @Year INT = 2024; -- Ganti dengan tahun yang diinginkan
+
                 SELECT 
                     MR.NIK, 
                     MR.MR_RESPOSIBLE, 
                     COUNT(DISTINCT MCL.ID) AS MCL, 
-                    COUNT(DISTINCT VJN.DOCTOR_CODE) AS VISITED,  
-                    CAST(COUNT(DISTINCT VJN.DOCTOR_CODE) AS FLOAT) / NULLIF(COUNT(DISTINCT MCL.ID), 0) * 100 AS COVERAGE,
-                    NULLIF(COUNT(DISTINCT MCL.ID), 0) - CAST(COUNT(DISTINCT VJN.DOCTOR_CODE) AS FLOAT) AS NEED_TO_VISIT
+                    (SELECT COUNT(DISTINCT VJN.DOCTOR_CODE) 
+                     FROM VISITING_JUKUDO_NOTES VJN 
+                     WHERE VJN.MR_NIK = @MR_NIK 
+                     AND MONTH(VJN.ADATE) = @Month 
+                     AND YEAR(VJN.ADATE) = @Year 
+                     AND VJN.VISIT = '1') AS VISITED,  
+                    CAST(
+                        (SELECT COUNT(DISTINCT VJN.DOCTOR_CODE) 
+                         FROM VISITING_JUKUDO_NOTES VJN 
+                         WHERE VJN.MR_NIK = @MR_NIK 
+                         AND MONTH(VJN.ADATE) = @Month 
+                         AND YEAR(VJN.ADATE) = @Year 
+                         AND VJN.VISIT = '1') AS FLOAT
+                    ) / NULLIF(COUNT(DISTINCT MCL.ID), 0) * 100 AS COVERAGE,
+                    NULLIF(COUNT(DISTINCT MCL.ID), 0) - CAST(
+                        (SELECT COUNT(DISTINCT VJN.DOCTOR_CODE) 
+                         FROM VISITING_JUKUDO_NOTES VJN 
+                         WHERE VJN.MR_NIK = @MR_NIK 
+                         AND MONTH(VJN.ADATE) = @Month 
+                         AND YEAR(VJN.ADATE) = @Year 
+                         AND VJN.VISIT = '1') AS FLOAT
+                    ) AS NEED_TO_VISIT
                 FROM 
                     TABLE_MR MR
                 JOIN 
@@ -621,11 +644,11 @@ namespace Dashboard.Controllers
                     VISITING_JUKUDO_NOTES VJN
                 ON 
                     MCL.ID = VJN.DOCTOR_CODE 
-                    AND MONTH(VJN.ADATE) = 9
-                    AND YEAR(VJN.ADATE) = 2024
+                    AND MONTH(VJN.ADATE) = @Month
+                    AND YEAR(VJN.ADATE) = @Year
                     AND VJN.VISIT = '1'
                 WHERE 
-                    MR.NIK = @EmployeeNik
+                    MR.NIK = @MR_NIK
                 GROUP BY 
                     MR.NIK, 
                     MR.MR_RESPOSIBLE;

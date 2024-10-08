@@ -447,9 +447,9 @@
                                         <th>Doctor Code</th>
                                         <th>Doctor Name</th>
                                         <th>Class</th>
+                                        <th>Visit Target</th>
                                         <th>Planned Visit</th>
                                         <th>Unplanned Visit</th>
-                                        <th>Visit Target</th>
                                         <th>Visited</th>
                                         <th>Progress</th>
                                         <th>Remarks</th>
@@ -469,15 +469,16 @@
                     <div id="card-completed" style="display:none;" class="card top-selling overflow-auto pb-4">
                         <div class="card-body pb-0">
                             <h5 class="card-title">Target Visit Completed</h5>
-                            <table id="dataTable" class="display">
+                            <table id="TableCompletedDoctor" class="display">
                                 <thead>
                                     <tr>
+                                        <th></th>
                                         <th>Doctor Code</th>
                                         <th>Doctor Name</th>
                                         <th>Class</th>
+                                        <th>Visit Target</th>
                                         <th>Planned Visit</th>
                                         <th>Unplanned Visit</th>
-                                        <th>Visit Target</th>
                                         <th>Visited</th>
                                         <th>Progress</th>
                                         <th>Remarks</th>
@@ -497,15 +498,16 @@
                     <div id="card-progress" style="display:none;" class="card top-selling overflow-auto pb-4">
                         <div class="card-body pb-0">
                             <h5 class="card-title">Target Visit Progressed</h5>
-                            <table id="dataTable" class="display">
+                            <table id="TableProgressDoctor" class="display">
                                 <thead>
                                     <tr>
+                                        <th></th>
                                         <th>Doctor Code</th>
                                         <th>Doctor Name</th>
                                         <th>Class</th>
+                                        <th>Visit Target</th>
                                         <th>Planned Visit</th>
                                         <th>Unplanned Visit</th>
-                                        <th>Visit Target</th>
                                         <th>Visited</th>
                                         <th>Progress</th>
                                         <th>Remarks</th>
@@ -525,15 +527,16 @@
                     <div id="card-unvisited" style="display:none;" class="card top-selling overflow-auto pb-4">
                         <div class="card-body pb-0">
                             <h5 class="card-title">Not Visited Yet</h5>
-                            <table id="dataTable" class="display">
+                            <table id="TableUnvisitedDoctor" class="display">
                                 <thead>
                                     <tr>
+                                        <th></th>
                                         <th>Doctor Code</th>
                                         <th>Doctor Name</th>
                                         <th>Class</th>
+                                        <th>Visit Target</th>
                                         <th>Planned Visit</th>
                                         <th>Unplanned Visit</th>
-                                        <th>Visit Target</th>
                                         <th>Visited</th>
                                         <th>Progress</th>
                                         <th>Remarks</th>
@@ -1219,11 +1222,11 @@
                                     render: function (data, type, row) {
                                         // Ubah visitQuality menjadi label sesuai dengan nilainya
                                         if (data == 3) {
-                                            return 'C';
+                                            return 'C - Greeting Only';
                                         } else if (data == 4) {
-                                            return 'B';
+                                            return 'B - Chatting';
                                         } else if (data == 5) {
-                                            return 'A';
+                                            return 'A - Prescription Req, Intro Prod ';
                                         } else {
                                             return data; // Jika nilai tidak sesuai, tampilkan angka asli
                                         }
@@ -1273,22 +1276,138 @@
                             };
                         });
 
+                        // Memfilter dokter yang memiliki needToVisit sama dengan 0
+                        const doctorsCompleted = data.mclTableData
+                            .filter(doctor => doctor.needToVisit === 0)
+                            .map(doctor => {
+                                const visits = data.visitChartTableData
+                                    .filter(visit => visit.doctorCode === doctor.id)
+                                    .map(visit => ({
+                                        date: visit.adate,
+                                        time: visit.timeCall,
+                                        jukudo: visit.jukudoStep,
+                                        prodId: visit.prodId,
+                                        prodDesc: visit.prodDesc,
+                                        visitQuality: visit.visitQuality,
+                                        notes: visit.anotes,
+                                        practice: visit.practiceName,
+                                        address: visit.address,
+                                        planVisit: visit.planVisit
+                                    }));
+
+                                return {
+                                    id: doctor.id,
+                                    name: doctor.doctorName,
+                                    class: doctor.class,
+                                    targetVisit: doctor.targetVisit,
+                                    plannedVisit: doctor.plannedVisit,
+                                    unplannedVisit: doctor.unplannedVisit,
+                                    visited: doctor.visited,
+                                    progress: `${doctor.progress}%`,
+                                    needToVisit: doctor.needToVisit,
+                                    visitHistory: visits.length > 0 ? visits : []
+                                };
+                            });
+
+                        // Memfilter dokter yang memiliki needToVisit sama dengan 0
+                        const doctorsProgress = data.mclTableData
+                            .filter(doctor => doctor.progress > 0 && doctor.progress < 100)
+                            .map(doctor => {
+                                const visits = data.visitChartTableData
+                                    .filter(visit => visit.doctorCode === doctor.id)
+                                    .map(visit => ({
+                                        date: visit.adate,
+                                        time: visit.timeCall,
+                                        jukudo: visit.jukudoStep,
+                                        prodId: visit.prodId,
+                                        prodDesc: visit.prodDesc,
+                                        visitQuality: visit.visitQuality,
+                                        notes: visit.anotes,
+                                        practice: visit.practiceName,
+                                        address: visit.address,
+                                        planVisit: visit.planVisit
+                                    }));
+
+                                return {
+                                    id: doctor.id,
+                                    name: doctor.doctorName,
+                                    class: doctor.class,
+                                    targetVisit: doctor.targetVisit,
+                                    plannedVisit: doctor.plannedVisit,
+                                    unplannedVisit: doctor.unplannedVisit,
+                                    visited: doctor.visited,
+                                    progress: `${doctor.progress}%`,
+                                    needToVisit: doctor.needToVisit,
+                                    visitHistory: visits.length > 0 ? visits : []
+                                };
+                            });
+
+                        const doctorsUnvisited = data.mclTableData
+                            .filter(doctor => doctor.visited === 0)
+                            .map(doctor => {
+                                const visits = data.visitChartTableData
+                                    .filter(visit => visit.doctorCode === doctor.id)
+                                    .map(visit => ({
+                                        date: visit.adate,
+                                        time: visit.timeCall,
+                                        jukudo: visit.jukudoStep,
+                                        prodId: visit.prodId,
+                                        prodDesc: visit.prodDesc,
+                                        visitQuality: visit.visitQuality,
+                                        notes: visit.anotes,
+                                        practice: visit.practiceName,
+                                        address: visit.address,
+                                        planVisit: visit.planVisit
+                                    }));
+
+                                return {
+                                    id: doctor.id,
+                                    name: doctor.doctorName,
+                                    class: doctor.class,
+                                    targetVisit: doctor.targetVisit,
+                                    plannedVisit: doctor.plannedVisit,
+                                    unplannedVisit: doctor.unplannedVisit,
+                                    visited: doctor.visited,
+                                    progress: `${doctor.progress}%`,
+                                    needToVisit: doctor.needToVisit,
+                                    visitHistory: visits.length > 0 ? visits : []
+                                };
+                            });
+
                         const TableAllDoctor = $('#TableAllDoctor');
+                        const TableCompletedDoctor = $('#TableCompletedDoctor');
+                        const TableProgressDoctor = $('#TableProgressDoctor');
+                        const TableUnvisitedDoctor = $('#TableUnvisitedDoctor');
 
                         // Update DataTable
                         if ($.fn.DataTable.isDataTable('#TableAllDoctor')) {
                             TableAllDoctor.DataTable().clear().destroy();
                         }
 
+                        // Update DataTable
+                        if ($.fn.DataTable.isDataTable('#TableCompletedDoctor')) {
+                            TableCompletedDoctor.DataTable().clear().destroy();
+                        }
+
+                        // Update DataTable
+                        if ($.fn.DataTable.isDataTable('#TableProgressDoctor')) {
+                            TableProgressDoctor.DataTable().clear().destroy();
+                        }
+
+                        // Update DataTable
+                        if ($.fn.DataTable.isDataTable('#TableUnvisitedDoctor')) {
+                            TableUnvisitedDoctor.DataTable().clear().destroy();
+                        }
+
                         // Function untuk mendapatkan label kualitas kunjungan
                         function getVisitQualityLabel(quality) {
                             switch (quality) {
                                 case '5':
-                                    return "A";
+                                    return "A - Prescription Req, Intro Prod ";
                                 case '4':
-                                    return "B";
+                                    return "B - Chatting";
                                 case '3':
-                                    return "C";
+                                    return "C - Greeting Only";
                                 default:
                                     return "N/A"; // Jika kualitas tidak diketahui
                             }
@@ -1402,6 +1521,165 @@
                             event.stopPropagation();
                             let tr = $(this).closest('tr');
                             let row = table.row(tr);
+
+                            if (row.child.isShown()) {
+                                row.child.hide();
+                                tr.removeClass('shown');
+                            } else {
+                                const rowData = row.data(); // Ambil data dari row
+                                if (rowData !== undefined) {
+                                    row.child(format(rowData)).show(); // Panggil format dengan rowData yang valid
+                                    tr.addClass('shown'); // Tambahkan class 'shown'
+                                }
+                            }
+                        });
+
+                        // Membuat DataTable
+                        var tableCompleted = $('#TableCompletedDoctor').DataTable({
+                            data: doctorsCompleted.map(doctor => ({
+                                id: doctor.id,
+                                name: doctor.name,
+                                class: doctor.class,
+                                targetVisit: doctor.targetVisit,
+                                plannedVisit: doctor.plannedVisit,
+                                unplannedVisit: doctor.unplannedVisit,
+                                visited: doctor.visited,
+                                progress: doctor.progress,
+                                remarks: doctor.needToVisit === 0 ? "Target Tercapai" : doctor.needToVisit + " Kali Visit Lagi",
+                                visitHistory: doctor.visitHistory // Menyimpan history kunjungan
+                            })),
+                            columns: [
+                                {
+                                    className: 'dt-control',
+                                    orderable: false,
+                                    data: null,
+                                    defaultContent: ''
+                                },
+                                { data: 'id' },
+                                { data: 'name' },
+                                { data: 'class' },
+                                { data: 'targetVisit' },
+                                { data: 'plannedVisit' },
+                                { data: 'unplannedVisit' },
+                                { data: 'visited' },
+                                { data: 'progress' },
+                                { data: 'remarks' }
+                            ],
+                            order: [[3, 'asc']],
+                            autoWidth: false, // Matikan autoWidth jika ingin kontrol penuh
+                            scrollX: true // Mengaktifkan scroll horizontal jika tabel lebih lebar dari kontainer
+                        });
+
+                        $('#TableCompletedDoctor tbody').on('click', 'td.dt-control', function () {
+                            event.stopPropagation();
+                            let tr = $(this).closest('tr');
+                            let row = tableCompleted.row(tr);
+
+                            if (row.child.isShown()) {
+                                row.child.hide();
+                                tr.removeClass('shown');
+                            } else {
+                                const rowData = row.data(); // Ambil data dari row
+                                if (rowData !== undefined) {
+                                    row.child(format(rowData)).show(); // Panggil format dengan rowData yang valid
+                                    tr.addClass('shown'); // Tambahkan class 'shown'
+                                }
+                            }
+                        });
+
+                        // Membuat DataTable
+                        var tableProgress = $('#TableProgressDoctor').DataTable({
+                            data: doctorsProgress.map(doctor => ({
+                                id: doctor.id,
+                                name: doctor.name,
+                                class: doctor.class,
+                                targetVisit: doctor.targetVisit,
+                                plannedVisit: doctor.plannedVisit,
+                                unplannedVisit: doctor.unplannedVisit,
+                                visited: doctor.visited,
+                                progress: doctor.progress,
+                                remarks: doctor.needToVisit === 0 ? "Target Tercapai" : doctor.needToVisit + " Kali Visit Lagi",
+                                visitHistory: doctor.visitHistory // Menyimpan history kunjungan
+                            })),
+                            columns: [
+                                {
+                                    className: 'dt-control',
+                                    orderable: false,
+                                    data: null,
+                                    defaultContent: ''
+                                },
+                                { data: 'id' },
+                                { data: 'name' },
+                                { data: 'class' },
+                                { data: 'targetVisit' },
+                                { data: 'plannedVisit' },
+                                { data: 'unplannedVisit' },
+                                { data: 'visited' },
+                                { data: 'progress' },
+                                { data: 'remarks' }
+                            ],
+                            order: [[3, 'asc']],
+                            autoWidth: false, // Matikan autoWidth jika ingin kontrol penuh
+                            scrollX: true // Mengaktifkan scroll horizontal jika tabel lebih lebar dari kontainer
+                        });
+
+                        $('#TableProgressDoctor tbody').on('click', 'td.dt-control', function () {
+                            event.stopPropagation();
+                            let tr = $(this).closest('tr');
+                            let row = tableProgress.row(tr);
+
+                            if (row.child.isShown()) {
+                                row.child.hide();
+                                tr.removeClass('shown');
+                            } else {
+                                const rowData = row.data(); // Ambil data dari row
+                                if (rowData !== undefined) {
+                                    row.child(format(rowData)).show(); // Panggil format dengan rowData yang valid
+                                    tr.addClass('shown'); // Tambahkan class 'shown'
+                                }
+                            }
+                        });
+
+                        // Membuat DataTable
+                        var tableUnvisited = $('#TableUnvisitedDoctor').DataTable({
+                            data: doctorsUnvisited.map(doctor => ({
+                                id: doctor.id,
+                                name: doctor.name,
+                                class: doctor.class,
+                                targetVisit: doctor.targetVisit,
+                                plannedVisit: doctor.plannedVisit,
+                                unplannedVisit: doctor.unplannedVisit,
+                                visited: doctor.visited,
+                                progress: doctor.progress,
+                                remarks: doctor.needToVisit === 0 ? "Target Tercapai" : doctor.needToVisit + " Kali Visit Lagi",
+                                visitHistory: doctor.visitHistory // Menyimpan history kunjungan
+                            })),
+                            columns: [
+                                {
+                                    className: 'dt-control',
+                                    orderable: false,
+                                    data: null,
+                                    defaultContent: ''
+                                },
+                                { data: 'id' },
+                                { data: 'name' },
+                                { data: 'class' },
+                                { data: 'targetVisit' },
+                                { data: 'plannedVisit' },
+                                { data: 'unplannedVisit' },
+                                { data: 'visited' },
+                                { data: 'progress' },
+                                { data: 'remarks' }
+                            ],
+                            order: [[3, 'asc']],
+                            autoWidth: false, // Matikan autoWidth jika ingin kontrol penuh
+                            scrollX: true // Mengaktifkan scroll horizontal jika tabel lebih lebar dari kontainer
+                        });
+
+                        $('#TableUnvisitedDoctor tbody').on('click', 'td.dt-control', function () {
+                            event.stopPropagation();
+                            let tr = $(this).closest('tr');
+                            let row = tableUnvisited.row(tr);
 
                             if (row.child.isShown()) {
                                 row.child.hide();
