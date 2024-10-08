@@ -308,7 +308,7 @@
                             <h5 class="card-title">Visit Berdasarkan Produk</h5>
 
                             <!-- Column Chart -->
-                            <div id="ChartVisitProduct"></div>
+                            <div id="ChartVisitProduct" style="height: 280px"></div>
                             <!-- End Column Chart -->
 
                         </div>
@@ -334,7 +334,7 @@
                         <div class="card-body pb-0">
                             <h5 class="card-title">Visit By Plan | Monthly</h5>
 
-                            <div id="PieChartVisitPlan" style="height: 365px;" class="echart"></div>
+                            <div id="PieChartVisitPlan" style="height: 295px;" class="echart"></div>
 
                         </div>
                     </div><!-- End Actual Sales -->
@@ -359,7 +359,7 @@
                         <div class="card-body pb-0">
                             <h5 class="card-title">Visit By Class | Monthly</h5>
 
-                            <div id="PieChartDoctorClass" style="height: 365px;" class="echart"></div>
+                            <div id="PieChartDoctorClass" style="height: 295px;" class="echart"></div>
 
                         </div>
                     </div><!-- End Actual Sales -->
@@ -384,7 +384,7 @@
                         <div class="card-body pb-0">
                             <h5 class="card-title">Visit By Class | Daily </h5>
 
-                            <div id="VisitByClassDaily" style="height: 365px;" class="echart mb-0"></div>
+                            <div id="VisitByClassDaily" style="height: 280px;" class="echart mb-0"></div>
 
                         </div>
                     </div>
@@ -412,7 +412,7 @@
                             <h5 class="card-title">Visit By Plan | Daily</h5>
 
                             <!-- Column Chart -->
-                            <a><div id="VisitByPlanDaily"></div></a>
+                            <a><div id="VisitByPlanDaily" style="height: 280px;"></div></a>
                             <!-- End Column Chart -->
 
                         </div>
@@ -443,7 +443,16 @@
                             <table id="TableAllDoctor" class="display">
                                 <thead>
                                     <tr>
-
+                                        <th></th>
+                                        <th>Doctor Code</th>
+                                        <th>Doctor Name</th>
+                                        <th>Class</th>
+                                        <th>Planned Visit</th>
+                                        <th>Unplanned Visit</th>
+                                        <th>Visit Target</th>
+                                        <th>Visited</th>
+                                        <th>Progress</th>
+                                        <th>Remarks</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -547,6 +556,17 @@
                             <table id="visitHistoryDataTable" class="display">
                                 <thead class="w-100">
                                     <tr>
+                                        <th>Date</th>
+                                        <th>Time</th>
+                                        <th>ID Doctor</th>
+                                        <th>Name</th>
+                                        <th>Class</th>
+                                        <th>Product ID</th>
+                                        <th>Product</th>
+                                        <th>Visit Quality</th>
+                                        <th>Notes</th>
+                                        <th>Practice</th>
+                                        <th>Address</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -645,7 +665,7 @@
                         $('#visit-count').text(visitCount + ' / ' + visitTarget);
                         // Update text jumlah visit yang dibutuhkan
                         if (achievementRate >= 100) {
-                            $('#visit-target').html('Luar Biasa!</span> <span class="pt-2 ps-1">Target tercapai</span>');
+                            $('#visit-target').html('Luar Biasa!</span> <span class="pt-2 ps-1">Achieved</span>');
                         } else {
                             $('#visit-target').html(needToVisit + ' visit</span><span class="pt-2 ps-1">lagi mencapai target!</span>');
                         }
@@ -668,7 +688,7 @@
                         $('#visit-coverage').text(visited + ' / ' + mcl);
                         // Update text jumlah visit yang dibutuhkan
                         if (coverage >= 100) {
-                            $('#visit-coverage-target').html('Luar Biasa!</span> <span class="pt-2 ps-1">Target tercapai</span>');
+                            $('#visit-coverage-target').html('Luar Biasa!</span> <span class="pt-2 ps-1">Achieved</span>');
                         } else {
                             $('#visit-coverage-target').html(needToVisitCoverage + ' visit</span><span class="pt-2 ps-1">lagi mencapai target!</span>');
                         }
@@ -692,7 +712,7 @@
                         $('#visit-count-a').text(visited_a + ' / ' + targetVisit_a);
                         // Update text jumlah visit yang dibutuhkan
                         if (progress_a >= 100) {
-                            $('#visit-target-a').html('</span><span class="pt-2 ps-1">Target tercapai</span>');
+                            $('#visit-target-a').html('</span><span class="pt-2 ps-1">Achieved</span>');
                         } else {
                             $('#visit-target-a').html(needToVisit_a + ' visit</span><span class="pt-2 ps-1">lagi</span>');
                         }
@@ -716,7 +736,7 @@
                         $('#visit-count-b').text(visited_b + ' / ' + targetVisit_b);
                         // Update text jumlah visit yang dibutuhkan
                         if (progress_b >= 100) {
-                            $('#visit-target-b').html('</span><span class="pt-2 ps-1">Target tercapai</span>');
+                            $('#visit-target-b').html('</span><span class="pt-2 ps-1">Achieved</span>');
                         } else {
                             $('#visit-target-b').html(needToVisit_b + ' visit</span><span class="pt-2 ps-1">lagi</span>');
                         }
@@ -740,7 +760,7 @@
                         $('#visit-count-c').text(visited_c + ' / ' + targetVisit_c);
                         // Update text jumlah visit yang dibutuhkan
                         if (progress_c >= 100) {
-                            $('#visit-target-c').html('</span><span class="pt-2 ps-1">Target tercapai</span>');
+                            $('#visit-target-c').html('</span><span class="pt-2 ps-1">Achieved</span>');
                         } else {
                             $('#visit-target-c').html(needToVisit_c + ' visit</span><span class="pt-2 ps-1">lagi</span>');
                         }
@@ -782,7 +802,7 @@
                             }],
                             chart: {
                                 type: 'bar',
-                                height: 350,
+                                height: 280,
                                 stacked: false
                             },
                             plotOptions: {
@@ -1014,7 +1034,7 @@
                             series: [], // Data awal kosong
                             chart: {
                                 type: 'bar',
-                                height: 350,
+                                height: 280,
                                 stacked: true
                             },
                             plotOptions: {
@@ -1117,7 +1137,7 @@
                             series: [], // Data awal kosong
                             chart: {
                                 type: 'bar',
-                                height: 350,
+                                height: 280,
                                 stacked: true
                             },
                             plotOptions: {
@@ -1187,16 +1207,15 @@
                         dataTableVisitHistory.DataTable({
                             data: visitChartTableData,
                             columns: [
-                                { data: 'adate', title: 'Date' },
-                                { data: 'timeCall', title: 'Time' },
-                                { data: 'doctorCode', title: 'ID Doctor' },
-                                { data: 'doctorName', title: 'Name' },
-                                { data: 'doctorClass', title: 'Class' },
-                                { data: 'prodId', title: 'Product ID' },
-                                { data: 'prodDesc', title: 'Product' },
+                                { data: 'adate'},
+                                { data: 'timeCall'},
+                                { data: 'doctorCode'},
+                                { data: 'doctorName'},
+                                { data: 'doctorClass'},
+                                { data: 'prodId'},
+                                { data: 'prodDesc'},
                                 {
                                     data: 'visitQuality',
-                                    title: 'Visit Quality',
                                     render: function (data, type, row) {
                                         // Ubah visitQuality menjadi label sesuai dengan nilainya
                                         if (data == 3) {
@@ -1210,9 +1229,9 @@
                                         }
                                     }
                                 },
-                                { data: 'anotes', title: 'Notes' },
-                                { data: 'practiceName', title: 'Practice' },
-                                { data: 'address', title: 'Address'}
+                                { data: 'anotes'},
+                                { data: 'practiceName'},
+                                { data: 'address'}
                             ],
                             autoWidth: false, // Matikan autoWidth jika ingin kontrol penuh
                             scrollX: true, // Mengaktifkan scroll horizontal jika tabel lebih lebar dari kontainer
@@ -1253,8 +1272,6 @@
                                 visitHistory: visits.length > 0 ? visits : []
                             };
                         });
-
-                        console.log(doctors);
 
                         const TableAllDoctor = $('#TableAllDoctor');
 
@@ -1366,26 +1383,20 @@
                                     data: null,
                                     defaultContent: ''
                                 },
-                                { data: 'id', title: 'ID Doctor'},
-                                { data: 'name', title: 'Name' },
-                                { data: 'class', title: 'Class' },
-                                { data: 'targetVisit', title: 'Target Visit' },
-                                { data: 'plannedVisit', title: 'Planned Visit' },
-                                { data: 'unplannedVisit', title: 'Unplanned Visit' },
-                                { data: 'visited', title: 'Visited' },
-                                { data: 'progress', title: 'Progress' },
-                                { data: 'remarks', title: 'Remarks' }
+                                { data: 'id'},
+                                { data: 'name'},
+                                { data: 'class'},
+                                { data: 'targetVisit'},
+                                { data: 'plannedVisit'},
+                                { data: 'unplannedVisit'},
+                                { data: 'visited'},
+                                { data: 'progress'},
+                                { data: 'remarks'}
                             ],
                             order: [[3, 'asc']],
                             autoWidth: false, // Matikan autoWidth jika ingin kontrol penuh
                             scrollX: true // Mengaktifkan scroll horizontal jika tabel lebih lebar dari kontainer
                         });
-
-                        function logValidData(data) {
-                            if (data !== undefined) {
-                                console.log(data);
-                            }
-                        }
 
                         $('#TableAllDoctor tbody').on('click', 'td.dt-control', function () {
                             event.stopPropagation();
@@ -1397,7 +1408,6 @@
                                 tr.removeClass('shown');
                             } else {
                                 const rowData = row.data(); // Ambil data dari row
-                                logValidData(rowData);
                                 if (rowData !== undefined) {
                                     row.child(format(rowData)).show(); // Panggil format dengan rowData yang valid
                                     tr.addClass('shown'); // Tambahkan class 'shown'

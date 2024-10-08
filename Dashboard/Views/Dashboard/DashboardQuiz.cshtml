@@ -353,7 +353,7 @@
                         <div class="card-body pb-0">
                             <h5 class="card-title">Persentase Kelulusan </h5>
 
-                            <div id="trafficChart" style="height: 365px;" class="echart mb-0"></div>
+                            <div id="trafficChart" style="height: 295px;" class="echart mb-0"></div>
 
                         </div>
                     </div>
@@ -601,7 +601,7 @@
                     }],
                     chart: {
                         type: 'bar',
-                        height: 350,
+                        height: 280,
                         stacked: true
                     },
                     plotOptions: {
@@ -613,6 +613,9 @@
                     },
                     dataLabels: {
                         enabled: true,
+                        style: {
+                            fontSize: '9px', // Set font size for data labels
+                        }
                     },
                     stroke: {
                         show: true,
@@ -620,11 +623,24 @@
                         colors: ['transparent']
                     },
                     xaxis: {
-                        categories: []
+                        categories: [],
+                        labels: {
+                            style: {
+                                fontSize: '9px', // Set font size for x-axis labels
+                            }
+                        }
                     },
                     yaxis: {
                         title: {
-                            text: 'Questions'
+                            text: 'Questions',
+                            style: {
+                                fontSize: '9px', // Set font size for y-axis title
+                            }
+                        },
+                        labels: {
+                            style: {
+                                fontSize: '9px', // Set font size for y-axis labels
+                            }
                         }
                     },
                     colors: ['#28a745', '#dc3545'],
@@ -637,6 +653,9 @@
                             formatter: function (val) {
                                 return val + " Questions"
                             }
+                        },
+                        style: {
+                            fontSize: '9px' // Set font size for tooltip
                         }
                     }
                 });
@@ -683,7 +702,7 @@
                     }],
                     chart: {
                         type: 'bar',
-                        height: 350
+                        height: 280, // Tinggi grafik diubah menjadi 300
                     },
                     colors: [],
                     plotOptions: {
@@ -695,7 +714,10 @@
                         },
                     },
                     dataLabels: {
-                        enabled: true
+                        enabled: true,
+                        style: {
+                            fontSize: '9px' // Ukuran font untuk label data
+                        }
                     },
                     stroke: {
                         show: true,
@@ -704,10 +726,23 @@
                     },
                     xaxis: {
                         categories: [],
+                        labels: {
+                            style: {
+                                fontSize: '9px' // Ukuran font untuk label x-axis
+                            }
+                        }
                     },
                     yaxis: {
                         title: {
-                            text: '%'
+                            text: '%',
+                            style: {
+                                fontSize: '9px' // Ukuran font untuk judul y-axis
+                            }
+                        },
+                        labels: {
+                            style: {
+                                fontSize: '9px' // Ukuran font untuk label y-axis
+                            }
                         }
                     },
                     fill: {
@@ -718,9 +753,15 @@
                             formatter: function (val) {
                                 return val + " %"
                             }
+                        },
+                        style: {
+                            fontSize: '9px' // Ukuran font untuk tooltip
                         }
                     }
                 });
+
+                // Render the chart
+                chart1.render();
 
                 chart1.render();
 
@@ -731,7 +772,7 @@
 
                 chart1.updateOptions({
                     xaxis: {
-                        categories: filteredTests.map(test => test.name)
+                        categories: filteredTests.map(test => test.name),
                     },
                     colors: filteredTests.map(test => getColor(test.name, test.score))
                 });
@@ -743,7 +784,7 @@
                         data: []
                     }],
                     chart: {
-                        height: 350,
+                        height: 280,
                         type: 'line',
                         zoom: {
                             enabled: true
@@ -763,6 +804,29 @@
                     },
                     xaxis: {
                         categories: [],
+                        labels: {
+                            style: {
+                                fontSize: '9px' // Set font size for x-axis labels
+                            }
+                        }
+                    },
+                    yaxis: {
+                        labels: {
+                            style: {
+                                fontSize: '9px' // Set font size for y-axis labels
+                            }
+                        },
+                        title: {
+                            text: 'Skor', // Add a title to the y-axis if needed
+                            style: {
+                                fontSize: '9px' // Set font size for y-axis title
+                            }
+                        }
+                    },
+                    tooltip: {
+                        style: {
+                            fontSize: '9px' // Set font size for tooltip
+                        }
                     }
                 });
 
@@ -793,11 +857,17 @@
                         formatter: function (params) {
                             let percent = (params.value / totalPie * 100).toFixed(2);
                             return `${params.name}: ${params.value} (${percent}%)`;
+                        },
+                        textStyle: {
+                            fontSize: '9px' // Set font size for tooltip
                         }
                     },
                     legend: {
                         top: '0%',
-                        left: 'center'
+                        left: 'center',
+                        textStyle: {
+                            fontSize: '9px' // Set font size for legend
+                        }
                     },
                     series: [{
                         name: 'Status Kelulusan',
@@ -805,18 +875,19 @@
                         radius: ['40%', '70%'],
                         avoidLabelOverlap: false,
                         label: {
-                            show: false,
-                            position: 'center',
+                            show: true, // Show labels
+                            fontSize: '9px', // Set font size for pie labels
+                            position: 'outside', // Adjust position as needed
                         },
                         emphasis: {
                             label: {
                                 show: true,
-                                fontSize: '18',
+                                fontSize: '9px', // Set font size for emphasized labels
                                 fontWeight: 'bold'
                             }
                         },
                         labelLine: {
-                            show: false
+                            show: true // Show label lines
                         },
                         data: pieData
                     }]
@@ -838,10 +909,13 @@
                         { data: 'score', title: 'Skor (%)' },
                         { data: 'remarks', title: 'Keterangan' }
                     ],
+                    autoWidth: false, // Matikan autoWidth jika ingin kontrol penuh
+                    scrollX: true, // Mengaktifkan scroll horizontal jika tabel lebih lebar dari kontainer
                     paging: true,
                     searching: true,
                     ordering: true,
-                    order: [[1, 'asc']]
+                    order: [[1, 'asc']],
+                    className: 'dataTable'
                 });
             }
 
