@@ -42,7 +42,7 @@ namespace Dashboard.Controllers
             // Jika employeeNik tidak null atau kosong, ambil hasil kuis
             if (!string.IsNullOrEmpty(employeeNik))
             {
-                var sql = @"
+                var sqlGetQuizData = @"
                         SELECT s.SCHEDULE_ID, 
                             n.ANAME, 
                             s.EMPLOYEE_NIK, 
@@ -73,7 +73,7 @@ namespace Dashboard.Controllers
                                 CONVERT(DATE, n.CREATED_DATE);               
                 ";
 
-                var sql2 = @"
+                var sqlGetVisitPlanToday = @"
                     SELECT 
                     NOTES_ID_MOBILE, 
                     DATE_VISIT, 
@@ -119,41 +119,41 @@ namespace Dashboard.Controllers
                         ABS(DATEDIFF(DAY, GETDATE(), DATE_VISIT)) ASC;
                 ";
 
-                var sql4 = @"
+                var sqlGetVisitData = @"
                 WITH LatestVisits AS (
-                    SELECT 
-                        MR_NIK,
-                        CONVERT(DATE, DATE_VISIT, 101) AS TANGGAL,
-                        COUNT(CASE WHEN DOCTOR_CLASS = 'A' THEN 1 END) AS TOTAL_VISIT_GRADE_A,
-                        COUNT(CASE WHEN DOCTOR_CLASS = 'B' THEN 1 END) AS TOTAL_VISIT_GRADE_B,
-                        COUNT(CASE WHEN DOCTOR_CLASS = 'C' THEN 1 END) AS TOTAL_VISIT_GRADE_C,
-                        ROW_NUMBER() OVER (ORDER BY CONVERT(DATE, DATE_VISIT, 101) DESC) AS rn
-                    FROM 
-                        VISITING_JUKUDO_NOTES_MOBILE 
-                    WHERE 
-                        STATUS_VISIT = '1' 
-                        AND MR_NIK = @EmployeeNik
-                        AND DOCTOR_CLASS IN ('A', 'B', 'C') 
-                    GROUP BY 
-                        MR_NIK, 
-                        CONVERT(DATE, DATE_VISIT, 101)
-                )
-
                 SELECT 
                     MR_NIK,
-                    TANGGAL,
-                    TOTAL_VISIT_GRADE_A,
-                    TOTAL_VISIT_GRADE_B,
-                    TOTAL_VISIT_GRADE_C
+                    CONVERT(DATE, ADATE, 101) AS TANGGAL,
+                    COUNT(CASE WHEN DOCTOR_CLASS = 'A' THEN 1 END) AS TOTAL_VISIT_GRADE_A,
+                    COUNT(CASE WHEN DOCTOR_CLASS = 'B' THEN 1 END) AS TOTAL_VISIT_GRADE_B,
+                    COUNT(CASE WHEN DOCTOR_CLASS = 'C' THEN 1 END) AS TOTAL_VISIT_GRADE_C,
+                    ROW_NUMBER() OVER (ORDER BY CONVERT(DATE, ADATE, 101) DESC) AS rn
                 FROM 
-                    LatestVisits
+                    VISITING_JUKUDO_NOTES
                 WHERE 
-                    rn <= 10
-                ORDER BY 
-                    TANGGAL ASC;
+                    VISIT = '1' 
+                    AND MR_NIK = @EmployeeNik
+                    AND DOCTOR_CLASS IN ('A', 'B', 'C') 
+                GROUP BY 
+                    MR_NIK, 
+                    CONVERT(DATE, ADATE, 101)
+            )
+
+            SELECT 
+                MR_NIK,
+                TANGGAL,
+                TOTAL_VISIT_GRADE_A,
+                TOTAL_VISIT_GRADE_B,
+                TOTAL_VISIT_GRADE_C
+            FROM 
+                LatestVisits
+            WHERE 
+                rn <= 10
+            ORDER BY 
+                TANGGAL ASC;
                 ";
 
-                var sql5 = @"
+                var sqlGetVisitPlanLater = @"
                 SELECT 
                     NOTES_ID_MOBILE as notes_id_mobile, 
                     DATE_VISIT, 
@@ -175,7 +175,7 @@ namespace Dashboard.Controllers
                     ABS(DATEDIFF(DAY, GETDATE(), DATE_VISIT)) ASC;
                 ";
 
-                var sql6 = @"
+                var sqlGetVisitTarget = @"
                 DECLARE @CurrentMonth NVARCHAR(20) = FORMAT(GETDATE(), 'MMMM', 'id-ID');
                 DECLARE @MR_NIK NVARCHAR(20) = @EmployeeNik; -- Variabel untuk MR_NIK
 
@@ -272,7 +272,7 @@ namespace Dashboard.Controllers
 
                     await using (var command = _context.Database.GetDbConnection().CreateCommand())
                     {
-                        command.CommandText = sql;
+                        command.CommandText = sqlGetQuizData;
                         command.CommandType = System.Data.CommandType.Text;
                         command.Parameters.Add(new SqlParameter("@EmployeeNik", employeeNik));
 
@@ -299,7 +299,7 @@ namespace Dashboard.Controllers
                         }
 
                         command.Parameters.Clear();
-                        command.CommandText = sql2;
+                        command.CommandText = sqlGetVisitPlanToday;
                         command.CommandType = System.Data.CommandType.Text;
                         command.Parameters.Add(new SqlParameter("@EmployeeNik", employeeNik));
 
@@ -325,16 +325,25 @@ namespace Dashboard.Controllers
                         if (!string.IsNullOrEmpty(startDate) && !string.IsNullOrEmpty(endDate))
                         {
                             command.Parameters.Clear();
-                            command.CommandText = sql5;
+                            command.CommandText = sqlGetVisitPlanLater;
                             command.Parameters.Add(new SqlParameter("@EmployeeNik", employeeNik));
                             command.Parameters.Add(new SqlParameter("@StartDate", startDate));
                             command.Parameters.Add(new SqlParameter("@EndDate", endDate));
                         }
                         else
                         {
+
+                            DateTime defaultStartDate = DateTime.Now.AddDays(2);
+                            DateTime defaultEndDate = defaultStartDate.AddMonths(1);
+
+                            string startDateString = defaultStartDate.ToString("yyyy-MM-dd");
+                            string endDateString = defaultEndDate.ToString("yyyy-MM-dd");
+
                             command.Parameters.Clear();
-                            command.CommandText = sql3;
+                            command.CommandText = sqlGetVisitPlanLater;
                             command.Parameters.Add(new SqlParameter("@EmployeeNik", employeeNik));
+                            command.Parameters.Add(new SqlParameter("@StartDate", startDateString));
+                            command.Parameters.Add(new SqlParameter("@EndDate", endDateString));
                         }
 
 
@@ -358,7 +367,7 @@ namespace Dashboard.Controllers
                         }
 
                         command.Parameters.Clear();
-                        command.CommandText = sql4;
+                        command.CommandText = sqlGetVisitData;
                         command.CommandType = System.Data.CommandType.Text;
                         command.Parameters.Add(new SqlParameter("@EmployeeNik", employeeNik));
 
@@ -380,7 +389,7 @@ namespace Dashboard.Controllers
                         }
 
                         command.Parameters.Clear();
-                        command.CommandText = sql6;
+                        command.CommandText = sqlGetVisitTarget;
                         command.CommandType = System.Data.CommandType.Text;
                         command.Parameters.Add(new SqlParameter("@EmployeeNik", employeeNik));
 
@@ -430,7 +439,7 @@ namespace Dashboard.Controllers
             return View();
         }
 
-        public async Task<IActionResult> DashboardQuiz(string employeeNik = null)
+        public async Task<IActionResult> DashboardQuiz(string employeeNik = null, string startDate = null, string endDate = null)
         {
             // Ambil daftar NIK karyawan
             var employeeNiks = _context.TABLE_MR
@@ -444,13 +453,14 @@ namespace Dashboard.Controllers
             if (!string.IsNullOrEmpty(employeeNik))
             {
                 var sql = @"
-                SELECT s.SCHEDULE_ID, 
+                SELECT TOP 12 
+                       s.SCHEDULE_ID, 
                        n.ANAME, 
                        s.EMPLOYEE_NIK, 
                        CONVERT(DATE, n.CREATED_DATE) AS CREATED_DATE, 
                        MAX(CONVERT(DATE, s.ANSWER_DATE)) AS ANSWER_DATE,
                        SUM(s.CORRECT_COUNT) AS TOTAL_CORRECT_COUNT,
-	                   COUNT(s.IS_ANSWER) - SUM(s.CORRECT_COUNT) AS TOTAL_FALSE_COUNT,
+                       COUNT(s.IS_ANSWER) - SUM(s.CORRECT_COUNT) AS TOTAL_FALSE_COUNT,
                        SUM(s.IS_ANSWER) AS TOTAL_IS_ANSWER,
                        COUNT(s.IS_ANSWER) AS QUESTIONS,
                        CASE 
@@ -466,11 +476,13 @@ namespace Dashboard.Controllers
                        END AS KETERANGAN
                 FROM TRAINING_TEST_SCHEDULE n
                 JOIN TRAINING_EXAM_QUESTION s ON n.SCHEDULE_ID = s.SCHEDULE_ID
-                WHERE s.EMPLOYEE_NIK = @EmployeeNik
+                WHERE s.EMPLOYEE_NIK = '1003027'
+                AND CONVERT(DATE, n.CREATED_DATE) BETWEEN '2024-01-01' AND '2024-12-31'
                 GROUP BY s.SCHEDULE_ID, 
                          n.ANAME, 
                          s.EMPLOYEE_NIK, 
                          CONVERT(DATE, n.CREATED_DATE)
+                ORDER BY CREATED_DATE ASC;
                 ";
 
                 try
@@ -480,9 +492,32 @@ namespace Dashboard.Controllers
                     // Using a raw SQL command to query the database
                     await using (var command = _context.Database.GetDbConnection().CreateCommand())
                     {
-                        command.CommandText = sql;
-                        command.CommandType = System.Data.CommandType.Text;
-                        command.Parameters.Add(new SqlParameter("@EmployeeNik", employeeNik));
+
+                        if (!string.IsNullOrEmpty(startDate) && !string.IsNullOrEmpty(endDate))
+                        {
+                            command.CommandText = sql;
+                            command.CommandType = System.Data.CommandType.Text;
+                            command.Parameters.Add(new SqlParameter("@EmployeeNik", employeeNik));
+                            command.Parameters.Add(new SqlParameter("@StartDate", startDate));
+                            command.Parameters.Add(new SqlParameter("@EndDate", endDate));
+                        }
+                        else
+                        {
+
+                            int year = DateTime.Now.Year;
+
+                            DateTime defaultStartDate = new DateTime(year, 1, 1);
+                            DateTime defaultEndDate = new DateTime(year, 12, 31);
+
+                            string startDateString = defaultStartDate.ToString("yyyy-MM-dd");
+                            string endDateString = defaultEndDate.ToString("yyyy-MM-dd");
+
+                            command.CommandText = sql;
+                            command.CommandType = System.Data.CommandType.Text;
+                            command.Parameters.Add(new SqlParameter("@EmployeeNik", employeeNik));
+                            command.Parameters.Add(new SqlParameter("@StartDate", startDateString));
+                            command.Parameters.Add(new SqlParameter("@EndDate", endDateString));
+                        }
 
                         _context.Database.OpenConnection();
 

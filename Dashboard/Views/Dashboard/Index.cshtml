@@ -51,7 +51,7 @@
 
         <section class="section dashboard">
 
-            <div class="row">
+            <div class="row gx-2">
                 <div class="col-lg-4 d-flex flex-column align-items-stretch">
                     <div class="card info-card" style="height: 100%">
 
@@ -154,10 +154,10 @@
                 </div>
             </div>
 
-            <div class="row">
+            <div class="row gx-2">
                 <!-- Left side columns -->
                 <div class="col-lg-8">
-                    <div class="row">
+                    <div class="row gx-2">
 
                         <!-- Sales Card -->
                         <div class="col-xxl-6 col-md-6">
@@ -694,7 +694,7 @@
                 <!-- Right side columns -->
                 <div class="col-lg-4">
 
-                    <div class="row">
+                    <div class="row gx-2">
 
                         <div class="col-sm-6 col-md-12 card-visit">
                             <!-- Recent Activity -->
@@ -1083,8 +1083,6 @@
                     data: { employeeNik: savedSelection, startDate: startDate, endDate: endDate },
                     success: function (data) {
 
-                        console.log(startDate);
-
                         var visits = data.visitLater;
                         var activityContainer = $('#activity-container2');
                         var placeholder = $('#empty-placeholder2');
@@ -1174,8 +1172,6 @@
 
                     },
                     error: function (error) {
-                        console.log(startDate);
-                        console.log(endDate);
                         console.log("Error fetching data: ", error);
                     }
                 });

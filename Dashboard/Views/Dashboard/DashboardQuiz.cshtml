@@ -37,13 +37,6 @@
     <!-- Data Table -->
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
 
-    <!-- =======================================================
-    * Template Name: NiceAdmin
-    * Template URL: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/
-    * Updated: Apr 20 2024 with Bootstrap v5.3.3
-    * Author: BootstrapMade.com
-    * License: https://bootstrapmade.com/license/
-    ======================================================== -->
 </head>
 
 <body>
@@ -62,7 +55,7 @@
 
         <section class="section dashboard">
 
-            <div class="row">
+            <div class="row gx-2">
 
                 <div class="col-12">
                     <div class="card info-card p-2">
@@ -462,24 +455,6 @@
                 updateDataQuiz(savedSelection);
             }
 
-            function updateDataQuiz(employeeNik) {
-                $.ajax({
-                    url: '@Url.Action("DashboardQuiz", "Dashboard")',
-                    type: 'GET',
-                    dataType: 'json',
-                    data: { employeeNik: employeeNik },
-                    success: function (data) {
-                        tests = data;
-                        console.log(data)
-                        updateDropdownAndCharts();
-                    },
-                    error: function () {
-                        console.error("Error fetching data.");
-                        tests = [];
-                    }
-                });
-            }
-
             function formatMonthYear(dateString) {
                 const date = new Date(dateString);
                 const options = { year: 'numeric', month: 'long' };
@@ -500,6 +475,7 @@
                 document.getElementById('endDate').setAttribute('min', startDateFormatted);
             }
 
+
             document.getElementById('startDate').addEventListener('change', function () {
                 // Update min pada endDate berdasarkan pilihan startDate
                 const startDateValue = this.value;
@@ -511,7 +487,46 @@
                 }
             });
 
+            function updateDataQuiz(employeeNik) {
+
+                let startDate = startDateInput.value + "-01";
+
+                // Mengambil tahun dan bulan dari endDateInput
+                let [year, month] = endDateInput.value.split('-').map(Number);
+
+                // Menambahkan 1 ke bulan
+                month += 1;
+
+                // Jika bulan lebih dari 12, tambahkan 1 ke tahun dan reset bulan ke 1
+                if (month > 12) {
+                    month = 1;
+                    year += 1;
+                }
+
+                // Format bulan menjadi dua digit
+                let formattedMonth = month < 10 ? '0' + month : month;
+
+                // Mengatur endDate menjadi tanggal 1 bulan berikutnya
+                let endDate = `${year}-${formattedMonth}-01`;
+
+                $.ajax({
+                    url: '@Url.Action("DashboardQuiz", "Dashboard")',
+                    type: 'GET',
+                    dataType: 'json',
+                    data: { employeeNik: employeeNik, startDate: startDate, endDate: endDate},
+                    success: function (data) {
+                        tests = data;
+                        updateDropdownAndCharts();
+                    },
+                    error: function () {
+                        console.error("Error fetching data.");
+                        tests = [];
+                    }
+                });
+            }
+
             function updateDropdownAndCharts() {
+
                 const startDate = new Date(startDateInput.value + "-01");
                 const endDate = new Date(endDateInput.value + "-01");
                 endDate.setMonth(endDate.getMonth() + 1);
@@ -521,8 +536,6 @@
                     const testDate = new Date(test.createdDate);
                     return testDate >= startDate && testDate <= endDate;
                 });
-
-                console.log(filteredTests);
 
                 dropdownMenu.innerHTML = `
                 <li><a href="#" id="select-all" class="dropdown-item">Select All</a></li>
@@ -919,359 +932,18 @@
                 });
             }
 
-            startDateInput.addEventListener('change', updateDropdownAndCharts);
-            endDateInput.addEventListener('change', updateDropdownAndCharts);
+            startDateInput.addEventListener('change', function () {
+                updateDataQuiz(savedSelection);
+            });
+
+            endDateInput.addEventListener('change', function () {
+                updateDataQuiz(savedSelection);
+            });
 
             setDefaultDates();
         });
 
     </script>
-
-    @* <script>
-
-        document.addEventListener("DOMContentLoaded", () => {
-            const startDateInput = document.getElementById('startDate');
-            const endDateInput = document.getElementById('endDate');
-            const dropdownMenu = document.getElementById('dropdownMenu');
-            const columnChartTest = document.querySelector("#columnChartTest");
-            const columnChart = document.querySelector("#columnChart");
-            const lineChart = document.querySelector("#lineChart");
-            const trafficChart = document.querySelector("#trafficChart");
-            const dataTableElement = $('#dataTable');
-
-
-            var tests = [];
-
-            // Data tests
-            $.ajax({
-                url: '@Url.Action("DashboardQuiz", "Dashboard")',
-                type: 'GET',
-                dataType: 'json',
-                success: function (data) {
-                    tests = data;
-                    console.log(data)
-                    updateDropdownAndCharts();
-                },
-                error: function () {
-                    console.error("Error fetching data.");
-                }
-            });
-
-            const passingScore = 80; // Nilai ambang batas kelulusan
-
-            function formatMonthYear(dateString) {
-                const date = new Date(dateString);
-                const options = { year: 'numeric', month: 'long' };
-                return new Intl.DateTimeFormat('id-ID', options).format(date);
-            }
-
-            function setDefaultDates() {
-                const today = new Date();
-                const startDate = new Date(today.getFullYear(), 0, 1 + 1); // Januari dari tahun ini
-                const endDate = new Date(today.getFullYear(), today.getMonth() + 1); // Bulan ini dari tahun ini
-
-                const startDateFormatted = startDate.toISOString().slice(0, 7); // Ambil hanya YYYY-MM
-                const endDateFormatted = endDate.toISOString().slice(0, 7); // Ambil hanya YYYY-MM
-
-                startDateInput.value = startDateFormatted;
-                endDateInput.value = endDateFormatted;
-
-                document.getElementById('endDate').setAttribute('min', startDateFormatted);
-            }
-
-            document.getElementById('startDate').addEventListener('change', function () {
-                // Update min pada endDate berdasarkan pilihan startDate
-                const startDateValue = this.value;
-                document.getElementById('endDate').setAttribute('min', startDateValue);
-
-                // Jika endDate lebih kecil dari startDate, perbarui nilai endDate
-                if (document.getElementById('endDate').value < startDateValue) {
-                    document.getElementById('endDate').value = startDateValue;
-                }
-            });
-
-            function updateDropdownAndCharts() {
-                const startDate = new Date(startDateInput.value + "-01");
-                const endDate = new Date(endDateInput.value + "-01");
-                endDate.setMonth(endDate.getMonth()); // Menyesuaikan agar termasuk bulan akhir
-
-                const filteredTests = tests.filter(test => {
-                    const testDate = new Date(test.createdDate);
-                    return testDate >= startDate && testDate <= endDate;
-                });
-
-                console.log(filteredTests);
-
-                dropdownMenu.innerHTML = filteredTests.map(test => `
-                        <li>
-                            <label class="dropdown-item">
-                                <input type="checkbox" value="${test.name}" checked>
-                                ${test.name}
-                            </label>
-                        </li>
-                    `).join('');
-
-                // Add event listener to new checkboxes
-                dropdownMenu.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
-                    checkbox.addEventListener('change', updateData);
-                });
-
-                updateData();
-            }
-
-            function updateData() {
-                const selectedTests = Array.from(dropdownMenu.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value);
-
-                const filteredTests = tests.filter(test => selectedTests.includes(test.name));
-
-                // Update cards
-                const jumlahTestDiikuti = filteredTests.length;
-                const jumlahQuizLulus = filteredTests.filter(test => test.remarks === 'Lulus').length;
-                const skorTerbaik = filteredTests.length > 0
-                    ? Math.max(...filteredTests.map(test => test.score))
-                    : 0;
-
-                document.getElementById('jumlahTestDiikuti').textContent = `${jumlahTestDiikuti} Quiz`;
-                document.getElementById('jumlahQuizLulus').textContent = `${jumlahQuizLulus} Quiz`;
-                document.getElementById('skorTerbaik').textContent = `${skorTerbaik}`;
-
-                // Update column chart (Jumlah Soal dan Soal Benar)
-                var chart = new ApexCharts(columnChartTest, {
-                    series: [{
-                        name: 'Jumlah Soal',
-                        data: []
-                    }, {
-                        name: 'Jumlah Benar',
-                        data: []
-                    }],
-                    chart: {
-                        type: 'bar',
-                        height: 350
-                    },
-                    plotOptions: {
-                        bar: {
-                            horizontal: false,
-                            columnWidth: '55%',
-                            endingShape: 'rounded'
-                        },
-                    },
-                    dataLabels: {
-                        enabled: true
-                    },
-                    stroke: {
-                        show: true,
-                        width: 2,
-                        colors: ['transparent']
-                    },
-                    xaxis: {
-                        categories: []
-                    },
-                    yaxis: {
-                        title: {
-                            text: 'Questions'
-                        }
-                    },
-                    fill: {
-                        opacity: 1
-                    },
-                    tooltip: {
-                        y: {
-                            formatter: function (val) {
-                                return val + " Questions"
-                            }
-                        }
-                    }
-                });
-
-                chart.render();
-
-                chart.updateSeries([{
-                    name: 'Jumlah Soal',
-                    data: filteredTests.map(test => test.totalQuestions)
-                },
-                {
-                    name: 'Jumlah Benar',
-                    data: filteredTests.map(test => test.correctAnswers)
-                }]);
-
-                chart.updateOptions({
-                    xaxis: {
-                        categories: filteredTests.map(test => test.name),
-                    }
-                });
-
-                // Update column chart (Score)
-                var chart1 = new ApexCharts(columnChart, {
-                    series: [{
-                        name: 'Score',
-                        data: []
-                    }],
-                    chart: {
-                        type: 'bar',
-                        height: 350
-                    },
-                    plotOptions: {
-                        bar: {
-                            horizontal: false,
-                            columnWidth: '55%',
-                            endingShape: 'rounded'
-                        },
-                    },
-                    dataLabels: {
-                        enabled: true
-                    },
-                    stroke: {
-                        show: true,
-                        width: 2,
-                        colors: ['transparent']
-                    },
-                    xaxis: {
-                        categories: [],
-                    },
-                    yaxis: {
-                        title: {
-                            text: '%'
-                        }
-                    },
-                    fill: {
-                        opacity: 1
-                    },
-                    tooltip: {
-                        y: {
-                            formatter: function (val) {
-                                return val + " %"
-                            }
-                        }
-                    }
-                });
-
-                chart1.render();
-
-                chart1.updateSeries([{
-                    name: 'Score',
-                    data: filteredTests.map(test => test.score)
-                }]);
-
-                chart1.updateOptions({
-                    xaxis: {
-                        categories: filteredTests.map(test => test.name),
-                    }
-                });
-
-                // Update line chart (Trend Nilai Quiz)
-                var chart2 = new ApexCharts(lineChart, {
-                    series: [{
-                        name: "Skor",
-                        data: []
-                    }],
-                    chart: {
-                        height: 350,
-                        type: 'line',
-                        zoom: {
-                            enabled: true
-                        }
-                    },
-                    dataLabels: {
-                        enabled: false
-                    },
-                    stroke: {
-                        curve: 'smooth'
-                    },
-                    grid: {
-                        row: {
-                            colors: ['#f3f3f3', 'transparent'],
-                            opacity: 0.5
-                        },
-                    },
-                    xaxis: {
-                        categories: [],
-                    }
-                });
-
-                chart2.render();
-
-                chart2.updateSeries([{
-                    name: 'Skor',
-                    data: filteredTests.map(test => test.score)
-                }]);
-
-                chart2.updateOptions({
-                    xaxis: {
-                        categories: filteredTests.map(test => formatMonthYear(test.createdDate)),
-                    }
-                });
-
-                // Update pie chart (Persentase Kelulusan)
-                const pieData = [
-                    { value: filteredTests.filter(test => test.score >= passingScore).length, name: 'Lulus', itemStyle: { color: '#4caf50' } },
-                    { value: filteredTests.filter(test => test.score < passingScore).length, name: 'Tidak Lulus', itemStyle: { color: '#f44336' } }
-                ];
-
-                const totalPie = pieData.reduce((sum, item) => sum + item.value, 0);
-
-                echarts.init(trafficChart).setOption({
-                    tooltip: {
-                        trigger: 'item',
-                        formatter: function (params) {
-                            let percent = (params.value / totalPie * 100).toFixed(2);
-                            return `${params.name}: ${params.value} (${percent}%)`;
-                        }
-                    },
-                    legend: {
-                        top: '0%',
-                        left: 'center'
-                    },
-                    series: [{
-                        name: 'Status Kelulusan',
-                        type: 'pie',
-                        radius: ['40%', '70%'],
-                        avoidLabelOverlap: false,
-                        label: {
-                            show: false,
-                            position: 'center',
-                        },
-                        emphasis: {
-                            label: {
-                                show: true,
-                                fontSize: '18',
-                                fontWeight: 'bold'
-                            }
-                        },
-                        labelLine: {
-                            show: false
-                        },
-                        data: pieData
-                    }]
-                });
-
-                // Update DataTable
-                if ($.fn.DataTable.isDataTable('#dataTable')) {
-                    dataTableElement.DataTable().clear().destroy();
-                }
-                dataTableElement.DataTable({
-                    data: filteredTests,
-                    columns: [
-                        { data: 'name', title: 'Nama Test' },
-                        { data: 'createdDate', title: 'Tanggal Dibuat' },
-                        { data: 'answerDate', title: 'Tanggal Jawab' },
-                        { data: 'correctAnswers', title: 'Jumlah Benar' },
-                        { data: 'totalQuestions', title: 'Jumlah Soal' },
-                        { data: 'score', title: 'Skor (%)' },
-                        { data: 'remarks', title: 'Keterangan' }
-                    ],
-                    paging: true,
-                    searching: true,
-                    ordering: true
-                });
-            }
-
-            startDateInput.addEventListener('change', updateDropdownAndCharts);
-            endDateInput.addEventListener('change', updateDropdownAndCharts);
-
-            setDefaultDates();
-            updateDropdownAndCharts();
-        });
-    </script> *@
 
 </body>
 

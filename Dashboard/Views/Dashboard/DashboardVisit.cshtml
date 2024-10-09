@@ -40,13 +40,6 @@
     <!--Swal Alert-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
 
-    <!-- =======================================================
-    * Template Name: NiceAdmin
-    * Template URL: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/
-    * Updated: Apr 20 2024 with Bootstrap v5.3.3
-    * Author: BootstrapMade.com
-    * License: https://bootstrapmade.com/license/
-    ======================================================== -->
 </head>
 
 <body>
@@ -65,7 +58,7 @@
 
         <section class="section dashboard">
 
-            <div class="row">
+            <div class="row gx-2">
 
                 <div class="col-12">
                     <div class="card info-card p-2">
@@ -644,6 +637,7 @@
                     text: 'Mohon tunggu data sedang diambil...',
                     allowOutsideClick: false, // Cegah user menutup alert
                     showConfirmButton: false, // Hilangkan tombol OK
+                    backdrop: false, // Menonaktifkan backdrop untuk memungkinkan scrolling
                     didOpen: () => {
                         Swal.showLoading(); // Tampilkan loading animation
                     }
