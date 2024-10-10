@@ -562,7 +562,7 @@ namespace Dashboard.Controllers
             return View();
         }
 
-        public async Task<IActionResult> DashboardVisit(string employeeNik = null)
+        public async Task<IActionResult> DashboardVisit(string employeeNik = null, string month = null, string year = null)
         {
             // Ambil daftar NIK karyawan
             var employeeNiks = _context.TABLE_MR
@@ -577,11 +577,11 @@ namespace Dashboard.Controllers
             {
                 var sqlVisitTarget = @"
                 DECLARE @CurrentMonth NVARCHAR(20) = FORMAT(GETDATE(), 'MMMM', 'id-ID');
-                DECLARE @CurrentYear INT = 2024 -- Variabel untuk tahun saat ini
+                DECLARE @CurrentYear INT = @YEARVISIT -- Variabel untuk tahun saat ini
                 DECLARE @MR_NIK NVARCHAR(20) = @EmployeeNik; -- Variabel untuk MR_NIK
 
                 -- Variabel untuk bulan dan tahun yang diinginkan
-                DECLARE @TargetMonth INT = 9; -- Ganti dengan bulan yang diinginkan
+                DECLARE @TargetMonth INT = @MONTHVISIT; -- Ganti dengan bulan yang diinginkan
                 DECLARE @TargetYear INT = @CurrentYear; -- Ganti dengan tahun yang diinginkan
 
                 SELECT
@@ -630,7 +630,7 @@ namespace Dashboard.Controllers
                 LEFT JOIN 
                     VISITING_JUKUDO_NOTES b ON b.MR_NIK = @MR_NIK -- Menggunakan variabel
                 WHERE 
-                    a.MONTH = 'September'
+                    a.ID = @MONTHVISIT
                 GROUP BY 
                     a.MONTH, 
                     a.WORKDAY,
@@ -639,35 +639,47 @@ namespace Dashboard.Controllers
 
                 var sqlVisitCoverage = @"
                 
-                DECLARE @MR_NIK VARCHAR(50) = @EmployeeNik; -- Ganti dengan NIK yang diinginkan
-                DECLARE @Month INT = 9; -- Ganti dengan bulan yang diinginkan
-                DECLARE @Year INT = 2024; -- Ganti dengan tahun yang diinginkan
+                DECLARE @MR_NIK VARCHAR(50) = '1003027'; -- Ganti dengan NIK yang diinginkan
+                DECLARE @Month INT = @MONTHVISIT; -- Ganti dengan bulan yang diinginkan
+                DECLARE @Year INT = @YEARVISIT; -- Ganti dengan tahun yang diinginkan
 
                 SELECT 
                     MR.NIK, 
                     MR.MR_RESPOSIBLE, 
                     COUNT(DISTINCT MCL.ID) AS MCL, 
                     (SELECT COUNT(DISTINCT VJN.DOCTOR_CODE) 
-                     FROM VISITING_JUKUDO_NOTES VJN 
-                     WHERE VJN.MR_NIK = @MR_NIK 
-                     AND MONTH(VJN.ADATE) = @Month 
-                     AND YEAR(VJN.ADATE) = @Year 
-                     AND VJN.VISIT = '1') AS VISITED,  
+	                 FROM VISITING_JUKUDO_NOTES VJN 
+	                 WHERE VJN.MR_NIK = @MR_NIK 
+	                 AND MONTH(VJN.ADATE) = @Month 
+	                 AND YEAR(VJN.ADATE) = @Year 
+	                 AND VJN.VISIT = '1'
+	                 AND VJN.DOCTOR_CODE IN (SELECT DISTINCT MCL.ID 
+							                 FROM TABLE_MCL MCL
+							                 WHERE MCL.Fieldforce = MR.MR_RESPOSIBLE)
+	                ) AS VISITED,  
                     CAST(
                         (SELECT COUNT(DISTINCT VJN.DOCTOR_CODE) 
-                         FROM VISITING_JUKUDO_NOTES VJN 
-                         WHERE VJN.MR_NIK = @MR_NIK 
-                         AND MONTH(VJN.ADATE) = @Month 
-                         AND YEAR(VJN.ADATE) = @Year 
-                         AND VJN.VISIT = '1') AS FLOAT
+		                 FROM VISITING_JUKUDO_NOTES VJN 
+		                 WHERE VJN.MR_NIK = @MR_NIK 
+		                 AND MONTH(VJN.ADATE) = @Month 
+		                 AND YEAR(VJN.ADATE) = @Year 
+		                 AND VJN.VISIT = '1'
+		                 AND VJN.DOCTOR_CODE IN (SELECT DISTINCT MCL.ID 
+								                 FROM TABLE_MCL MCL
+								                 WHERE MCL.Fieldforce = MR.MR_RESPOSIBLE)
+		                ) AS FLOAT
                     ) / NULLIF(COUNT(DISTINCT MCL.ID), 0) * 100 AS COVERAGE,
                     NULLIF(COUNT(DISTINCT MCL.ID), 0) - CAST(
                         (SELECT COUNT(DISTINCT VJN.DOCTOR_CODE) 
-                         FROM VISITING_JUKUDO_NOTES VJN 
-                         WHERE VJN.MR_NIK = @MR_NIK 
-                         AND MONTH(VJN.ADATE) = @Month 
-                         AND YEAR(VJN.ADATE) = @Year 
-                         AND VJN.VISIT = '1') AS FLOAT
+		                 FROM VISITING_JUKUDO_NOTES VJN 
+		                 WHERE VJN.MR_NIK = @MR_NIK 
+		                 AND MONTH(VJN.ADATE) = @Month 
+		                 AND YEAR(VJN.ADATE) = @Year 
+		                 AND VJN.VISIT = '1'
+		                 AND VJN.DOCTOR_CODE IN (SELECT DISTINCT MCL.ID 
+								                 FROM TABLE_MCL MCL
+								                 WHERE MCL.Fieldforce = MR.MR_RESPOSIBLE)
+		                ) AS FLOAT
                     ) AS NEED_TO_VISIT
                 FROM 
                     TABLE_MR MR
@@ -698,8 +710,8 @@ namespace Dashboard.Controllers
 
                 -- Set nilai variabel
                 SET @MR_NIK = @EmployeeNik;
-                SET @Month = 9;
-                SET @Year = 2024;
+                SET @Month = @MONTHVISIT;
+                SET @Year = @YEARVISIT;
 
                 SELECT 
                     MR.NIK, 
@@ -859,16 +871,16 @@ namespace Dashboard.Controllers
                 WHERE 
                     a.VISIT = '1' 
                     AND a.MR_NIK = @EmployeeNik 
-                    AND MONTH(a.ADATE) = 9 
-                    AND YEAR(a.ADATE) = 2024
+                    AND MONTH(a.ADATE) = @MONTHVISIT
+                    AND YEAR(a.ADATE) = @YEARVISIT
                 GROUP BY 
                     a.NOTES_ID;
                 ";
 
                 var sqlDataMcl = @"
                 DECLARE @MR_NIK NVARCHAR(50) = @EmployeeNik;
-                DECLARE @MONTH_ADATE INT = 9;
-                DECLARE @YEAR_ADATE INT = 2024;
+                DECLARE @MONTH_ADATE INT = @MONTHVISIT;
+                DECLARE @YEAR_ADATE INT = @YEARVISIT;
 
                 SELECT 
                     MR.NIK,
@@ -1041,6 +1053,8 @@ namespace Dashboard.Controllers
                         command.CommandText = sqlVisitTarget;
                         command.CommandType = System.Data.CommandType.Text;
                         command.Parameters.Add(new SqlParameter("@EmployeeNik", employeeNik));
+                        command.Parameters.Add(new SqlParameter("@YEARVISIT", year));
+                        command.Parameters.Add(new SqlParameter("@MONTHVISIT", month));
 
                         _context.Database.OpenConnection();
 
@@ -1064,6 +1078,8 @@ namespace Dashboard.Controllers
                         command.CommandText = sqlVisitCoverage;
                         command.CommandType = System.Data.CommandType.Text;
                         command.Parameters.Add(new SqlParameter("@EmployeeNik", employeeNik));
+                        command.Parameters.Add(new SqlParameter("@YEARVISIT", year));
+                        command.Parameters.Add(new SqlParameter("@MONTHVISIT", month));
 
                         await using (var reader = await command.ExecuteReaderAsync())
                         {
@@ -1085,6 +1101,8 @@ namespace Dashboard.Controllers
                         command.CommandText = sqlVisitTargetByClass;
                         command.CommandType = System.Data.CommandType.Text;
                         command.Parameters.Add(new SqlParameter("@EmployeeNik", employeeNik));
+                        command.Parameters.Add(new SqlParameter("@YEARVISIT", year));
+                        command.Parameters.Add(new SqlParameter("@MONTHVISIT", month));
 
                         await using (var reader = await command.ExecuteReaderAsync())
                         {
@@ -1108,6 +1126,8 @@ namespace Dashboard.Controllers
                         command.CommandText = sqlDataChartTableVisit;
                         command.CommandType = System.Data.CommandType.Text;
                         command.Parameters.Add(new SqlParameter("@EmployeeNik", employeeNik));
+                        command.Parameters.Add(new SqlParameter("@YEARVISIT", year));
+                        command.Parameters.Add(new SqlParameter("@MONTHVISIT", month));
 
                         await using (var reader = await command.ExecuteReaderAsync())
                         {
@@ -1149,6 +1169,8 @@ namespace Dashboard.Controllers
                         command.CommandText = sqlDataMcl;
                         command.CommandType = System.Data.CommandType.Text;
                         command.Parameters.Add(new SqlParameter("@EmployeeNik", employeeNik));
+                        command.Parameters.Add(new SqlParameter("@YEARVISIT", year));
+                        command.Parameters.Add(new SqlParameter("@MONTHVISIT", month));
 
                         await using (var reader = await command.ExecuteReaderAsync())
                         {

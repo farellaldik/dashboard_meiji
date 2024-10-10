@@ -31,7 +31,6 @@
 
     <!--Swal Alert-->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
-
     <link href="~/assets/css/style.css" rel="stylesheet">
 
 </head>
@@ -995,12 +994,20 @@
     <script src="~/assets/vendor/tinymce/tinymce.min.js"></script>
     <script src="~/assets/vendor/php-email-form/validate.js"></script>
 
+    <!-- JS Data Table -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+
     <!-- Template Main JS File -->
     @* <script src="~/assets/js/main.js"></script> *@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script src="https://cdn.datatables.net/2.1.7/js/dataTables.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+
     <script>
         $(document).ready(function () {
 
@@ -1063,6 +1070,18 @@
 
             function updateVisitLater() 
             {
+
+                Swal.fire({
+                    title: 'Loading...',
+                    text: 'Mohon tunggu data sedang diambil...',
+                    allowOutsideClick: false, // Cegah user menutup alert
+                    showConfirmButton: false, // Hilangkan tombol OK
+                    backdrop: false, // Menonaktifkan backdrop untuk memungkinkan scrolling
+                    didOpen: () => {
+                        Swal.showLoading(); // Tampilkan loading animation
+                    }
+                });
+
                 const startDate = $('#startDate').val();
                 const endDate = $('#endDate').val();
                 var savedSelection = sessionStorage.getItem('dropdownSelection');
@@ -1169,6 +1188,7 @@
                             $('#show-more2').show(); // Tampilkan tombol "Selengkapnya"
                         });
 
+                        Swal.close();
 
                     },
                     error: function (error) {
@@ -1180,10 +1200,22 @@
 
             function updateChart(employeeNik) {
 
+                Swal.fire({
+                    title: 'Loading...',
+                    text: 'Mohon tunggu data sedang diambil...',
+                    allowOutsideClick: false, // Cegah user menutup alert
+                    showConfirmButton: false, // Hilangkan tombol OK
+                    backdrop: false, // Menonaktifkan backdrop untuk memungkinkan scrolling
+                    didOpen: () => {
+                        Swal.showLoading(); // Tampilkan loading animation
+                    }
+                });
+
                 $.ajax({
                     url: '@Url.Action("Index", "Dashboard")',
                     data: { employeeNik: employeeNik },
                     success: function (data) {
+
                         const visitTargetData = data.visitTarget[0]; // Ambil data pertama dari array visitTarget
 
                         const visitTarget = visitTargetData.visitTarget;
@@ -1210,17 +1242,6 @@
                         } else {
                             $('.progress-bar').attr('aria-valuenow', achievementRate); // Set nilai saat ini ke achievementRate
                         }
-                    },
-                    error: function () {
-                        console.error("Error fetching data.");
-                    }
-                });
-
-
-                $.ajax({
-                    url: '@Url.Action("Index", "Dashboard")',
-                    data: { employeeNik: employeeNik },
-                    success: function (data) {
 
                         const testResults = data.testResults;
 
@@ -1239,18 +1260,6 @@
                                 categories: testResults.map(test => test.name),
                             }
                         });
-
-                        console.log(data)
-                    },
-                    error: function () {
-                        console.error("Error fetching data.");
-                    }
-                });
-
-                $.ajax({
-                    url: '@Url.Action("Index", "Dashboard")',
-                    data: { employeeNik: employeeNik },
-                    success: function (data) {
 
                         const actualVisit = data.actualVisit;
 
@@ -1283,19 +1292,6 @@
                             }
                         });
 
-                        console.log(data)
-                    },
-                    error: function () {
-                        console.error("Error fetching data.");
-                    }
-                });
-
-                $.ajax({
-                    url: '@Url.Action("Index", "Dashboard")',  // Ganti dengan URL dari JSON kamu
-                    type: 'GET',
-                    dataType: 'json',
-                    data: { employeeNik: employeeNik },
-                    success: function (data) {
                         var visits = data.visitToday;
                         var activityContainer = $('#activity-container');
                         var placeholder = $('#empty-placeholder');
@@ -1314,16 +1310,16 @@
                             visibleItems.forEach(function (visit) {
                                 var badgeClass = visit.visitStatus === 'Done' ? 'text-success' : 'text-danger';
                                 var activityItem = `
-                                <div class="activity-item d-flex">
-                                    <div class="activite-label">${visit.visitStatus}</div>
-                                    <i class="bi bi-circle-fill activity-badge ${badgeClass} align-self-start"></i>
-                                    <div class="activity-content">
-                                        <a href="#" class="fw-bold text-dark">${visit.doctorName}</a> <br>
-                                        ${visit.practiceName} <br>
-                                        <a class="fw-bold text-dark">${visit.prodID}</a>
-                                    </div>
-                                </div><!-- End activity item-->
-                            `;
+                                        <div class="activity-item d-flex">
+                                            <div class="activite-label">${visit.visitStatus}</div>
+                                            <i class="bi bi-circle-fill activity-badge ${badgeClass} align-self-start"></i>
+                                            <div class="activity-content">
+                                                <a href="#" class="fw-bold text-dark">${visit.doctorName}</a> <br>
+                                                ${visit.practiceName} <br>
+                                                <a class="fw-bold text-dark">${visit.prodID}</a>
+                                            </div>
+                                        </div><!-- End activity item-->
+                                    `;
                                 activityContainer.append(activityItem);
                             });
 
@@ -1339,16 +1335,16 @@
                             visits.forEach(function (visit) {
                                 var badgeClass = visit.visitStatus === 'Done' ? 'text-success' : 'text-danger';
                                 var activityItem = `
-                        <div class="activity-item d-flex">
-                            <div class="activite-label">${visit.visitStatus}</div>
-                            <i class="bi bi-circle-fill activity-badge ${badgeClass} align-self-start"></i>
-                            <div class="activity-content">
-                                <a href="#" class="fw-bold text-dark">${visit.doctorName}</a> <br>
-                                ${visit.practiceName} <br>
-                                <a class="fw-bold text-dark">${visit.prodID}</a>
-                            </div>
-                        </div><!-- End activity item-->
-                        `;
+                                <div class="activity-item d-flex">
+                                    <div class="activite-label">${visit.visitStatus}</div>
+                                    <i class="bi bi-circle-fill activity-badge ${badgeClass} align-self-start"></i>
+                                    <div class="activity-content">
+                                        <a href="#" class="fw-bold text-dark">${visit.doctorName}</a> <br>
+                                        ${visit.practiceName} <br>
+                                        <a class="fw-bold text-dark">${visit.prodID}</a>
+                                    </div>
+                                </div><!-- End activity item-->
+                                `;
                                 activityContainer.append(activityItem);
                             });
                             $('#show-more').hide(); // Sembunyikan tombol "Selengkapnya"
@@ -1362,35 +1358,22 @@
                             visibleItems.forEach(function (visit) {
                                 var badgeClass = visit.visitStatus === 'Done' ? 'text-success' : 'text-danger';
                                 var activityItem = `
-                        <div class="activity-item d-flex">
-                            <div class="activite-label">${visit.visitStatus}</div>
-                            <i class="bi bi-circle-fill activity-badge ${badgeClass} align-self-start"></i>
-                            <div class="activity-content">
-                                <a href="#" class="fw-bold text-dark">${visit.doctorName}</a> <br>
-                                ${visit.practiceName} <br>
-                                <a class="fw-bold text-dark">${visit.prodID}</a>
-                            </div>
-                        </div><!-- End activity item-->
-                        `;
+                                <div class="activity-item d-flex">
+                                    <div class="activite-label">${visit.visitStatus}</div>
+                                    <i class="bi bi-circle-fill activity-badge ${badgeClass} align-self-start"></i>
+                                    <div class="activity-content">
+                                        <a href="#" class="fw-bold text-dark">${visit.doctorName}</a> <br>
+                                        ${visit.practiceName} <br>
+                                        <a class="fw-bold text-dark">${visit.prodID}</a>
+                                    </div>
+                                </div><!-- End activity item-->
+                                `;
                                 activityContainer.append(activityItem);
                             });
                             $('#show-less').hide(); // Sembunyikan tombol "Kecilkan"
                             $('#show-more').show(); // Tampilkan tombol "Selengkapnya"
                         });
 
-
-                    },
-                    error: function (error) {
-                        console.log("Error fetching data: ", error);
-                    }
-                });
-
-                $.ajax({
-                    url: '@Url.Action("Index", "Dashboard")',  // Ganti dengan URL dari JSON kamu
-                    type: 'GET',
-                    dataType: 'json',
-                    data: { employeeNik: employeeNik },
-                    success: function (data) {
                         var visits = data.visitLater;
                         var activityContainer = $('#activity-container2');
                         var placeholder = $('#empty-placeholder2');
@@ -1409,16 +1392,16 @@
                             visibleItems.forEach(function (visit) {
                                 var badgeClass = visit.visitStatus === 'Done' ? 'text-success' : 'text-info';
                                 var activityItem = `
-                                        <div class="activity-item d-flex">
-                                            <div class="activite-label">${visit.dateVisit}</div>
-                                            <i class="bi bi-circle-fill activity-badge ${badgeClass} align-self-start"></i>
-                                            <div class="activity-content">
-                                                <a href="#" class="fw-bold text-dark">${visit.doctorName}</a> <br>
-                                                ${visit.practiceName} <br>
-                                                <a class="fw-bold text-dark">${visit.prodID}</a>
-                                            </div>
-                                        </div><!-- End activity item-->
-                                    `;
+                                                <div class="activity-item d-flex">
+                                                    <div class="activite-label">${visit.dateVisit}</div>
+                                                    <i class="bi bi-circle-fill activity-badge ${badgeClass} align-self-start"></i>
+                                                    <div class="activity-content">
+                                                        <a href="#" class="fw-bold text-dark">${visit.doctorName}</a> <br>
+                                                        ${visit.practiceName} <br>
+                                                        <a class="fw-bold text-dark">${visit.prodID}</a>
+                                                    </div>
+                                                </div><!-- End activity item-->
+                                            `;
                                 activityContainer.append(activityItem);
                             });
 
@@ -1434,16 +1417,16 @@
                             visits.forEach(function (visit) {
                                 var badgeClass = visit.visitStatus === 'Done' ? 'text-success' : 'text-info';
                                 var activityItem = `
-                                <div class="activity-item d-flex">
-                                    <div class="activite-label">${visit.dateVisit}</div>
-                                    <i class="bi bi-circle-fill activity-badge ${badgeClass} align-self-start"></i>
-                                    <div class="activity-content">
-                                        <a href="#" class="fw-bold text-dark">${visit.doctorName}</a> <br>
-                                        ${visit.practiceName} <br>
-                                        <a class="fw-bold text-dark">${visit.prodID}</a>
-                                    </div>
-                                </div><!-- End activity item-->
-                                `;
+                                        <div class="activity-item d-flex">
+                                            <div class="activite-label">${visit.dateVisit}</div>
+                                            <i class="bi bi-circle-fill activity-badge ${badgeClass} align-self-start"></i>
+                                            <div class="activity-content">
+                                                <a href="#" class="fw-bold text-dark">${visit.doctorName}</a> <br>
+                                                ${visit.practiceName} <br>
+                                                <a class="fw-bold text-dark">${visit.prodID}</a>
+                                            </div>
+                                        </div><!-- End activity item-->
+                                        `;
                                 activityContainer.append(activityItem);
                             });
                             $('#show-more2').hide(); // Sembunyikan tombol "Selengkapnya"
@@ -1457,26 +1440,27 @@
                             visibleItems.forEach(function (visit) {
                                 var badgeClass = visit.visitStatus === 'Done' ? 'text-success' : 'text-info';
                                 var activityItem = `
-                                <div class="activity-item d-flex">
-                                    <div class="activite-label">${visit.dateVisit}</div>
-                                    <i class="bi bi-circle-fill activity-badge ${badgeClass} align-self-start"></i>
-                                    <div class="activity-content">
-                                        <a href="#" class="fw-bold text-dark">${visit.doctorName}</a> <br>
-                                        ${visit.practiceName} <br>
-                                        <a class="fw-bold text-dark">${visit.prodID}</a>
-                                    </div>
-                                </div><!-- End activity item-->
-                                `;
+                                        <div class="activity-item d-flex">
+                                            <div class="activite-label">${visit.dateVisit}</div>
+                                            <i class="bi bi-circle-fill activity-badge ${badgeClass} align-self-start"></i>
+                                            <div class="activity-content">
+                                                <a href="#" class="fw-bold text-dark">${visit.doctorName}</a> <br>
+                                                ${visit.practiceName} <br>
+                                                <a class="fw-bold text-dark">${visit.prodID}</a>
+                                            </div>
+                                        </div><!-- End activity item-->
+                                        `;
                                 activityContainer.append(activityItem);
                             });
                             $('#show-less2').hide(); // Sembunyikan tombol "Kecilkan"
                             $('#show-more2').show(); // Tampilkan tombol "Selengkapnya"
                         });
 
+                        Swal.close();
 
                     },
-                    error: function (error) {
-                        console.log("Error fetching data: ", error);
+                    error: function () {
+                        console.error("Error fetching data.");
                     }
                 });
             }

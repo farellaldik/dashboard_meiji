@@ -611,6 +611,8 @@
 
             const visitMonthInput = document.getElementById('visitMonth');
 
+            setDefaultDates();
+
             $(document).on('dropdownChanged', function (event, selectedValue) {
                 updateDataVisit(selectedValue);
             });
@@ -628,6 +630,8 @@
 
                 visitMonthInput.value = visitMonthFormatted;
 
+                console.log(visitMonthInput.value)
+
             }
 
             function updateDataVisit(employeeNik) {
@@ -643,11 +647,13 @@
                     }
                 });
 
+                const [year, month] = visitMonthInput.value.split('-').map(Number);
+
                 $.ajax({
                     url: '@Url.Action("DashboardVisit", "Dashboard")',
                     type: 'GET',
                     dataType: 'json',
-                    data: { employeeNik: employeeNik },
+                    data: { employeeNik: employeeNik, year: year, month: month },
                     success: function (data) {
 
                         Swal.close();
@@ -1755,8 +1761,9 @@
                 selectedButton.classList.add('btn-primary');
             }
 
-            setDefaultDates();
-
+            visitMonthInput.addEventListener('change', function () {
+                updateDataVisit(savedSelection);
+            });
 
         });
 
