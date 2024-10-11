@@ -22,7 +22,7 @@
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
 
     <!-- Vendor CSS Files -->
-    <link href="~/assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="~/assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
     <link href="~/assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
     <link href="~/assets/vendor/quill/quill.snow.css" rel="stylesheet">
@@ -61,7 +61,7 @@
             <div class="row gx-2">
 
                 <div class="col-12">
-                    <div class="card info-card p-2">
+                    <div class="card info-card p-0">
                         <div class="date-filter-container mx-3">
 
                             @* <div class="dropdown">
@@ -74,8 +74,8 @@
                             </div> *@
 
                             <div class="date-filters">
-                                <div class="form-group">
-                                    <label for="visitMonth" class="card-title">Visit Month</label>
+                                <div class="form-group mb-0">
+                                    <label for="visitMonth" class="card-title mt-1">Visit Month</label>
                                     <input type="month" id="visitMonth" class="form-control">
                                 </div>
                                 @* <div class="form-group">
@@ -110,11 +110,11 @@
                                 <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
                                     <i class="bi bi-calendar"></i>
                                 </div>
-                                <div class="ps-3 w-100">
+                                <div class="pl-3 w-100">
                                     <h6 id="visit-count">0 / 0 Dokter</h6>
 
                                     <!-- Bagian ini akan diubah sesuai dengan needToVisit atau achievementRate -->
-                                    <span id="visit-target" class="text-success small mt-3 pt-3 fw-bold">0 visit</span>
+                                    <span id="visit-target" class="text-success small mt-3 pt-3 font-weight-bold">0 visit</span>
 
                                     <!-- Progress bar akan di-update sesuai achievementRate -->
                                     <div class="progress mt-2">
@@ -150,11 +150,11 @@
                                 <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
                                     <i class="bi bi-pie-chart"></i>
                                 </div>
-                                <div class="ps-3 w-100">
+                                <div class="pl-3 w-100">
                                     <h6 id="visit-coverage">0 / 0 Dokter</h6>
 
                                     <!-- Bagian ini akan diubah sesuai dengan needToVisit atau achievementRate -->
-                                    <span id="visit-coverage-target" class="text-success small mt-3 pt-3 fw-bold">0 coverage</span>
+                                    <span id="visit-coverage-target" class="text-success small mt-3 pt-3 font-weight-bold">0 coverage</span>
 
                                     <!-- Progress bar akan di-update sesuai achievementRate -->
                                     <div class="progress mt-2">
@@ -191,10 +191,10 @@
                                 <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
                                     <i class="bi bi-person"></i>
                                 </div>
-                                <div class="ps-3 w-100">
+                                <div class="pl-3 w-100">
                                     <h6 id="visit-count-a">0 / 0</h6>
 
-                                    <span id="visit-target-a" class="text-success small mt-3 pt-3 fw-bold">0 visit lagi</span>
+                                    <span id="visit-target-a" class="text-success small mt-3 pt-3 font-weight-bold">0 visit lagi</span>
 
                                     <div class="progress mt-2">
                                         <div id="progess-bar-target-a" class="progress-bar" role="progressbar" style="width: 50%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
@@ -229,10 +229,10 @@
                                 <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
                                     <i class="bi bi-person"></i>
                                 </div>
-                                <div class="ps-3 w-100">
+                                <div class="pl-3 w-100">
                                     <h6 id="visit-count-b">0 / 0</h6>
 
-                                    <span id="visit-target-b" class="text-success small mt-3 pt-3 fw-bold">0 visit lagi</span>
+                                    <span id="visit-target-b" class="text-success small mt-3 pt-3 font-weight-bold">0 visit lagi</span>
 
                                     <div class="progress mt-2">
                                         <div id="progess-bar-target-b" class="progress-bar" role="progressbar" style="width: 50%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
@@ -267,10 +267,10 @@
                                 <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
                                     <i class="bi bi-person"></i>
                                 </div>
-                                <div class="ps-3 w-100">
+                                <div class="pl-3 w-100">
                                     <h6 id="visit-count-c">0 / 0</h6>
 
-                                    <span id="visit-target-c" class="text-success small mt-3 pt-3 fw-bold">0 visit lagi</span>
+                                    <span id="visit-target-c" class="text-success small mt-3 pt-3 font-weight-bold">0 visit lagi</span>
 
                                     <div class="progress mt-2">
                                         <div id="progess-bar-target-c" class="progress-bar" role="progressbar" style="width: 50%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
@@ -668,9 +668,9 @@
                         $('#visit-count').text(visitCount + ' / ' + visitTarget);
                         // Update text jumlah visit yang dibutuhkan
                         if (achievementRate >= 100) {
-                            $('#visit-target').html('Luar Biasa!</span> <span class="pt-2 ps-1">Achieved</span>');
+                            $('#visit-target').html('Luar Biasa!</span> <span class="pt-2 pl-1">Achieved</span>');
                         } else {
-                            $('#visit-target').html(needToVisit + ' visit</span><span class="pt-2 ps-1">lagi mencapai target!</span>');
+                            $('#visit-target').html(needToVisit + ' visit</span><span class="pt-2 pl-1">lagi mencapai target!</span>');
                         }
                         // Update progress bar berdasarkan achievementRate
                         $('#progress-bar-target').css('width', achievementRate + '%');
@@ -691,9 +691,9 @@
                         $('#visit-coverage').text(visited + ' / ' + mcl);
                         // Update text jumlah visit yang dibutuhkan
                         if (coverage >= 100) {
-                            $('#visit-coverage-target').html('Luar Biasa!</span> <span class="pt-2 ps-1">Achieved</span>');
+                            $('#visit-coverage-target').html('Luar Biasa!</span> <span class="pt-2 pl-1">Achieved</span>');
                         } else {
-                            $('#visit-coverage-target').html(needToVisitCoverage + ' visit</span><span class="pt-2 ps-1">lagi mencapai target!</span>');
+                            $('#visit-coverage-target').html(needToVisitCoverage + ' visit</span><span class="pt-2 pl-1">lagi mencapai target!</span>');
                         }
                         // Update progress bar berdasarkan achievementRate
                         $('#progess-bar-coverage').css('width', coverage + '%');
@@ -715,9 +715,9 @@
                         $('#visit-count-a').text(visited_a + ' / ' + targetVisit_a);
                         // Update text jumlah visit yang dibutuhkan
                         if (progress_a >= 100) {
-                            $('#visit-target-a').html('</span><span class="pt-2 ps-1">Achieved</span>');
+                            $('#visit-target-a').html('</span><span class="pt-2 pl-1">Achieved</span>');
                         } else {
-                            $('#visit-target-a').html(needToVisit_a + ' visit</span><span class="pt-2 ps-1">lagi</span>');
+                            $('#visit-target-a').html(needToVisit_a + ' visit</span><span class="pt-2 pl-1">lagi</span>');
                         }
                         // Update progress bar berdasarkan achievementRate
                         $('#progess-bar-target-a').css('width', progress_a + '%');
@@ -739,9 +739,9 @@
                         $('#visit-count-b').text(visited_b + ' / ' + targetVisit_b);
                         // Update text jumlah visit yang dibutuhkan
                         if (progress_b >= 100) {
-                            $('#visit-target-b').html('</span><span class="pt-2 ps-1">Achieved</span>');
+                            $('#visit-target-b').html('</span><span class="pt-2 pl-1">Achieved</span>');
                         } else {
-                            $('#visit-target-b').html(needToVisit_b + ' visit</span><span class="pt-2 ps-1">lagi</span>');
+                            $('#visit-target-b').html(needToVisit_b + ' visit</span><span class="pt-2 pl-1">lagi</span>');
                         }
                         // Update progress bar berdasarkan achievementRate
                         $('#progess-bar-target-b').css('width', progress_b + '%');
@@ -763,9 +763,9 @@
                         $('#visit-count-c').text(visited_c + ' / ' + targetVisit_c);
                         // Update text jumlah visit yang dibutuhkan
                         if (progress_c >= 100) {
-                            $('#visit-target-c').html('</span><span class="pt-2 ps-1">Achieved</span>');
+                            $('#visit-target-c').html('</span><span class="pt-2 pl-1">Achieved</span>');
                         } else {
-                            $('#visit-target-c').html(needToVisit_c + ' visit</span><span class="pt-2 ps-1">lagi</span>');
+                            $('#visit-target-c').html(needToVisit_c + ' visit</span><span class="pt-2 pl-1">lagi</span>');
                         }
                         // Update progress bar berdasarkan achievementRate
                         $('#progess-bar-target-c').css('width', progress_c + '%');

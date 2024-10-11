@@ -75,12 +75,31 @@
     font-size: 11px;
 }
 
+.breadcrumb {
+    background-color: transparent;
+    padding: 0;
+    margin-bottom: 15px;
+}
+
+.row.gx-2 > [class^="col"] {
+    padding-left: 0.4rem; /* Gutter kiri */
+    padding-right: 0.4rem; /* Gutter kanan */
+}
+
+.left-card {
+    padding-right: 0.4rem; /* Gutter kanan */
+}
+
+.right-card {
+    padding-left: 0.4rem; /* Gutter kanan */
+}
+
 /*--------------------------------------------------------------
 # Card Profile
 --------------------------------------------------------------*/
 .profile-img {
-    width: 52.5px;
-    height: 52.5px;
+    width: 55px;
+    height: 55px;
     border-radius: 50%;
     object-fit: cover;
 }
